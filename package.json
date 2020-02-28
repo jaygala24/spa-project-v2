@@ -1,0 +1,42 @@
+{
+  "name": "mern-stack-starter-template",
+  "version": "1.0.0",
+  "description": "Starter template for MERN Stack",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build-babel": "babel ./src --out-dir dist",
+    "build": "npm run clean && npm run build-babel",
+    "start": "npm run build && node ./dist/index.js",
+    "server": "nodemon --exec babel-node src/index.js",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "client": "npm start --prefix client",
+    "build-client": "npm run build --prefix client",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "react",
+    "mongodb"
+  ],
+  "author": "Jay Gala",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.9.2",
+    "morgan": "^1.9.1",
+    "rimraf": "^3.0.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.6",
+    "@babel/node": "^7.8.4",
+    "@babel/preset-env": "^7.8.6",
+    "concurrently": "^5.1.0",
+    "nodemon": "^2.0.2"
+  }
+}
