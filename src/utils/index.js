@@ -1,13 +1,8 @@
-export const handleError = (req, res, next) => {
-  const error = new Error('Not found');
-  error.status = 404;
-  next(error);
-};
-
-export const catchError = (error, req, res, next) => {
-  res.status(error.status || 500).json({
+export const handleError = async (err, res) => {
+  const { statusCode, message } = err;
+  return res.status(statusCode).json({
     success: false,
     data: {},
-    error: [{ message: error.message }]
+    error: [{ message: message }],
   });
 };

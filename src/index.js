@@ -6,7 +6,8 @@ import morgan from 'morgan';
 import mongoose from 'mongoose';
 import { MongoURI } from './config/keys';
 import apiRoutes from './routes';
-import { handleError, catchError } from './utils';
+import { handleError } from './utils';
+import ErrorHandler from './utils/error';
 
 config({ path: 'src/config/config.env' });
 
@@ -41,8 +42,8 @@ if (process.env.NODE_ENV === 'development') {
 
   app.get('/', (req, res, next) => {
     res.status(200).json({
+      success: true,
       data: {
-        success: true,
         message:
           'Welcome to Node.js & Express API for MERN Starter Template',
       },
@@ -63,9 +64,10 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Error Handling
-app.use(handleError);
-
-app.use(catchError);
+app.use((req, res, next) => {
+  const err = new ErrorHandler(500, 'Not Found');
+  handleError(err, res);
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
