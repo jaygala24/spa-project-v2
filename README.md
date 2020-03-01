@@ -31,6 +31,13 @@ cd src/config
 yarn start
 ```
 
+## Note
+
+This template incorporates central error handling. You can create the custom error for the API's using the following:
+
+- Create the error object using the ErrorHandler class which takes the statusCode and message `const err = new Error(500, 'Not Found')`
+- Call the handleError function which takes the error and response `handleError(err, res)`
+
 ## License
 
 > MIT License
