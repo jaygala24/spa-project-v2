@@ -1,8 +1,12 @@
 export const handleError = async (err, res) => {
   const { statusCode, message } = err;
-  return res.status(statusCode).json({
+  return res.status(statusCode || 500).json({
     success: false,
     data: {},
-    error: [{ message: message }],
+    error: [
+      {
+        message: message || 'Something went wrong. Please try again!',
+      },
+    ],
   });
 };
