@@ -1,14 +1,14 @@
-# MERN Stack Starter Template
+# SPA Project V2
 
-This repo contains starter template for the MERN Stack Web App
+This repo contains starter template for the SPA project v2
 
 ## Setup Instructions
 
 Clone the repository
 
 ```
-git clone https://github.com/jaygala24/mern-stack-starter-template.git
-cd mern-stack-starter-template
+git clone https://github.com/jaygala24/spa-project-v2.git
+cd spa-project-v2
 ```
 
 ## Development
