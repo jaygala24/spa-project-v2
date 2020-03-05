@@ -1,0 +1,28 @@
+[
+  { "sapId": "001", "type": "Student", "div": "A" },
+  { "sapId": "002", "type": "Student", "div": "A" },
+  { "sapId": "003", "type": "Student", "div": "A" },
+  { "sapId": "004", "type": "Student", "div": "A" },
+  { "sapId": "005", "type": "Student", "div": "A" },
+  { "sapId": "006", "type": "Student", "div": "A" },
+  { "sapId": "007", "type": "Student", "div": "A" },
+  { "sapId": "008", "type": "Student", "div": "A" },
+  { "sapId": "009", "type": "Student", "div": "A" },
+  { "sapId": "010", "type": "Student", "div": "A" },
+  {
+    "sapId": "90004170050",
+    "type": "Teacher",
+    "admin": true,
+    "password": "pass@123"
+  },
+  {
+    "sapId": "90004170051",
+    "type": "Teacher",
+    "password": "pass@123"
+  },
+  {
+    "sapId": "90004170052",
+    "type": "Teacher",
+    "password": "pass@123"
+  }
+]

@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import express from 'express';
 import cors from 'cors';
@@ -7,6 +8,8 @@ import mongoose from 'mongoose';
 import { MongoURI } from './config/keys';
 import apiRoutes from './routes';
 import { handleError } from './utils';
+import { genHashPassword } from './utils/index';
+import { User } from './models';
 import ErrorHandler from './utils/error';
 
 config({ path: 'src/config/config.env' });
@@ -48,6 +51,48 @@ if (process.env.NODE_ENV === 'development') {
           'Welcome to Node.js & Express API for MERN Starter Template',
       },
     });
+  });
+
+  const users = JSON.parse(
+    fs.readFileSync(`${__dirname}/users.json`, 'utf-8'),
+  );
+
+  // Populate users from users.json file
+  app.get('/populate/users', async (req, res, next) => {
+    try {
+      // Hashing the password of teachers
+      for (let i = 0; i < users.length; i++) {
+        if (users[i].password) {
+          users[i].password = await genHashPassword(
+            users[i].password,
+          );
+        }
+      }
+      await User.create(users);
+      return res.status(200).json({
+        success: true,
+        data: {
+          message: 'Data Imported...',
+        },
+      });
+    } catch (err) {
+      return handleError(err, res);
+    }
+  });
+
+  // Flush users from users.json file
+  app.get('/flush/users', async (req, res, next) => {
+    try {
+      await User.deleteMany();
+      return res.status(200).json({
+        success: true,
+        data: {
+          message: 'Data Flushed...',
+        },
+      });
+    } catch (err) {
+      return handleError(err, res);
+    }
   });
 }
 
