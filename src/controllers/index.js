@@ -1,11 +1,18 @@
 import { User } from '../models';
-import { handleError, cmpPassword, newToken } from '../utils';
+import {
+  handleError,
+  cmpPassword,
+  genHashPassword,
+  newToken,
+} from '../utils';
 import ErrorHandler from '../utils/error';
 
 /**
  * login controller for the teachers and students
  *
- * Returns the token if provided a valid sapId and valid password otherwise error
+ * Returns the token if provided a valid sapId and valid password otherwise throws an error
+ *
+ * Access - Teachers and Students
  */
 export const login = async (req, res, next) => {
   try {
@@ -38,6 +45,87 @@ export const login = async (req, res, next) => {
       success: true,
       data: {
         token: `Bearer ${token}`,
+        user: { ...user._doc, password: undefined },
+      },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Generates the random password consisting of lowercase alphabets and numbers for students
+ *
+ * Returns the new random generated password for the students
+ *
+ * Access - Teachers (Admin)
+ */
+export const generatePasswordForStudents = async (req, res, next) => {
+  try {
+    // Generates the random password consisting of lowercase alphabets and numbers
+    const randomString = Math.random()
+      .toString(36)
+      .substr(2, 8);
+
+    const hashPassword = await genHashPassword(randomString);
+
+    // Updates the password for all the students
+    await User.updateMany(
+      { type: 'Student' },
+      { $set: { password: hashPassword } },
+      { upsert: false, multi: true },
+    );
+
+    // Successful password generation for starting new test
+    return res.status(200).json({
+      success: true,
+      data: {
+        password: randomString,
+      },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Updates the password for a teacher
+ *
+ * Returns the user object after updating the password
+ *
+ * Access - Teachers
+ */
+export const updateTeacherPassword = async (req, res, next) => {
+  try {
+    const { password: plainPassword } = req.body;
+    const { sapId } = req.user;
+
+    if (!plainPassword) {
+      const error = new ErrorHandler(
+        400,
+        'Please provide a new password',
+      );
+      return handleError(error, res);
+    }
+
+    // Generate the hashed password from plain password
+    const password = await genHashPassword(plainPassword);
+
+    // Updating the user password
+    const user = await User.findOneAndUpdate(
+      { sapId },
+      {
+        password,
+        modifyPassword: true,
+      },
+      { new: true },
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: {
         user: { ...user._doc, password: undefined },
       },
       error: {},
