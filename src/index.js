@@ -5,7 +5,6 @@ import cors from 'cors';
 import { config } from 'dotenv';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
-import { MongoURI } from './config/keys';
 import apiRoutes from './routes';
 import { handleError } from './utils';
 import { genHashPassword } from './utils/index';
@@ -17,7 +16,7 @@ config({ path: 'src/config/config.env' });
 const app = express();
 
 // Connect to DB
-const uri = process.env.MONGODB_URI || MongoURI;
+const uri = process.env.MONGO_URI;
 mongoose.connect(uri, {
   useNewUrlParser: true,
   useCreateIndex: true,
@@ -114,5 +113,5 @@ app.use((req, res, next) => {
   handleError(err, res);
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

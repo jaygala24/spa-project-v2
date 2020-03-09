@@ -2,6 +2,12 @@
 
 This repo contains starter template for the SPA project v2
 
+## API Documentation
+
+The latest documentation for the API is available here
+
+[View](https://documenter.getpostman.com/view/6151365/SzRxWAPy?version=latest)
+
 ## Setup Instructions
 
 Clone the repository
@@ -26,7 +32,7 @@ yarn dev
 
 ```
 cd src/config
-# open config.env and change the NODE_ENV=production
+# open config.env and change the NODE_ENV=production and MongoURI
 # navigate to the root folder
 yarn start
 ```

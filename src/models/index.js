@@ -14,7 +14,20 @@ const UserSchema = new Schema({
   },
   div: {
     type: String,
-    enum: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'],
+    enum: [
+      'A',
+      'B',
+      'C',
+      'D',
+      'E',
+      'F',
+      'G',
+      'H',
+      'I',
+      'J',
+      'K',
+      'Others',
+    ],
   },
   email: {
     type: String,

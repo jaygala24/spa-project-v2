@@ -1,4 +1,9 @@
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { config } from 'dotenv';
+
+// Reads the variables from the env file
+config({ path: 'src/config/config.env' });
 
 /**
  * Handles the error
@@ -11,11 +16,9 @@ export const handleError = async (err, res) => {
   return res.status(statusCode || 500).json({
     success: false,
     data: {},
-    error: [
-      {
-        message: message || 'Something went wrong. Please try again!',
-      },
-    ],
+    error: {
+      message: message || 'Something went wrong. Please try again!',
+    },
   });
 };
 
@@ -47,6 +50,32 @@ export const cmpPassword = (plainPassword, hashPassword) => {
     ) {
       if (err) return reject(err);
       resolve(isMatch);
+    });
+  });
+};
+
+/**
+ * Generates the new token with user id as a signature
+ * @param  {Object} user - User object for token generation
+ * @param {String} user._id - The signature for generating new token
+ * @return Returns the jwt token valid within the jwt expiry time
+ */
+export const newToken = user => {
+  return jwt.sign({ id: user._id }, process.env.JWT_KEY, {
+    expiresIn: process.env.JWT_EXP,
+  });
+};
+
+/**
+ * Verifies the jwt token for authentication purpose
+ * @param {String} token - Jwt token
+ * @return A promise to be either resolved with the user object as payload or rejected with an error
+ */
+export const verifyToken = token => {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, process.env.JWT_KEY, (err, payload) => {
+      if (err) return reject(err);
+      resolve(payload);
     });
   });
 };
