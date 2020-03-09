@@ -1,4 +1,4 @@
-import { User, Question } from '../models';
+import { User, Question, Paper } from '../models';
 import {
   handleError,
   cmpPassword,
@@ -226,6 +226,13 @@ export const getQuestions = async (req, res, next) => {
       tag,
     }).exec();
 
+    for (let i = 0; i < questions.length; i++) {
+      if (questions[i]['type'] === 'Code') {
+        questions[i]['options'] = undefined;
+        questions[i]['correctAnswers'] = undefined;
+      }
+    }
+
     // Successfully returns the questions, count of questions and tags associated with the questions
     return res.status(200).json({
       success: true,
@@ -386,6 +393,243 @@ export const deleteQuestion = async (req, res, next) => {
       success: true,
       data: {
         msg: 'Question successfully deleted',
+      },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Create a single paper in the db
+ *
+ * Returns the created paper along with the acknowledgement
+ *
+ * Access - Teachers
+ */
+export const createPaper = async (req, res, next) => {
+  try {
+    // Extract all the fields from the body
+    const { set, type, time, mcq, code, year } = req.body;
+
+    // Checks if all the fields are provided otherwise returns error
+    if (!set || !type || !time || !mcq || !code || !year) {
+      const error = new ErrorHandler(
+        400,
+        'Please provide all the details for creating paper',
+      );
+      return handleError(error, res);
+    }
+
+    // Creates the paper object
+    const paper = await Paper.create({
+      set,
+      type,
+      time,
+      mcq,
+      code,
+      year,
+    });
+
+    // Successfully returns the created paper object along with acknowledgement
+    return res.status(201).json({
+      success: true,
+      data: {
+        paper,
+        msg: 'Paper successfully created',
+      },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Fetch the papers from the db based on query filters
+ *
+ * Filter parameters are type and year
+ *
+ * Returns the year, type and papers
+ *
+ * Access - Teachers
+ */
+export const getPapers = async (req, res, next) => {
+  try {
+    // Extract the query parameters
+    let { type: typeQuery, year: yearQuery } = req.query;
+
+    // Get the distinct year and type values from Paper Model
+    const year = await Paper.distinct('year');
+    const type = await Paper.distinct('type');
+
+    // If value not provided then assign the distinct values for fetching all the papers
+    if (!typeQuery) {
+      typeQuery = type;
+    }
+    if (!yearQuery) {
+      yearQuery = year;
+    }
+
+    // Fetch the papers from the db based on filter
+    const papers = await Paper.find(
+      { type: typeQuery, year: yearQuery },
+      { set: 1, time: 1, type: 1 },
+    ).exec();
+
+    // Successfully returns the year, type and papers
+    return res.status(200).json({
+      success: true,
+      data: {
+        year,
+        type,
+        papers,
+      },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Fetch the single paper from the db using paper id
+ *
+ * Returns paper object
+ *
+ * Access - Teachers
+ */
+export const getPaper = async (req, res, next) => {
+  try {
+    // Extract the parameter id from the route
+    const { id } = req.params;
+
+    // Fetch the single paper from db using paper id
+    const paper = await Paper.findById(id)
+      .populate('mcq.questionId')
+      .populate('code.questionId')
+      .exec();
+
+    // Paper not found in the db
+    if (!paper) {
+      const error = new ErrorHandler(
+        400,
+        'Please provide a valid paper id',
+      );
+      return handleError(error, res);
+    }
+
+    let mcqMarks = 0,
+      codeMarks = 0,
+      totalMarks = 0;
+
+    // Calculating the total marks
+    for (let i = 0; i < paper['mcq'].length; i++) {
+      mcqMarks += paper['mcq'][i]['marks'];
+    }
+
+    for (let i = 0; i < paper['code'].length; i++) {
+      codeMarks += paper['code'][i]['marks'];
+    }
+
+    totalMarks = mcqMarks + codeMarks;
+
+    for (let i = 0; i < paper['code'].length; i++) {
+      paper['code'][i]['questionId']['options'] = undefined;
+      paper['code'][i]['questionId']['correctAnswers'] = undefined;
+    }
+
+    // Successfully returns the single paper
+    return res.status(200).json({
+      success: true,
+      data: {
+        paper: { ...paper._doc, mcqMarks, codeMarks, totalMarks },
+      },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Updates the single paper from the db using paper id
+ *
+ * Returns updated paper object
+ *
+ * Access - Teachers
+ */
+export const updatePaper = async (req, res, next) => {
+  try {
+    // Extract the parameter id from the route
+    const { id } = req.params;
+
+    // Extract all the fields from the body
+    const { set, type, time, mcq, code, year } = req.body;
+
+    // Fetch the single paper from db using paper id
+    const _paper = await Paper.findById(id).exec();
+
+    // Paper not found in the db
+    if (!_paper) {
+      const error = new ErrorHandler(
+        400,
+        'Please provide a valid paper id',
+      );
+      return handleError(error, res);
+    }
+
+    // Update the paper marks
+    const paper = await Paper.findByIdAndUpdate(
+      id,
+      { set, type, time, mcq, code, year },
+      { new: true },
+    );
+
+    // Successfully returns the updated paper object with acknowledgement
+    return res.status(200).json({
+      success: true,
+      data: {
+        paper,
+        msg: 'Paper updated successfully',
+      },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Deletes the single paper from the db using paper id
+ *
+ * Returns the acknowledgement after deleting paper
+ *
+ * Access - Teachers
+ */
+export const deletePaper = async (req, res, next) => {
+  try {
+    // Extract the parameter id from the route
+    const { id } = req.params;
+
+    // Fetch the single paper from db using paper id
+    const _paper = await Paper.findById(id).exec();
+
+    // Paper not found in the db
+    if (!_paper) {
+      const error = new ErrorHandler(
+        400,
+        'Please provide a valid paper id',
+      );
+      return handleError(error, res);
+    }
+
+    await Paper.findByIdAndRemove(req.params.id);
+    return res.status(200).json({
+      success: true,
+      data: {
+        msg: 'Paper successfully deleted',
       },
       error: {},
     });

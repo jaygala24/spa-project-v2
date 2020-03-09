@@ -8,6 +8,11 @@ import {
   updateQuestion,
   deleteQuestion,
   getQuestions,
+  createPaper,
+  getPapers,
+  getPaper,
+  updatePaper,
+  deletePaper,
 } from '../controllers';
 import { protect, isTeacher, isAdmin } from '../middlewares';
 
@@ -34,6 +39,17 @@ router
   .get(protect, isTeacher, getQuestion)
   .put(protect, isTeacher, updateQuestion)
   .delete(protect, isTeacher, deleteQuestion);
+
+router
+  .route('/papers')
+  .get(protect, isTeacher, getPapers)
+  .post(protect, isTeacher, createPaper);
+
+router
+  .route('/papers/:id')
+  .get(protect, isTeacher, getPaper)
+  .put(protect, isTeacher, updatePaper)
+  .delete(protect, isTeacher, deletePaper);
 
 // Route for the students
 

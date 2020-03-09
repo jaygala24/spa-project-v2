@@ -41,6 +41,9 @@ const UserSchema = new Schema({
   password: {
     type: String,
   },
+  batch: {
+    type: Number,
+  },
 });
 
 UserSchema.pre('save', function(next) {
@@ -81,5 +84,56 @@ const QuestionSchema = new Schema({
   },
 });
 
+QuestionSchema.pre('save', function(next) {
+  if (this.type === 'Code') {
+    this.options = undefined;
+    this.correctAnswers = undefined;
+  }
+  return next();
+});
+
+const PaperSchema = new Schema({
+  set: {
+    type: String,
+    required: true,
+    unique: [true, 'Set name must be unique'],
+  },
+  type: {
+    type: String,
+    enum: ['TT1', 'TT2', 'Sem'],
+    required: true,
+  },
+  // time is in seconds
+  time: {
+    type: Number,
+    required: true,
+  },
+  mcq: [
+    {
+      _id: false,
+      questionId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Question',
+      },
+      marks: Number,
+    },
+  ],
+  code: [
+    {
+      _id: false,
+      questionId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Question',
+      },
+      marks: Number,
+    },
+  ],
+  year: {
+    type: Number,
+    required: true,
+  },
+});
+
 export const User = mongoose.model('User', UserSchema);
 export const Question = mongoose.model('Question', QuestionSchema);
+export const Paper = mongoose.model('Paper', PaperSchema);
