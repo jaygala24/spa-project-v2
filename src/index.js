@@ -8,7 +8,7 @@ import mongoose from 'mongoose';
 import apiRoutes from './routes';
 import { handleError } from './utils';
 import { genHashPassword } from './utils/index';
-import { User } from './models';
+import { User, Question } from './models';
 import ErrorHandler from './utils/error';
 
 config({ path: 'src/config/config.env' });
@@ -56,6 +56,10 @@ if (process.env.NODE_ENV === 'development') {
     fs.readFileSync(`${__dirname}/users.json`, 'utf-8'),
   );
 
+  const questions = JSON.parse(
+    fs.readFileSync(`${__dirname}/questions.json`, 'utf-8'),
+  );
+
   // Populate users from users.json file
   app.get('/populate/users', async (req, res, next) => {
     try {
@@ -79,10 +83,40 @@ if (process.env.NODE_ENV === 'development') {
     }
   });
 
-  // Flush users from users.json file
+  // Flush users from the db
   app.get('/flush/users', async (req, res, next) => {
     try {
       await User.deleteMany();
+      return res.status(200).json({
+        success: true,
+        data: {
+          message: 'Data Flushed...',
+        },
+      });
+    } catch (err) {
+      return handleError(err, res);
+    }
+  });
+
+  // Populate questions from questions.json file
+  app.get('/populate/questions', async (req, res, next) => {
+    try {
+      await Question.create(questions);
+      return res.status(200).json({
+        success: true,
+        data: {
+          message: 'Data Imported...',
+        },
+      });
+    } catch (err) {
+      return handleError(err, res);
+    }
+  });
+
+  // Flush questions from the db
+  app.get('/flush/questions', async (req, res, next) => {
+    try {
+      await Question.deleteMany();
       return res.status(200).json({
         success: true,
         data: {

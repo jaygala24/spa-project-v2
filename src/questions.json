@@ -1,0 +1,435 @@
+[
+  {
+    "type": "Single",
+    "title": "Is it possible to run program without main() function?",
+    "options": ["Yes", "No"],
+    "correctAnswers": ["No"],
+    "tag": "compiler",
+    "category": "E"
+  },
+  {
+    "type": "Single",
+    "title": "How many main() function we can have in our project?",
+    "options": ["1", "2", "No Limit", "Depends on Compiler"],
+    "correctAnswers": ["1"],
+    "tag": "compiler",
+    "category": "E"
+  },
+  {
+    "type": "Single",
+    "title": "What is sizeof() in C?",
+    "options": ["Operator", "Function", "Macro", "None of these"],
+    "correctAnswers": ["Operator"],
+    "tag": "compiler",
+    "category": "E"
+  },
+  {
+    "type": "Single",
+    "title": "Which programming language is more faster among these?",
+    "options": ["Java", "PHP", "C", "Visual Basic"],
+    "correctAnswers": ["C"],
+    "tag": "compiler",
+    "category": "E"
+  },
+  {
+    "type": "Single",
+    "title": "int main()\n{\nint a = printf ('CppBuzz.com');\nprintf('%d', a);\nreturn 0;\n}",
+    "options": [
+      "Compilation Error",
+      "0",
+      "CppBuzz.com",
+      "CppBuzz.com11"
+    ],
+    "correctAnswers": ["CppBuzz.com11"],
+    "tag": "basics",
+    "category": "M"
+  },
+  {
+    "type": "Single",
+    "title": "Which of the following is executed by Preprocess?",
+    "options": [
+      "#include<stdio.h>",
+      "return 0",
+      "void main(int argc , char ** argv)",
+      "None of these"
+    ],
+    "correctAnswers": ["#include<stdio.h>"],
+    "tag": "basics",
+    "category": "M"
+  },
+  {
+    "type": "Single",
+    "title": "int main()\n{\nint a = 10.5;\nprintf('%d',a);\nreturn 0;\n}",
+    "options": ["10.5", "0", "10", "Compilation Error"],
+    "correctAnswers": ["10"],
+    "tag": "basics",
+    "category": "E"
+  },
+  {
+    "type": "Single",
+    "title": "What is output of below program?\n\nint main()\n{\nfor(; ;);\nfor(; ;);\n\tprintf('Hello');\nreturn 0;\n}",
+    "options": [
+      "Compilation Error",
+      "Runtime Error",
+      "Nothing is printed",
+      "Hello is printed infinite times"
+    ],
+    "correctAnswers": ["Nothing is printed"],
+    "tag": "flow-control",
+    "category": "H"
+  },
+  {
+    "type": "Single",
+    "title": "How many loops are there in C?",
+    "options": ["2", "3", "4", "5"],
+    "correctAnswers": ["3"],
+    "tag": "flow-control",
+    "category": "M"
+  },
+  {
+    "type": "Single",
+    "title": "When C Language was invented?",
+    "options": ["1970", "1972", "1978", "1979"],
+    "correctAnswers": ["1972"],
+    "tag": "basics",
+    "category": "M"
+  },
+  {
+    "type": "Single",
+    "title": "What is the meaning of below lines?\nvoid sum (int, int);",
+    "options": [
+      "sum is function which takes int arguments",
+      "sum is a function which takes two int arguments and returns void",
+      "it will produce compilation error",
+      "None of these"
+    ],
+    "correctAnswers": [
+      "sum is a function which takes two int arguments and returns void"
+    ],
+    "tag": "functions",
+    "category": "M"
+  },
+  {
+    "type": "Single",
+    "title": "The concept of two functions with same name is know as?",
+    "options": [
+      "Operator Overloading",
+      "Function Overloading",
+      "Function Overriding",
+      "Function renaming"
+    ],
+    "correctAnswers": ["Function Overloading"],
+    "tag": "function",
+    "category": "M"
+  },
+  {
+    "type": "Single",
+    "title": "What is the following is invalid header file in C?",
+    "options": ["math.h", "mathio.h", "string.h", "ctype.h"],
+    "correctAnswers": ["mathio.h"],
+    "tag": "packages",
+    "category": "M"
+  },
+  {
+    "type": "Single",
+    "title": "Libray function getch() belongs to which header file?",
+    "options": ["stdio.h", "conio.h", "stdlib.h", "stdlibio.h"],
+    "correctAnswers": ["conio.h"],
+    "tag": "packages",
+    "category": "M"
+  },
+  {
+    "type": "Single",
+    "title": "Library function pow() belongs to which header file?",
+    "options": ["stdio.h", "mathio.h", "sqaure.h", "None of these"],
+    "correctAnswers": ["None of these"],
+    "tag": "functions",
+    "category": "M"
+  },
+  {
+    "type": "Single",
+    "title": "What is storage class for variable A in below code?\n\nint main()\n{\nint A;\nA = 10;\nprintf('%d', A);\nreturn 0;\n}",
+    "options": ["extern", "auto", "register", "static"],
+    "correctAnswers": ["auto"],
+    "tag": "basics",
+    "category": "H"
+  },
+  {
+    "type": "Single",
+    "title": "Can we declare function inside structure of C Programming?",
+    "options": [
+      "Yes",
+      "No",
+      "Depends on Compiler",
+      "Yes but run time error"
+    ],
+    "correctAnswers": ["No"],
+    "tag": "structures",
+    "category": "H"
+  },
+  {
+    "type": "Single",
+    "title": "#include 'stdio.h'\nint main()\n{\nint a@ = 10;\nprintf('%d', a@);\nreturn 0;\n}",
+    "options": ["10", "10@", "@", "[Error] stray '@' in program"],
+    "correctAnswers": ["[Error] stray '@' in program"],
+    "tag": "basics",
+    "category": "M"
+  },
+  {
+    "type": "Single",
+    "title": "Which gcc flag is used to enable all Compiler warnings?",
+    "options": ["gcc -W", "gcc -w", "gcc -Wall", "gcc -wall"],
+    "correctAnswers": ["gcc -Wall"],
+    "tag": "compiler",
+    "category": "H"
+  },
+  {
+    "type": "Single",
+    "title": "Which gcc flag is used to generate maximum debug information?",
+    "options": ["gcc -g0", "gcc -g1", "gcc -g2", "gcc -g3"],
+    "correctAnswers": ["gcc -g3"],
+    "tag": "compiler",
+    "category": "H"
+  },
+  {
+    "type": "Single",
+    "title": "Which gcc flag is used to genarate debug information for any binary file?",
+    "options": ["gcc -g", " gcc -a", " gcc -b", " gcc -e"],
+    "correctAnswers": ["gcc -g"],
+    "tag": "compiler",
+    "category": "H"
+  },
+  {
+    "type": "Single",
+    "title": "Which command is to compile C code without linking using gcc compiler?",
+    "options": [
+      "gcc -o cppbuzz.c",
+      "gcc -c cppbuzz.c",
+      "gcc -e cppbuzz.c",
+      "gcc cppbuzz.c"
+    ],
+    "correctAnswers": ["gcc -c cppbuzz.c"],
+    "tag": "basics",
+    "category": "M"
+  },
+  {
+    "type": "Single",
+    "title": "Which macro is used to insert assembly code in C program (VC++ compiler)?",
+    "options": ["__asm__", "_asm_", "__asm", "asm"],
+    "correctAnswers": ["__asm"],
+    "tag": "basics",
+    "category": "H"
+  },
+  {
+    "type": "Single",
+    "title": "Which macro is used to insert assembly code in C program (GCC compiler)?",
+    "options": ["__asm__", "_asm_", "__asm", "asm"],
+    "correctAnswers": ["__asm__"],
+    "tag": "basics",
+    "category": "H"
+  },
+  {
+    "type": "Single",
+    "title": "Which gcc option is used to generate assembly code from C code on Linux?",
+    "options": ["-asm", "-S", "-o", "-c"],
+    "correctAnswers": ["-S"],
+    "tag": "basics",
+    "category": "H"
+  },
+  {
+    "type": "Single",
+    "title": "What is the job of Assembler in C programming?",
+    "options": [
+      "It converts source code into assembly code",
+      "It converts a assembly language program into machine language",
+      "It convert code generated by Preprocessor to assembly code",
+      "None of these"
+    ],
+    "correctAnswers": [
+      "It converts a assembly language program into machine language"
+    ],
+    "tag": "compiler",
+    "category": "M"
+  },
+  {
+    "type": "Single",
+    "title": "Which of the following ways are correct to comment out preprocessing of any line?",
+    "options": [
+      "-- #include<stdio.h>",
+      "// #include<stdio.h>",
+      "##include<stdio.h>",
+      "None of these"
+    ],
+    "correctAnswers": ["// #include<stdio.h>"],
+    "tag": "basics",
+    "category": "E"
+  },
+  {
+    "type": "Single",
+    "title": "Which one of the following is invalid macro in C programming?",
+    "options": ["#pragma", "#error", "#indef", "elseif"],
+    "correctAnswers": ["#elseif"],
+    "tag": "basics",
+    "category": "H"
+  },
+  {
+    "type": "Single",
+    "title": "Which of the following ways are correct to include header file in C program?",
+    "options": [
+      "#include<stdio.h>",
+      "#include \\\"stdio.h>\\\"",
+      "All of the above"
+    ],
+    "correctAnswers": ["All of the above"],
+    "tag": "basics",
+    "category": "E"
+  },
+  {
+    "type": "Single",
+    "title": "What is the extension of output file produced by Preprocessor?",
+    "options": [".h", ".exe", ".i", ".asm"],
+    "correctAnswers": [".i"],
+    "tag": "compiler",
+    "category": "E"
+  },
+  {
+    "type": "Single",
+    "title": "Which compilation unit is responsible for adding header files content in the source code?",
+    "options": ["Linker", "Compiler", "Assembler", "Preprocessor"],
+    "correctAnswers": ["Preprocessor"],
+    "tag": "compiler",
+    "category": "E"
+  },
+  {
+    "type": "Single",
+    "title": "In compilation process at what sequence Preprocessor comes into picture?",
+    "options": ["1", "2", "3", "4"],
+    "correctAnswers": ["1"],
+    "tag": "compiler",
+    "category": "E"
+  },
+  {
+    "type": "Single",
+    "title": "The ASCII code of ‘0’ (zero) is?",
+    "options": ["48D", "32H", "0011 1000", "42H"],
+    "correctAnswers": ["48D"],
+    "tag": "compiler",
+    "category": "M"
+  },
+  {
+    "type": "Single",
+    "title": "Numbers are stored and transmitted inside a computer in which format?",
+    "options": [
+      "binary form",
+      "ASCII code form",
+      "decimal form",
+      "alphanumeric form"
+    ],
+    "correctAnswers": ["binary form"],
+    "tag": "basics",
+    "category": "M"
+  },
+  {
+    "type": "Single",
+    "title": "What is the built in library function to compare two strings?",
+    "options": [
+      "string_cmp()",
+      "strcmp()",
+      "equals()",
+      "str_compare()"
+    ],
+    "correctAnswers": ["strcmp()"],
+    "tag": "string",
+    "category": "M"
+  },
+  {
+    "type": "Code",
+    "title": "C Program to Find the Size of int, float, double and char",
+    "tag": "basics",
+    "category": "E"
+  },
+  {
+    "type": "Code",
+    "title": "C Program to Swap Two Numbers",
+    "tag": "basics",
+    "category": "E"
+  },
+  {
+    "type": "Code",
+    "title": "C Program to Find Factorial of a Number",
+    "tag": "flow-control",
+    "category": "M"
+  },
+  {
+    "type": "Code",
+    "title": "C Program to Check Whether a Number is Palindrome or Not",
+    "tag": "flow-control",
+    "category": "M"
+  },
+  {
+    "type": "Code",
+    "title": "C Program to Display Prime Numbers Between Two Intervals",
+    "tag": "flow-control",
+    "category": "H"
+  },
+  {
+    "type": "Code",
+    "title": "C Program to Make a Simple Calculator Using switch...case",
+    "tag": "flow-control",
+    "category": "E"
+  },
+  {
+    "type": "Code",
+    "title": "C Program to Check Prime or Armstrong Number Using User-defined Function",
+    "tag": "flow-control",
+    "category": "M"
+  },
+  {
+    "type": "Code",
+    "title": "C Program to Convert Binary Number to Octal and vice-versa",
+    "tag": "flow-control",
+    "category": "H"
+  },
+  {
+    "type": "Code",
+    "title": "C Program to Add Two Matrices Using Multi-dimensional Arrays",
+    "tag": "array",
+    "category": "M"
+  },
+  {
+    "type": "Code",
+    "title": "C Program to Multiply two Matrices by Passing Matrix to a Function",
+    "tag": "array",
+    "category": "H"
+  },
+  {
+    "type": "Code",
+    "title": "C Program to Concatenate Two Strings",
+    "tag": "string",
+    "category": "M"
+  },
+  {
+    "type": "Code",
+    "title": "C Program to Calculate Difference Between Two Time Periods",
+    "tag": "basics",
+    "category": "M"
+  },
+  {
+    "type": "Code",
+    "title": "C Program to Store Information Using Structures with Dynamically Memory Allocation",
+    "tag": "structures",
+    "category": "H"
+  },
+  {
+    "type": "Code",
+    "title": "C Program to Sort Elements in Lexicographical Order (Dictionary Order)",
+    "tag": "string",
+    "category": "H"
+  },
+  {
+    "type": "Code",
+    "title": "C Program to Count the Number of Vowels, Consonants and so on",
+    "tag": "flow-control",
+    "category": "E"
+  }
+]

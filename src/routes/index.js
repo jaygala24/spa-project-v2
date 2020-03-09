@@ -3,6 +3,11 @@ import {
   login,
   generatePasswordForStudents,
   updateTeacherPassword,
+  createQuestion,
+  getQuestion,
+  updateQuestion,
+  deleteQuestion,
+  getQuestions,
 } from '../controllers';
 import { protect, isTeacher, isAdmin } from '../middlewares';
 
@@ -18,6 +23,17 @@ router
 router
   .route('/students/changePassword')
   .get(protect, isTeacher, isAdmin, generatePasswordForStudents);
+
+router
+  .route('/questions')
+  .get(protect, isTeacher, getQuestions)
+  .post(protect, isTeacher, createQuestion);
+
+router
+  .route('/questions/:id')
+  .get(protect, isTeacher, getQuestion)
+  .put(protect, isTeacher, updateQuestion)
+  .delete(protect, isTeacher, deleteQuestion);
 
 // Route for the students
 

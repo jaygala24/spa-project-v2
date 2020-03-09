@@ -51,4 +51,35 @@ UserSchema.pre('save', function(next) {
   return next();
 });
 
+const QuestionSchema = new Schema({
+  type: {
+    type: String,
+    enum: ['Single', 'Multiple', 'Code'],
+  },
+  title: {
+    type: String,
+    required: true,
+  },
+  options: [
+    {
+      type: String,
+    },
+  ],
+  correctAnswers: [
+    {
+      type: String,
+    },
+  ],
+  tag: {
+    type: String,
+    required: true,
+  },
+  category: {
+    type: String,
+    enum: ['E', 'M', 'H'],
+    required: true,
+  },
+});
+
 export const User = mongoose.model('User', UserSchema);
+export const Question = mongoose.model('Question', QuestionSchema);
