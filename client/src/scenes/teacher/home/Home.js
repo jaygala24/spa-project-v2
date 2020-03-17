@@ -24,9 +24,16 @@ class HomeTeacher extends Component {
             >
               <Grid item xs={6} md={4} lg={3}>
                 <Card
+                  delay={{ transitionDelay: '50ms' }}
+                  link="/create-test"
+                  text="Create Test"
+                />
+              </Grid>
+              <Grid item xs={6} md={4} lg={3}>
+                <Card
                   delay={{ transitionDelay: '100ms' }}
-                  link="/papers"
-                  text="Tests"
+                  link="/create-question"
+                  text="Create Question"
                 />
               </Grid>
               <Grid item xs={6} md={4} lg={3}>
