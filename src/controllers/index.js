@@ -136,6 +136,23 @@ export const updateTeacherPassword = async (req, res, next) => {
   }
 };
 
+export const getTags = async (req, res, next) => {
+  try {
+    const tags = await Question.distinct('tag');
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        count: tags.length,
+        tags,
+      },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
 /**
  * Creates the question in the db
  *
