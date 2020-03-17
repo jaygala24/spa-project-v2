@@ -17,6 +17,7 @@ import {
   createTeacherUser,
   resetStudentLogin,
   getLoggedInStudents,
+  getTags,
 } from '../controllers';
 import { protect, isTeacher, isAdmin } from '../middlewares';
 
@@ -48,6 +49,8 @@ router
 router
   .route('/users/students/create')
   .post(protect, isTeacher, createStudentUser);
+
+router.route('/questions/tags').get(protect, isTeacher, getTags);
 
 router
   .route('/questions')

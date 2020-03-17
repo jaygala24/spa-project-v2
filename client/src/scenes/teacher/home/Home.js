@@ -43,11 +43,11 @@ class HomeTeacher extends Component {
                   text="Questions"
                 />
               </Grid>
-              {localStorage.getItem('admin') == 'true' ? (
+              {localStorage.getItem('admin') === 'true' ? (
                 <Grid item xs={6} md={4} lg={3}>
                   <Card
                     delay={{ transitionDelay: '300ms' }}
-                    link="/generate-pass"
+                    link="/generate-password"
                     text="Start test"
                   />
                 </Grid>
@@ -71,8 +71,15 @@ class HomeTeacher extends Component {
               <Grid item xs={6} md={4} lg={3}>
                 <Card
                   delay={{ transitionDelay: '400ms' }}
-                  link="/add-user"
-                  text="Add User"
+                  link="/add-student"
+                  text="Add Student"
+                />
+              </Grid>
+              <Grid item xs={6} md={4} lg={3}>
+                <Card
+                  delay={{ transitionDelay: '400ms' }}
+                  link="/add-teacher"
+                  text="Add Teacher"
                 />
               </Grid>
             </Grid>
