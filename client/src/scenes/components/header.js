@@ -176,6 +176,7 @@ class Header extends Component {
                 <NavLink
                   style={{ textDecoration: 'none', color: '#000' }}
                   to="/"
+                  key={index}
                 >
                   <ListItem button key={text}>
                     <ListItemIcon>
