@@ -4,23 +4,20 @@ import Editor from 'react-simple-code-editor';
 import MenuItem from '@material-ui/core/MenuItem';
 import { highlight, languages } from 'prismjs';
 import '../../../prism-c.css';
-import { useAlert } from 'react-alert'
+import Prism from "prismjs";
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import { TagInput } from 'reactjs-tag-input'
 import { Grid, InputBase, Button, TextField } from '@material-ui/core';
 import Axios from 'axios';
 
-class CreateMcq extends Component {
+class CreateCode extends Component {
     state = { 
         question: ``,
-        marks: 1,
-        correctAnswer: 'A',
         difficulty: 'E',
-        receivedTags: [],
-        tags:[],
+        tags: [],
         tag: '',
-        options:["","","",""]
+        marks: 1
      }
     styles={
         font:{
@@ -52,56 +49,11 @@ class CreateMcq extends Component {
     handleTag=(event)=>{
         this.setState({tag: event.target.value})
     }
-    handleCorrectAnswer=(event)=>{
-        this.setState({correctAnswer: event.target.value})
-    }
     handleDifficulty=(event)=>{
         this.setState({difficulty: event.target.value})
     }
     onTagsChanged=(tags)=>{
         this.setState({tags})
-    }
-    handleOptionA=(event)=>{
-        var newOptions=[...this.state.options]
-        newOptions[0]=event.target.value
-        this.setState({options: newOptions})
-    }
-    handleOptionB=(event)=>{
-        var newOptions=[...this.state.options]
-        newOptions[1]=event.target.value
-        this.setState({options: newOptions})
-    }
-    handleOptionC=(event)=>{
-        var newOptions=[...this.state.options]
-        newOptions[2]=event.target.value
-        this.setState({options: newOptions})
-    }
-    handleOptionD=(event)=>{
-        var newOptions=[...this.state.options]
-        newOptions[3]=event.target.value
-        this.setState({options: newOptions})
-    }
-    handleBtn=(event)=>{
-        if(event.target.innerHTML==='+'){
-            this.setState({marks: this.state.marks?this.state.marks+1:this.state.marks+1})
-        }
-        else{
-            if(this.state.marks>1){
-                this.setState({marks: this.state.marks?this.state.marks-1:this.state.marks-1})
-            }
-        }
-    }
-    componentDidMount=()=>{
-        window.scroll(0,0)
-        Axios.get('/api/questions/tags', {
-            headers: {
-                Authorization: localStorage.getItem('token'),
-            }
-        }).then(
-            res=>{
-                this.setState({receivedTags: res.data.data.tags})
-            }
-        ,err=>console.log(err))
     }
     createQuestion=()=>{
         var tag=this.state.tag
@@ -141,14 +93,36 @@ class CreateMcq extends Component {
             alert("Please make sure all fields are valid")
         }
     }
+    componentDidMount=()=>{
+        window.scroll(0,0)
+        Axios.get('/api/questions/tags', {
+            headers: {
+                Authorization: localStorage.getItem('token'),
+            }
+        }).then(
+            res=>{
+                this.setState({tags: res.data.data.tags})
+            }
+        ,err=>console.log(err))
+    }
+    handleBtn=(event)=>{
+        if(event.target.innerHTML==='+'){
+            this.setState({marks: this.state.marks?this.state.marks+1:this.state.marks+1})
+        }
+        else{
+            if(this.state.marks>1){
+                this.setState({marks: this.state.marks?this.state.marks-1:this.state.marks-1})
+            }
+        }
+    }
     render() {
         console.log(this.state)
-        const renderOptions=this.state.receivedTags.map(tag=>{
+        const renderOptions=this.state.tags.map(tag=>{
             return(
                 <MenuItem value={`${tag}`}> {tag} </MenuItem>
             )
         })
-        return ( 
+        return (
             <React.Fragment>
                 <Header />
                 <Grid style={{background: '#f3faff',height: '100vh'}} container direction='row' justify='center'>
@@ -177,57 +151,9 @@ class CreateMcq extends Component {
                             />
                             </Grid>
                             <Grid item xs={12}>
-                                <div style={this.styles.font} >Options</div>
-                                <form>
-                                    <InputBase 
-                                    value={this.state.set}
-                                    style={this.styles.inp}
-                                    onChange={this.handleOptionA}
-                                    id="set"
-                                    placeholder="Option A"
-                                    />
-                                    <InputBase 
-                                    onChange={this.handleOptionB}
-                                    value={this.state.set}
-                                    style={this.styles.inp}
-                                    id="set"
-                                    placeholder="Option B"
-                                    />
-                                    <InputBase 
-                                    onChange={this.handleOptionC}
-                                    value={this.state.set}
-                                    style={this.styles.inp}
-                                    id="set"
-                                    placeholder="Option C"
-                                    />
-                                    <InputBase 
-                                    onChange={this.handleOptionD}
-                                    value={this.state.set}
-                                    style={this.styles.inp}
-                                    id="set"
-                                    placeholder="Option D"
-                                    />
-                                </form>
-                                <div style={this.styles.font} >Correct Answer</div>
-                                <FormControl>
-                                    <Select
-                                    variant='outlined'
-                                    style={{...this.styles.inp,padding: '2px 20px'}}
-                                    labelId="demo-simple-select-label"
-                                    value={this.state.correctAnswer}
-                                    onChange={this.handleCorrectAnswer}
-                                    >
-                                    <MenuItem value={'A'}>Option A</MenuItem>
-                                    <MenuItem value={'B'}>Option B</MenuItem>
-                                    <MenuItem value={'C'}>Option C</MenuItem>
-                                    <MenuItem value={'D'}>Option D</MenuItem>
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                            <Grid item xs={12}>
                                 <div style={this.styles.font} > Select a tag</div>
                                 <div style={{...this.styles.font,fontSize: 16, letterSpacing: 1}} >
-                                    Note:<br/>Tags will be used for filtering the questions. Please select a tag from the dropdown below. If the required tag is not available, then a new tag can be added from the inout field below the dropdown.
+                                    Note:<br/>Tags will be used for filtering the questions. Please select a tag from the dropdown below. If the required tag is not available, then a new tag can be added from the input field below the dropdown.
                                 </div>
                                 <div>
                                     <FormControl>
@@ -308,4 +234,4 @@ class CreateMcq extends Component {
     }
 }
  
-export default CreateMcq;
+export default CreateCode;

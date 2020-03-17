@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Header from '../../components/header';
-import { Grid, Paper, Button, Zoom, InputBase } from '@material-ui/core';
+import { Grid, Paper, Button, Zoom, InputBase, MenuItem, Select, FormControl } from '@material-ui/core';
 import Axios from 'axios';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
@@ -18,12 +18,7 @@ const innerTheme = createMuiTheme({
 class Describe extends Component {
     state = { 
         set: '',
-        easy: '',
-        medium: '',
-        difficult: '',
-        codeIf: '',
-        codeFor: '',
-        codeWhile: '',
+        type: 'TT1',
         time: ''
      }
     styles={
@@ -56,147 +51,73 @@ class Describe extends Component {
             boxShadow: '0 5px 30px 0 #62ce97'
         },
     }
-    handleField=(event)=>{
+    // false indicates Next button is not pressed
+    handleTime=(event)=>{
+        // this funtion updates the values in the parent
+        // arguments are Set,Type,Time
+        this.props.update(this.state.set,this.state.type,event.target.value,false)
         this.setState({[event.target.id]: event.target.value})
     }
-    createTest=()=>{
-        // var c = confirm("Are you sure u want to create a new test?")
-        if(true){
-            Axios.post(`/api/papers`,{
-                'single':{
-                    'easy': parseInt(this.state.easy)?parseInt(this.state.easy):0,
-                    'medium': parseInt(this.state.medium)?parseInt(this.state.medium):0,
-                    'hard': parseInt(this.state.difficult)?parseInt(this.state.difficult):0
-                },
-                "code": {
-                    "easy": parseInt(this.state.codeIf)?parseInt(this.state.codeIf):0,
-                    "medium": parseInt(this.state.codeFor)?parseInt(this.state.codeFor):0,
-                    "hard": parseInt(this.state.codeWhile)?parseInt(this.state.codeWhile):0
-                },            
-                "set": this.state.set,
-                "time": parseInt(this.state.time)?parseInt(this.state.time):0
-            },{
-                headers:{
-                    'Authorization': localStorage.getItem('token')
-                }
-            })
-            .then(res=>{
-                alert("Test created")
-                this.props.history.push('/manage')
-                // this.setState({
-                //     set: '',
-                //     easy: '',
-                //     medium: '',
-                //     difficult: '',
-                //     code: ''
-                // })
-            },err=>{
-                console.log(err)
-                alert(err)
-            })
-        }
+    handleSet=(event)=>{
+        this.props.update(event.target.value,this.state.type,this.state.time,false)
+        this.setState({[event.target.id]: event.target.value})
+    }
+    handleType=(event)=>{
+        this.props.update(this.state.set,event.target.value,this.state.time,false)
+        this.setState({type: event.target.value})
+    }
+    handleNext=()=>{
+        this.props.update(this.state.set,this.state.type,this.state.time,true)
     }
     render() {
-        console.log(this.state)
         return (
             <React.Fragment>
-                <Header />
                 <ThemeProvider theme={innerTheme}>
-                <Grid
-                spacing={4}
-                container
-                direction='row'
-                justify='center'
-                style={{background: '#f3faff',height: '100vh'}}
-                >
-                    <Grid item xs={12} md={11} lg={10} >
-                        <Grid style={{marginTop: 40}} spacing={4} container direction='row' justify='center'>
-                            <Grid item xs={5}>
-                                <Zoom in={true}>
-                                <Paper style={this.styles.card} >
-                                <Grid container direction='row' justify='center'>
-                                    <Grid item>
-                                        <form>
-                                            <InputBase 
-                                            onChange={this.handleField}
-                                            value={this.state.set}
-                                            style={this.styles.inp}
-                                            id="set"
-                                            placeholder="Set Name"
-                                            />
-                                            <InputBase 
-                                            onChange={this.handleField}
-                                            value={this.state.single}
-                                            style={this.styles.inp}
-                                            id="easy"
-                                            placeholder="MCQ questions ( Easy )"
-                                            />
-                                            <InputBase 
-                                            onChange={this.handleField}
-                                            value={this.state.single}
-                                            style={this.styles.inp}
-                                            id="medium"
-                                            placeholder="MCQ questions ( Medium )"
-                                            />
-                                            <InputBase 
-                                            onChange={this.handleField}
-                                            value={this.state.single}
-                                            style={this.styles.inp}
-                                            id="difficult"
-                                            placeholder="MCQ questions ( Difficult )"
-                                            />
-                                            <InputBase 
-                                            onChange={this.handleField}
-                                            value={this.state.codeIf}
-                                            style={this.styles.inp}
-                                            id="codeIf"
-                                            placeholder="Switch and If Else"
-                                            />
-                                            <InputBase 
-                                            onChange={this.handleField}
-                                            value={this.state.codeFor}
-                                            style={this.styles.inp}
-                                            id="codeFor"
-                                            placeholder="For Loop"
-                                            />
-                                            <InputBase 
-                                            onChange={this.handleField}
-                                            value={this.state.codeWhile}
-                                            style={this.styles.inp}
-                                            id="codeWhile"
-                                            placeholder="While/Do While Loop"
-                                            />
-                                            <InputBase 
-                                            onChange={this.handleField}
-                                            value={this.state.time}
-                                            style={this.styles.inp}
-                                            id="time"
-                                            placeholder="Time Duration (Minutes)"
-                                            />
-                                            {/* <TextField fullWidth id="set" label="Set Name" variant="outlined" /> */}
-                                            {/* <TextField
-                                            onChange={this.handleField}
-                                            value={this.state.single}
-                                            style={this.styles.field} fullWidth id="single" label="Number of MCQ questions" variant="outlined" /> */}
-                                            {/* <TextField
-                                            onChange={this.handleField}
-                                            value={this.state.code}
-                                            style={this.styles.field} fullWidth id="code" label="Number of Coding questions" variant="outlined" />
-                                            <br/> */}
-                                        </form>
-                                    </Grid>
-                                    <Grid item xs={12} >
-                                        <Button style={{...this.styles.btn, marginTop: 10, width: '100%'}} onClick={this.createTest} variant='contained' color='primary'>
-                                            Create
-                                        </Button>
-                                    </Grid>
+                    <Grid style={{marginTop: 40}} spacing={4} container direction='row' justify='center'>
+                        <Grid item xs={5}>
+                            <Zoom in={true}>
+                            <Paper style={this.styles.card} >
+                            <Grid container direction='row' justify='center'>
+                                <Grid item>
+                                    <form>
+                                        <InputBase 
+                                        onChange={this.handleSet}
+                                        value={this.state.set}
+                                        style={this.styles.inp}
+                                        id="set"
+                                        placeholder="Set"
+                                        />
+                                        <Select
+                                        fullWidth
+                                        variant='outlined'
+                                        style={{...this.styles.inp,padding: '2px 20px'}}
+                                        labelId="demo-simple-select-label"
+                                        value={this.state.type}
+                                        onChange={this.handleType}
+                                        >
+                                        <MenuItem value={'TT1'}>TT1</MenuItem>
+                                        <MenuItem value={'TT2'}>TT2</MenuItem>
+                                        {/* <MenuItem value={'End Sem'}>End Sem</MenuItem> */}
+                                        </Select>
+                                        <InputBase 
+                                        onChange={this.handleTime}
+                                        value={this.state.time}
+                                        style={this.styles.inp}
+                                        id="time"
+                                        placeholder="Time Duration (Minutes)"
+                                        />
+                                    </form>
                                 </Grid>
-                                </Paper>
-                                </Zoom>
+                                <Grid item xs={12} >
+                                    <Button style={{...this.styles.btn, marginTop: 10, width: '100%'}} onClick={this.handleNext} variant='contained' color='primary'>
+                                        Next
+                                    </Button>
+                                </Grid>
                             </Grid>
+                            </Paper>
+                            </Zoom>
                         </Grid>
                     </Grid>
-                </Grid>
                 </ThemeProvider>
             </React.Fragment>
          );

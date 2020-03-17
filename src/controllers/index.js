@@ -139,6 +139,7 @@ export const updateTeacherPassword = async (req, res, next) => {
 export const getTags = async (req, res, next) => {
   try {
     const tags = await Question.distinct('tag');
+    console.log({tags})
 
     return res.status(200).json({
       success: true,
