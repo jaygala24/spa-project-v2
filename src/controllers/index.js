@@ -653,3 +653,200 @@ export const deletePaper = async (req, res, next) => {
     return handleError(err, res);
   }
 };
+
+/**
+ * Creates the student user
+ *
+ * Returns the acknowledgement after creating student user
+ *
+ * Access - Teachers
+ */
+export const createStudentUser = async (req, res, next) => {
+  try {
+    const { sapId, div, year: batch } = req.body;
+
+    if (!sapId || !div || !batch) {
+      const error = new ErrorHandler(
+        400,
+        'Please provide all the details for creating student user',
+      );
+      return handleError(error, res);
+    }
+
+    const _user = await User.findOne({
+      sapId,
+      type: 'Student',
+    }).exec();
+
+    // User found in the db
+    if (_user) {
+      const error = new ErrorHandler(400, 'User already exists');
+      return handleError(error, res);
+    }
+
+    // Using same password as of other students
+    const _userObj = await User.findOne(
+      {},
+      { password: 1, _id: 0 },
+    ).exec();
+
+    // Creating the user in the db
+    const user = await User.create({
+      sapId,
+      password: _userObj.password,
+      div,
+      batch,
+      type: 'Student',
+    });
+
+    // Internal server error
+    if (!user) {
+      const error = new ErrorHandler(
+        500,
+        'User creation failed! Please try again',
+      );
+      return handleError(error, res);
+    }
+
+    // Acknowledgement msg
+    return res.status(200).json({
+      success: true,
+      data: {
+        msg: `User successfully created with sapId: ${sapId} and division: ${div}`,
+      },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Creates the teacher user
+ *
+ * Returns the acknowledgement after creating teacher user
+ *
+ * Access - Teachers
+ */
+export const createTeacherUser = async (req, res, next) => {
+  try {
+    const { sapId, password: plainPassword } = req.body;
+
+    if (!sapId || !plainPassword) {
+      const error = new ErrorHandler(
+        400,
+        'Please provide all the details for creating teacher user',
+      );
+      return handleError(error, res);
+    }
+
+    // Generate the hash of plain password
+    const hashPassword = await genHashPassword(plainPassword);
+
+    const _user = await User.findOne({
+      sapId,
+      type: 'Teacher',
+    }).exec();
+
+    // User found in the db
+    if (_user) {
+      const error = new ErrorHandler(400, 'User already exists');
+      return handleError(error, res);
+    }
+
+    // Create the user in the db
+    const user = await User.create({
+      sapId,
+      password: hashPassword,
+      type: 'Teacher',
+    });
+
+    // Internal Server Error
+    if (!user) {
+      const error = new ErrorHandler(
+        500,
+        'Teacher creation failed! Please try again',
+      );
+      return handleError(error, res);
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        msg: `Teacher successfully created with sapId: ${sapId}`,
+      },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Resets the student login
+ *
+ * Returns the acknowledgement after resetting student login
+ *
+ * Access - Teachers
+ */
+export const resetStudentLogin = async (req, res, next) => {
+  try {
+    const { sapId } = req.query;
+    let msg;
+
+    if (sapId !== undefined) {
+      // Reset individual student login
+      const _student = await User.findOneAndUpdate(
+        { sapId },
+        { loggedIn: false },
+      );
+      msg = `Student login reset of SAP ID: ${sapId}`;
+    } else {
+      // Reset all student login
+      const _student = await User.updateMany(
+        { loggedIn: true },
+        { loggedIn: false },
+      );
+      msg = `All students login reset`;
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        msg,
+      },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Get all logged in students
+ *
+ * Returns the list of sapId of students logged in
+ *
+ * Access - Teachers
+ */
+export const getLoggedInStudents = async (req, res, next) => {
+  try {
+    // find loggedIn students
+    const students = await User.find(
+      { type: 'Student', loggedIn: true },
+      { sapId: 1, _id: 0 },
+    ).sort('sapId');
+
+    // Acknowledgement of list of students
+    return res.status(200).json({
+      success: true,
+      data: {
+        count: students.length,
+        students,
+      },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};

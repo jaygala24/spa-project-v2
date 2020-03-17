@@ -13,6 +13,10 @@ import {
   getPaper,
   updatePaper,
   deletePaper,
+  createStudentUser,
+  createTeacherUser,
+  resetStudentLogin,
+  getLoggedInStudents,
 } from '../controllers';
 import { protect, isTeacher, isAdmin } from '../middlewares';
 
@@ -28,6 +32,22 @@ router
 router
   .route('/students/changePassword')
   .get(protect, isTeacher, isAdmin, generatePasswordForStudents);
+
+router
+  .route('/students/loggedIn')
+  .get(protect, isTeacher, getLoggedInStudents);
+
+router
+  .route('/students/resetLogin')
+  .get(protect, isTeacher, resetStudentLogin);
+
+router
+  .route('/users/teachers/create')
+  .post(protect, isTeacher, isAdmin, createTeacherUser);
+
+router
+  .route('/users/students/create')
+  .post(protect, isTeacher, createStudentUser);
 
 router
   .route('/questions')
