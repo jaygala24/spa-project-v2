@@ -203,27 +203,26 @@ export const createQuestion = async (req, res, next) => {
  */
 export const getQuestions = async (req, res, next) => {
   try {
-    let { type, tag } = req.query;
-    console.log({ tag, type });
+    let { type: typeQuery, tag: tagQuery } = req.query;
 
     // Get the distinct values of tag and type from the questions in the db
     const tags = await Question.distinct('tag');
     const types = await Question.distinct('type');
 
     // If type not provided then fetches all the types questions
-    if (!type) {
-      type = types;
+    if (!typeQuery) {
+      typeQuery = types;
     }
 
     // If tag not provided then fetches all the tags questions
-    if (!tag) {
-      tag = tags;
+    if (!tagQuery) {
+      tagQuery = tags;
     }
 
     // Fetches all the questions from the db based on filter
     const questions = await Question.find({
-      type,
-      tag,
+      type: typeQuery,
+      tag: tagQuery,
     }).exec();
 
     for (let i = 0; i < questions.length; i++) {
@@ -237,9 +236,10 @@ export const getQuestions = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       data: {
+        tags,
+        types,
         count: questions.length,
         questions,
-        tags,
       },
       error: {},
     });
@@ -461,29 +461,29 @@ export const getPapers = async (req, res, next) => {
     let { type: typeQuery, year: yearQuery } = req.query;
 
     // Get the distinct year and type values from Paper Model
-    const year = await Paper.distinct('year');
-    const type = await Paper.distinct('type');
+    const years = await Paper.distinct('year');
+    const types = await Paper.distinct('type');
 
     // If value not provided then assign the distinct values for fetching all the papers
     if (!typeQuery) {
-      typeQuery = type;
+      typeQuery = types;
     }
     if (!yearQuery) {
-      yearQuery = year;
+      yearQuery = years;
     }
 
     // Fetch the papers from the db based on filter
     const papers = await Paper.find(
       { type: typeQuery, year: yearQuery },
-      { set: 1, time: 1, type: 1 },
+      { set: 1, time: 1, type: 1, year: 1 },
     ).exec();
 
     // Successfully returns the year, type and papers
     return res.status(200).json({
       success: true,
       data: {
-        year,
-        type,
+        years,
+        types,
         papers,
       },
       error: {},
@@ -522,7 +522,9 @@ export const getPaper = async (req, res, next) => {
 
     let mcqMarks = 0,
       codeMarks = 0,
-      totalMarks = 0;
+      totalMarks = 0,
+      mcq = [],
+      code = [];
 
     // Calculating the total marks
     for (let i = 0; i < paper['mcq'].length; i++) {
@@ -535,16 +537,30 @@ export const getPaper = async (req, res, next) => {
 
     totalMarks = mcqMarks + codeMarks;
 
+    for (let i = 0; i < paper['mcq'].length; i++) {
+      mcq.push(paper['mcq'][i]['questionId']);
+    }
+
     for (let i = 0; i < paper['code'].length; i++) {
-      paper['code'][i]['questionId']['options'] = undefined;
-      paper['code'][i]['questionId']['correctAnswers'] = undefined;
+      code.push({
+        ...paper['code'][i]['questionId']._doc,
+        options: undefined,
+        correctAnswers: undefined,
+      });
     }
 
     // Successfully returns the single paper
     return res.status(200).json({
       success: true,
       data: {
-        paper: { ...paper._doc, mcqMarks, codeMarks, totalMarks },
+        paper: {
+          ...paper._doc,
+          mcq,
+          code,
+          mcqMarks,
+          codeMarks,
+          totalMarks,
+        },
       },
       error: {},
     });
