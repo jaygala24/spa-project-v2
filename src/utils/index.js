@@ -17,7 +17,7 @@ export const handleError = async (err, res) => {
     success: false,
     data: {},
     error: {
-      message: message || 'Something went wrong. Please try again!',
+      msg: message || 'Something went wrong. Please try again!',
     },
   });
 };

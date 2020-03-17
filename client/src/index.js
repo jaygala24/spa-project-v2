@@ -3,6 +3,12 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import './fonts/Nunito-Light.ttf';
+import './fonts/Nunito-Regular.ttf';
+import './fonts/Nunito-SemiBold.ttf';
+import axios from 'axios';
+
+axios.defaults.baseURL = 'http://localhost:5000';
 
 ReactDOM.render(<App />, document.getElementById('root'));
 
