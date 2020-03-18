@@ -442,6 +442,16 @@ export const createPaper = async (req, res, next) => {
       return handleError(error, res);
     }
 
+    const _paper = await Paper.findOne({ set }).exec();
+
+    if (_paper) {
+      const error = new ErrorHandler(
+        400,
+        'Set name already exists. Please provide a new set name.',
+      );
+      return handleError(error, res);
+    }
+
     // Creates the paper object
     const paper = await Paper.create({
       set,

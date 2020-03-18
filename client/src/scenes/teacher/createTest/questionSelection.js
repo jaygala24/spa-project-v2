@@ -146,7 +146,7 @@ class SelectQuestions extends Component {
               },
             });
           },
-          err => alert(err),
+          err => alert(err.response.data.error.msg),
         );
       },
       onCancel: () => {

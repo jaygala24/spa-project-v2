@@ -100,7 +100,7 @@ class CreateCode extends Component {
       res => {
         this.setState({ tags: res.data.data.tags });
       },
-      err => console.log(err),
+      err => alert(err.response.data.error.msg),
     );
   };
   handleBtn = event => {

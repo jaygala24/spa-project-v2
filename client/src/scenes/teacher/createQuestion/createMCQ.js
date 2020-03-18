@@ -113,7 +113,7 @@ class CreateMcq extends Component {
       res => {
         this.setState({ receivedTags: res.data.data.tags });
       },
-      err => console.log(err),
+      err => alert(err.response.data.error.msg),
     );
   };
   createQuestion = () => {
