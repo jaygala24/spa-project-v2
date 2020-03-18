@@ -136,10 +136,16 @@ export const updateTeacherPassword = async (req, res, next) => {
   }
 };
 
+/**
+ * Get the tags from the db
+ *
+ * Returns the list of the tags
+ *
+ * Access - Teachers
+ */
 export const getTags = async (req, res, next) => {
   try {
     const tags = await Question.distinct('tag');
-    console.log({tags})
 
     return res.status(200).json({
       success: true,
