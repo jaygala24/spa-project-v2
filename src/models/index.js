@@ -1,5 +1,5 @@
 // Schema for models
-import mongoose from 'mongoose';
+import mongoose, { mongo } from 'mongoose';
 
 const Schema = mongoose.Schema;
 
@@ -134,6 +134,98 @@ const PaperSchema = new Schema({
   },
 });
 
+const SelectedAnswersSchema = new Schema({
+  studentId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  paperId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Paper',
+  },
+  currentSection: {
+    type: String,
+    enum: ['MCQ', 'Code', 'None'],
+    default: 'MCQ',
+    required: true,
+  },
+  time: {
+    // Seconds time
+    type: Number,
+  },
+  mcq: [
+    {
+      _id: false,
+      questionId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Question',
+      },
+      optionsSelected: {
+        type: String,
+        required: true,
+        default: ' ',
+      },
+      marks: {
+        type: Number,
+        required: true,
+        default: 0,
+      },
+    },
+  ],
+  mcqMarksObtained: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  mcqTotalMarks: {
+    type: Number,
+    required: true,
+  },
+  code: [
+    {
+      _id: false,
+      questionId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Question',
+      },
+      program: {
+        type: String,
+        default: ' ',
+      },
+      output: {
+        type: String,
+        default: ' ',
+      },
+      marks: {
+        type: Number,
+        default: 0,
+      },
+    },
+  ],
+  codeMarksObtained: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  codeTotalMarks: {
+    type: Number,
+    required: true,
+  },
+  print: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  date: {
+    type: Date,
+    required: true,
+  },
+});
+
 export const User = mongoose.model('User', UserSchema);
 export const Question = mongoose.model('Question', QuestionSchema);
 export const Paper = mongoose.model('Paper', PaperSchema);
+export const SelectedAnswer = mongoose.model(
+  'SelectedAnswer',
+  SelectedAnswersSchema,
+);

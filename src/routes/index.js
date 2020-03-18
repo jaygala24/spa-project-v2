@@ -18,6 +18,9 @@ import {
   resetStudentLogin,
   getLoggedInStudents,
   getTags,
+  getAllSets,
+  createAnswerObjForStudents,
+  getQuestionsForStudents,
 } from '../controllers';
 import { protect, isTeacher, isAdmin } from '../middlewares';
 
@@ -75,5 +78,12 @@ router
   .delete(protect, isTeacher, deletePaper);
 
 // Route for the students
+router.route('/sets').get(protect, getAllSets);
+
+router.route('/answers').post(protect, createAnswerObjForStudents);
+
+router
+  .route('/students/questions')
+  .get(protect, getQuestionsForStudents);
 
 export default router;

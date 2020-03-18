@@ -1,4 +1,4 @@
-import { User, Question, Paper } from '../models';
+import { User, Question, Paper, SelectedAnswer } from '../models';
 import {
   handleError,
   cmpPassword,
@@ -568,12 +568,16 @@ export const getPaper = async (req, res, next) => {
     totalMarks = mcqMarks + codeMarks;
 
     for (let i = 0; i < paper['mcq'].length; i++) {
-      mcq.push(paper['mcq'][i]['questionId']);
+      mcq.push({
+        ...paper['mcq'][i]['questionId']._doc,
+        marks: paper['mcq'][i]['marks'],
+      });
     }
 
     for (let i = 0; i < paper['code'].length; i++) {
       code.push({
         ...paper['code'][i]['questionId']._doc,
+        marks: paper['code'][i]['marks'],
         options: undefined,
         correctAnswers: undefined,
       });
@@ -873,6 +877,236 @@ export const getLoggedInStudents = async (req, res, next) => {
       data: {
         count: students.length,
         students,
+      },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Get all set names for the current year
+ *
+ * Returns the list of set name and id for current year
+ *
+ * Access - Students
+ */
+export const getAllSets = async (req, res, next) => {
+  try {
+    const year = new Date().getFullYear();
+
+    const _papers = await Paper.find(
+      { year },
+      { set: 1, _id: 1 },
+    ).sort('set');
+
+    const sets = [];
+
+    for (let i = 0; i < _papers.length; i++) {
+      sets.push({ set: _papers[i]['set'], id: _papers[i]['_id'] });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        sets,
+      },
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Creates the answer object for the student in the database
+ *
+ * Returns the acknowledgement along with the paperId
+ *
+ * Access - Students
+ */
+export const createAnswerObjForStudents = async (req, res, next) => {
+  try {
+    // Get the current date
+    const date = new Date().toISOString().slice(0, 10);
+    const { paperId } = req.body;
+
+    // Find paper in the db using paperId
+    const paper = await Paper.findById(paperId).exec();
+
+    // Paper does not exist in the db so throw error
+    if (!paper) {
+      const error = new ErrorHandler(400, 'Paper does not exists');
+      return handleError(error, res);
+    }
+
+    // Find the selected answer of current date and logged in user
+    const _selectedAnswer = await SelectedAnswer.findOne({
+      studentId: req.user._id,
+      date,
+    });
+
+    // If selected answer exists and its paperId matches the paperId extracted
+    // from body then return the response without doing anything
+    if (_selectedAnswer && _selectedAnswer['paperId'] == paperId) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          msg: `Created answers already exists for student: ${req.user.sapId}`,
+          paperId,
+        },
+        error: {},
+      });
+    }
+
+    // If selected answer's paperId matches the paperId extracted from body then
+    // remove the selected answer and create a new selected answer
+    if (_selectedAnswer) {
+      await _selectedAnswer.remove();
+    }
+
+    const mcq = [],
+      code = [];
+    let mcqTotalMarks = 0,
+      codeTotalMarks = 0;
+
+    // Creating the mcq object as per the format required for the db
+    for (let i = 0; i < paper['mcq'].length; i++) {
+      mcq.push({
+        questionId: paper['mcq'][i]['questionId'],
+        optionsSelected: ' ',
+        marks: 0,
+      });
+      mcqTotalMarks += paper['mcq'][i]['marks'];
+    }
+
+    // Creating the code object as per the format required for the db
+    for (let i = 0; i < paper['code'].length; i++) {
+      code.push({
+        questionId: paper['code'][i]['questionId'],
+        program: ' ',
+        output: ' ',
+        marks: 0,
+      });
+      codeTotalMarks += paper['code'][i]['marks'];
+    }
+
+    await SelectedAnswer.create({
+      studentId: req.user._id,
+      paperId,
+      currentSection: 'MCQ',
+      time: paper['time'],
+      mcq,
+      mcqMarksObtained: 0,
+      mcqTotalMarks,
+      code,
+      codeMarksObtained: 0,
+      codeTotalMarks,
+      print: false,
+      date,
+    });
+
+    return res.status(201).json({
+      success: true,
+      data: {
+        msg: `Successfully created answers for student: ${req.user.sapId}`,
+        paperId,
+      },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Get the questions for students based on the paperId and current section
+ *
+ * Returns the questions along with paper and submittedAnswers
+ *
+ * Access - Students
+ */
+export const getQuestionsForStudents = async (req, res) => {
+  try {
+    const { paperId } = req.query;
+    const date = new Date().toISOString().slice(0, 10);
+
+    // Find the paperObj in the db using paperId
+    const paperObj = await Paper.findById(paperId)
+      .populate('mcq.questionId', {
+        correctAnswers: 0,
+        tag: 0,
+        category: 0,
+      })
+      .populate('code.questionId', {
+        correctAnswers: 0,
+        tag: 0,
+        category: 0,
+      })
+      .exec();
+
+    const paper = {
+      _id: paperObj['_id'],
+      set: paperObj['set'],
+      mcq: [],
+      code: [],
+    };
+
+    // Selected answer object from db using  studentId, paperId and date
+    const selectedAnswer = await SelectedAnswer.findOne(
+      {
+        studentId: req.user._id,
+        paperId,
+        date,
+      },
+      {
+        currentSection: 1,
+        time: 1,
+        mcq: 1,
+        code: 1,
+      },
+    ).exec();
+
+    // Test already submitted
+    if (selectedAnswer['currentSection'] === 'None') {
+      return res.status(200).json({
+        success: true,
+        data: {
+          msg: 'Test already submitted!',
+        },
+        error: {},
+      });
+    } else if (selectedAnswer['currentSection'] === 'MCQ') {
+      for (let ind = 0; ind < paperObj['mcq'].length; ind++) {
+        paper['mcq'].push({
+          ...paperObj['mcq'][ind]['questionId']._doc,
+          marks: paperObj['mcq'][ind]['marks'],
+        });
+      }
+    } else {
+      for (let ind = 0; ind < paperObj['code'].length; ind++) {
+        paper['code'].push({
+          ...paperObj['code'][ind]['questionId']._doc,
+          marks: paperObj['code'][ind]['marks'],
+        });
+      }
+    }
+
+    // submittedAnswer as per the students current section
+    let submittedAnswers =
+      selectedAnswer['currentSection'] === 'MCQ'
+        ? { ...selectedAnswer._doc, code: undefined }
+        : { ...selectedAnswer._doc, mcq: undefined };
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        count: {
+          mcq: paper['mcq'].length,
+          code: paper['code'].length,
+        },
+        paper,
+        submittedAnswers,
       },
       error: {},
     });
