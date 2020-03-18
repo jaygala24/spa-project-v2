@@ -4,6 +4,9 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { highlight, languages } from 'prismjs';
 import Editor from 'react-simple-code-editor';
 import NumericInput from 'react-numeric-input';
+import alertConfirm from 'react-alert-confirm';
+import 'react-alert-confirm/dist/index.css';
+import { Redirect } from "react-router-dom";
 import Axios from 'axios';
 
 const innerTheme = createMuiTheme({
@@ -21,188 +24,8 @@ class SelectQuestions extends Component {
     state = {
         filter: 'All',
         receivedTags: [],
-        questions: [
-            {
-              "options": [
-                "1",
-                "2",
-                "No Limit",
-                "Depends on Compiler"
-              ],
-              "correctAnswers": [
-                "1"
-              ],
-              "_id": "5e66664fc959da44e786487c0",
-              "type": "Single",
-              "title": "How many main() function we can have in our project?",
-              "tag": "compiler",
-              "category": "E",
-              "__v": 0,
-              "checked": false
-            },
-            {
-              "options": [
-                "Java",
-                "PHP",
-                "C",
-                "Visual Basic"
-              ],
-              "correctAnswers": [
-                "C"
-              ],
-              "_id": "5e66664fc959da44e786487e9",
-              "type": "Single",
-              "title": "Which programming language is more faster among these?\n1\n22\n333",
-              "tag": "pattern-printing",
-              "category": "E",
-              "__v": 0,
-              "checked": false
-            },
-            {
-                "options": [
-                  "1",
-                  "2",
-                  "No Limit",
-                  "Depends on Compiler"
-                ],
-                "correctAnswers": [
-                  "1"
-                ],
-                "_id": "5e66664fc959da44e786487c8",
-                "type": "Single",
-                "title": "How many main() function we can have in our project?",
-                "tag": "function",
-                "category": "E",
-                "__v": 0,
-                "checked": false
-              },
-              {
-                "options": [
-                  "Java",
-                  "PHP",
-                  "C",
-                  "Visual Basic"
-                ],
-                "correctAnswers": [
-                  "C"
-                ],
-                "_id": "5e66664fc959da44e786487e7",
-                "type": "Single",
-                "title": "Which programming language is more faster among these?\n1\n22\n333",
-                "tag": "pattern-printing",
-                "category": "E",
-                "__v": 0,
-                "checked": false
-              },
-              {
-                "options": [
-                  "1",
-                  "2",
-                  "No Limit",
-                  "Depends on Compiler"
-                ],
-                "correctAnswers": [
-                  "1"
-                ],
-                "_id": "5e66664fc959da44e786487c6",
-                "type": "Single",
-                "title": "How many main() function we can have in our project?",
-                "tag": "compiler",
-                "category": "E",
-                "__v": 0,
-                "checked": false
-              },
-              {
-                "options": [
-                  "Java",
-                  "PHP",
-                  "C",
-                  "Visual Basic"
-                ],
-                "correctAnswers": [
-                  "C"
-                ],
-                "_id": "5e66664fc959da44e786487e5",
-                "type": "Single",
-                "title": "Which programming language is more faster among these?\n1\n22\n333",
-                "tag": "pattern-printing",
-                "category": "E",
-                "__v": 0,
-                "checked": false
-              },
-              {
-                "options": [
-                  "1",
-                  "2",
-                  "No Limit",
-                  "Depends on Compiler"
-                ],
-                "correctAnswers": [
-                  "1"
-                ],
-                "_id": "5e66664fc959da44e786487c4",
-                "type": "Single",
-                "title": "How many main() function we can have in our project?",
-                "tag": "compiler",
-                "category": "E",
-                "__v": 0,
-                "checked": false
-              },
-              {
-                "options": [
-                  "Java",
-                  "PHP",
-                  "C",
-                  "Visual Basic"
-                ],
-                "correctAnswers": [
-                  "C"
-                ],
-                "_id": "5e66664fc959da44e786487e3",
-                "type": "Single",
-                "title": "Which programming language is more faster among these?\n1\n22\n333",
-                "tag": "pattern-printing",
-                "category": "E",
-                "__v": 0,
-                "checked": false
-              },
-              {
-                "options": [
-                  "1",
-                  "2",
-                  "No Limit",
-                  "Depends on Compiler"
-                ],
-                "correctAnswers": [
-                  "1"
-                ],
-                "_id": "5e66664fc959da44e786487c2",
-                "type": "Single",
-                "title": "How many main() function we can have in our project?",
-                "tag": "compiler",
-                "category": "E",
-                "__v": 0,
-                "checked": false
-              },
-              {
-                "options": [
-                  "Java",
-                  "PHP",
-                  "C",
-                  "Visual Basic"
-                ],
-                "correctAnswers": [
-                  "C"
-                ],
-                "_id": "5e66664fc959da44e786487e1",
-                "type": "Single",
-                "title": "Which programming language is more faster among these?\n1\n22\n333",
-                "tag": "pattern-printing",
-                "category": "E",
-                "__v": 0,
-                "checked": false
-              }
-        ]
+        questions: [],
+        redirect: false
      }
     styles={
         card:{
@@ -237,6 +60,8 @@ class SelectQuestions extends Component {
             boxShadow: '0 5px 30px 0 #62ce97'
         }
     }
+
+    // Trim the input to a specific size
     trimContent=(text)=>{
         var arr=text.split(' ')
         var str=''
@@ -250,6 +75,8 @@ class SelectQuestions extends Component {
             return text
         }
     }
+
+    // Handling the checkbox
     check=(id)=>{
         console.log(id)
         var newQuestions=[...this.state.questions]
@@ -259,14 +86,64 @@ class SelectQuestions extends Component {
                 return true // stop searching
             }
         });
-
         this.setState({questions: newQuestions})
     }
+
     handleFilter=(event)=>{
         this.setState({filter: event.target.value})
     }
+
+    calculateTotal=()=>{
+        var marks=0
+        var questionCount=0
+        var questions=[...this.state.questions]
+        questions.forEach(q=>{
+            if(q.checked){
+                marks=marks+q.marks
+                questionCount=questionCount+1
+            }
+        })
+        return {
+            "marks": marks,
+            "questionCount": questionCount
+        }
+    }
+
+    handleSubmit=()=>{
+        alertConfirm({
+            title: 'Confirmation',
+            content: 'Are you sure you want to create this test?',
+            okText: "Yes",
+            cancelText: "No",
+            onOk: () => {
+                Axios.post("/api/papers",{
+                    ...this.generateReq()
+                },{
+                    headers: {
+                        Authorization: localStorage.getItem('token'),
+                    }
+                }).then(res=>{
+                    alertConfirm({
+                        type: 'alert',
+                        okText: "Ok",
+                        content: 'Test created successfully',
+                        onOk: () => {
+                            this.setState({redirect: true})
+                        }
+                      })
+                },err=>alert(err))
+            },
+            onCancel: () => {
+                console.log('cancel')
+            }
+        })
+    }
+
     componentDidMount=()=>{
+      // Scroll to top
         window.scroll(0,0)
+
+        // Getting all questions
         Axios.get('/api/questions', {
             headers: {
                 Authorization: localStorage.getItem('token'),
@@ -275,21 +152,29 @@ class SelectQuestions extends Component {
             res=>{
                 var newQuestions=[...res.data.data.questions]
                 var count=res.data.data.count
+
+                // Adding two extra attributes: checked and marks
                 for(var i=0;i<count;i++){
                     newQuestions[i]={
                         ...newQuestions[i],
+                        // Initializing marks as 1 and unchecked
                         "checked": false,
                         "marks": 1
                     }
                 }
-                console.log(newQuestions)
+                if(this.props.currentState){
+                    newQuestions=this.props.currentState.questions
+                }
                 this.setState({
+                  // Appending 'All' tag to display all questions
                     receivedTags: ['All',...res.data.data.tags],
                     questions: newQuestions
                 })
             }
         ,err=>console.log(err))
     }
+
+    // Generates the body for createTest
     generateReq=()=>{
         var temp=[...this.state.questions]
         var array=temp.filter(i=>i.checked)
@@ -311,9 +196,9 @@ class SelectQuestions extends Component {
         var d = new Date()
 
         var body={
-            "set": "A",
-            "type": "TT1",
-            "time": 3600,
+            "set": this.props.set,
+            "type": this.props.type,
+            "time": parseInt(this.props.time*60),
             "mcq": mcq,
             "code": code,
             "year": d.getFullYear()
@@ -322,11 +207,17 @@ class SelectQuestions extends Component {
     }
     render() {
         console.log(this.generateReq())
+
+        const redirect= [1].map(i=><Redirect to='/manage' />)
+
+        // Renders the dropdown of tags
         const renderOptions=this.state.receivedTags.map(tag=>{
             return(
                 <MenuItem value={`${tag}`}> {tag} </MenuItem>
             )
         })
+
+        // Renders the selected questions
         const renderSelected=this.state.questions.filter(q=>q.checked).map(question=>{
             return(
                 <Paper style={{ marginTop: 10, marginBottom: 10, padding: 10}} >
@@ -336,6 +227,8 @@ class SelectQuestions extends Component {
                     </div>
                     <NumericInput onChange={(val)=>{
                         var newQuestions=this.state.questions
+
+                        // Updating the marks - search by _id
                         let obj = newQuestions.find((o, i) => {
                             if (o._id === question._id) {
                                 newQuestions[i] = { ...o, marks: val }
@@ -348,6 +241,8 @@ class SelectQuestions extends Component {
                 </Paper>
             )
         })
+
+        // Renders the questions
         const renderQuestions=this.state.questions.filter(q=>{
             if(this.state.filter!=='All'){
                 return q.tag==this.state.filter
@@ -379,27 +274,42 @@ class SelectQuestions extends Component {
         })
         return (
             <React.Fragment>
+            {this.state.redirect?(redirect):('')}
+              {/* Basic info of the test */}
+                <Grid container direction='row' justify='center' alignItems='center' >
+                  <Grid item xs={2} >
+                    <div style={{...this.styles.font,fontSize: 30}} >SET : {this.props.set}</div>
+                  </Grid>
+                  <Grid item xs={3} > 
+                    <Select
+                    variant='outlined'
+                    style={{...this.styles.inp,padding: '0px 10px', width: 220}}
+                    value={this.state.filter}
+                    onChange={this.handleFilter}
+                    >
+                        {renderOptions}
+                    </Select>
+                  </Grid>
+                  <Grid item xs={3} >
+                    <Button variant='outlined' onClick={()=>this.props.goBack(this.state)}> Go to previous step</Button>
+                  </Grid>
+                  <Grid item xs={3} >
+                    <Button variant='contained' color='primary' onClick={this.handleSubmit}> Submit </Button>
+                  </Grid>
+                </Grid>
+                {/* ---- Top section ends here ---- */}
 
-                <Select
-                variant='outlined'
-                style={{...this.styles.inp,padding: '0px 10px', width: 220}}
-                value={this.state.filter}
-                onChange={this.handleFilter}
-                >
-                    {renderOptions}
-                </Select>
-                <Button variant='outlined' onClick={this.props.goBack}> Go to previous step</Button>
-                <Button variant='outlined' onClick={this.props.goBack}> Submit</Button>
-                <Grid style={{marginTop: 10}} spacing={4} container direction='row' justify='center'>
+                <Grid style={{marginTop: 10, width: '100%'}} spacing={4} container direction='row' justify='center'>
 
-                    {/* Left side */}
+                    {/* Left side - Question */}
                     <Grid item xs={5} style={{height: '70vh', overflow: 'scroll'}} >
                         {renderQuestions}
                     </Grid>
 
-                    {/* Right side */}
+                    {/* Right side - Selected questions */}
                     <Grid item xs={5} style={{height: '70vh', overflow: 'scroll'}} >
-                        <div>Selected Questions</div>
+                        <div>Selected Questions : {this.calculateTotal()['questionCount']} </div>
+                        <div>Total Marks : {this.calculateTotal()['marks']} </div>
                         {renderSelected}
                     </Grid>
                 </Grid>

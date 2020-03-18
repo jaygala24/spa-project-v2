@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Header from '../../components/header';
 import { Grid, Paper, Button, Zoom, InputBase, MenuItem, Select, FormControl } from '@material-ui/core';
 import Axios from 'axios';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
@@ -67,7 +66,25 @@ class Describe extends Component {
         this.setState({type: event.target.value})
     }
     handleNext=()=>{
-        this.props.update(this.state.set,this.state.type,this.state.time,true)
+        if(
+            this.state.set!=''&&
+            this.state.type!=''&&
+            this.state.time!=''
+        ){
+            // True indicates that next button is pressed
+            // This value will be use to change state of description in the parent component
+            this.props.update(this.state.set,this.state.type,this.state.time,true)
+        }
+        else{
+            alert('Input is invalid')
+        }
+    }
+    componentDidMount(){
+        this.setState({
+            set: this.props.set,
+            type: this.props.type||'TT1',
+            time: this.props.time,
+        })
     }
     render() {
         return (
@@ -103,6 +120,7 @@ class Describe extends Component {
                                         onChange={this.handleTime}
                                         value={this.state.time}
                                         style={this.styles.inp}
+                                        type='number'
                                         id="time"
                                         placeholder="Time Duration (Minutes)"
                                         />
