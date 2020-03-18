@@ -173,18 +173,14 @@ export const createQuestion = async (req, res, next) => {
     } = req.body;
 
     // Checks if all the fields are provided otherwise throws an error
-    if (
-      !type ||
-      !title ||
-      !options ||
-      !correctAnswers ||
-      !tag ||
-      !category
-    ) {
-      const error = new ErrorHandler(
-        400,
-        'Please provide all the details for creating questions',
-      );
+    const error = new ErrorHandler(
+      400,
+      'Please provide all the details for creating questions',
+    );
+
+    if (!type || !title || !tag || !category) {
+      return handleError(error, res);
+    } else if (type === 'Single' && (!correctAnswers || !options)) {
       return handleError(error, res);
     }
 
