@@ -64,18 +64,12 @@ class CreateCode extends Component {
             console.log("inside",tag)
         }
         if(this.state.question!=''&&
-        this.state.options[0]!=''&&
-        this.state.options[1]!=''&&
-        this.state.options[2]!=''&&
-        this.state.options[3]!=''&&
         this.state.correctAnswer!=''&&
         this.state.difficulty!=''
         ){
             Axios.post('/api/questions',{
-                "type": "Single",
+                "type": "Code",
                 "title": this.state.question,
-                "options": this.state.options,
-                "correctAnswers": [this.state.correctAnswer],
                 "tag": tag,
                 "category": this.state.difficulty
             },{
