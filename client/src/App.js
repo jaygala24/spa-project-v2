@@ -18,6 +18,7 @@ import ViewTests from './scenes/teacher/test/ViewTests';
 import ViewTest from './scenes/teacher/test/ViewTest';
 import SLogin from './scenes/StudentLogin/slogin';
 import EnterSet from './scenes/student/enterSet';
+import Test from './scenes/student/newSectionA';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/student" component={SLogin} />
         <ProtectedRoute path="/manage" component={HomeTeacher} />
         <ProtectedRoute path="/enter-set" component={EnterSet} />
+        <ProtectedRoute path="/test" component={Test} />
         <ProtectedRoute path="/reset" component={LoggedInList} />
         <ProtectedRoute path="/create-test" component={CreateTest} />
         <ProtectedRoute path="/create-question" component={SelectType} />

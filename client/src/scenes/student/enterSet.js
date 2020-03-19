@@ -1,10 +1,14 @@
 import React, { Component } from 'react'
 import { Grid, Select, MenuItem, Button } from '@material-ui/core'
 import Axios from 'axios'
+import { alert } from 'react-alert-confirm/dist'
+import StartTest from './startTest'
 
 class EnterSet extends Component {
     state = { 
-        sets: []
+        sets: [],
+        confirm: false,
+        id: ''
      }
     styles={
         card:{
@@ -43,7 +47,17 @@ class EnterSet extends Component {
         }
     }
     handleSet=(event)=>{
-        this.setState({id: event.target.id, set: event.target.value})
+        var set=event.target.value
+        var sets=[...this.state.sets]
+        var id=''
+        sets.forEach(s=>{
+            if(s.set==set){
+                id=s.id
+            }
+        })
+        localStorage.setItem('set',event.target.value)
+        localStorage.setItem('id',id)
+        this.setState({ id: id, set: event.target.value})
     }
     componentDidMount(){
         Axios.get('/api/sets',{
@@ -58,17 +72,22 @@ class EnterSet extends Component {
     }
     handleNext=()=>{
         Axios.post('/api/answers',{
-            "paperId": '1'
+            "paperId": this.state.id
         },{
             headers: {
                 Authorization: localStorage.getItem('token'),
             }
-        })
+        }).then(res=>{
+            this.setState({
+                confirm: true
+            })
+        },err=>alert(err.response.data.error.msg))
     }
     render() {
+        console.log(this.state)
         const renderSets=this.state.sets.map(s=>{
             return(
-                <MenuItem id={s.id} value={s}> {s.set} </MenuItem>
+                <MenuItem value={s.set}> {s.set} </MenuItem>
             )
         })
         return ( 
@@ -77,22 +96,28 @@ class EnterSet extends Component {
                     <Grid item xs={10}>
                     <Grid container direction='row' justify='center' style={{height: '100%'}} >
                         <Grid item xs={12}>
-                            <div style={{fontSize: 42}} >SET : {this.state.set}</div>
+                            <div style={{fontSize: 62}} >SET : {this.state.set}</div>
                         </Grid>
                         <Grid item xs={6}>
-                            <div style={{textAlign: 'center',...this.styles.font}} >Enter Set</div>
-                            <Select
-                            placeholder="Set"
-                            fullWidth
-                            variant='outlined'
-                            style={{...this.styles.inp,padding: '2px 20px'}}
-                            labelId="demo-simple-select-label"
-                            value={this.state.set}
-                            onChange={this.handleSet}
-                            >
-                            {renderSets}
-                            </Select>
-                            <Button style={{...this.styles.btn,margin: 10, marginTop: 100}} >Next</Button>
+                            {this.state.confirm?(
+                                <StartTest />
+                            ):(
+                                <React.Fragment>
+                                    <div style={{textAlign: 'center',...this.styles.font}} >Enter Set</div>
+                                    <Select
+                                    placeholder="Set"
+                                    fullWidth
+                                    variant='outlined'
+                                    style={{...this.styles.inp,padding: '2px 20px'}}
+                                    labelId="demo-simple-select-label"
+                                    value={this.state.set}
+                                    onChange={this.handleSet}
+                                    >
+                                    {renderSets}
+                                    </Select>
+                                    <Button onClick={this.handleNext} style={{...this.styles.btn,margin: 10, marginTop: 100}} >Next</Button>
+                                </React.Fragment>
+                            )}
                         </Grid>
                     </Grid>
                     </Grid>

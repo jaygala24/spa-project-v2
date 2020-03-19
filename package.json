@@ -31,6 +31,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.2",
     "morgan": "^1.9.1",
+    "node-pre-gyp": "^0.14.0",
     "rimraf": "^3.0.2"
   },
   "devDependencies": {
