@@ -1,3 +1,5 @@
+import path from 'path';
+import fs from 'fs';
 import { User, Question, Paper, SelectedAnswer } from '../models';
 import {
   handleError,
@@ -36,6 +38,20 @@ export const login = async (req, res, next) => {
         'Please provide a valid password',
       );
       return handleError(error, res);
+    }
+
+    if (user['type'] === 'Student') {
+      // If student already loggedIn then throw error
+      if (user['loggedIn']) {
+        const error = new ErrorHandler(401, 'User Already Logged In');
+        return handleError(error, res);
+      }
+
+      // If student logins first time then update the loggedIn as true
+      const _user = await User.findOneAndUpdate(
+        { sapId },
+        { loggedIn: true },
+      );
     }
 
     const token = newToken(user);
@@ -1109,6 +1125,303 @@ export const getQuestionsForStudents = async (req, res) => {
         submittedAnswers,
       },
       error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Evaluates the individual MCQ question
+ *
+ * Returns the submittedAnswers of logged in student
+ *
+ * Access - Students
+ */
+export const evaluateMCQQuestion = async (req, res, next) => {
+  try {
+    const {
+      paperId,
+      questionId,
+      optionsSelected,
+      time,
+      currentSection,
+    } = req.body;
+    const date = new Date().toISOString().slice(0, 10);
+    let marks = 0,
+      mcqMarksObtained = 0;
+
+    // Find the paper in the db using the paperId
+    const paperObj = await Paper.findOne(
+      {
+        _id: paperId,
+        'mcq.questionId': questionId,
+      },
+      { set: 1, mcq: 1 },
+    )
+      .populate('mcq.questionId', {
+        _id: 1,
+        correctAnswers: 1,
+        marks: 1,
+      })
+      .exec();
+
+    // Evaluate the question based on the question id
+    for (let i = 0; i < paperObj['mcq'].length; i++) {
+      if (
+        paperObj['mcq'][i]['questionId']['_id'] == questionId &&
+        paperObj['mcq'][i]['questionId']['correctAnswers'].includes(
+          optionsSelected,
+        )
+      ) {
+        marks = paperObj['mcq'][i]['marks'];
+        break;
+      }
+    }
+
+    // Find the selected answer of student
+    const _submittedAnswers = await SelectedAnswer.findOne({
+      studentId: req.user._id,
+      paperId,
+      date,
+    });
+
+    const mcq = [];
+
+    // Creating mcq object as per the format for saving in db
+    for (let i = 0; i < _submittedAnswers['mcq'].length; i++) {
+      if (_submittedAnswers['mcq'][i]['questionId'] == questionId) {
+        mcq.push({
+          questionId,
+          optionsSelected,
+          marks,
+        });
+      } else {
+        mcq.push(_submittedAnswers['mcq'][i]);
+      }
+      mcqMarksObtained += mcq[i]['marks'];
+    }
+
+    // Updating the selected answers of student
+    const submittedAnswer = await SelectedAnswer.findOneAndUpdate(
+      {
+        studentId: req.user._id,
+        paperId,
+        date,
+      },
+      {
+        mcq,
+        mcqMarksObtained,
+        time,
+        currentSection,
+      },
+      { new: true },
+    );
+
+    // returning the selected answer of student
+    return res.status(200).json({
+      success: true,
+      data: {
+        submittedAnswer: {
+          _id: submittedAnswer['_id'],
+          paperId: submittedAnswer['paperId'],
+          currentSection: submittedAnswer['currentSection'],
+          time: submittedAnswer['time'],
+          mcq: submittedAnswer['mcq'],
+          mcqTotalMarks: submittedAnswer['mcqTotalMarks'],
+        },
+      },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Creates a main-{questionId.c} file for student
+ *
+ * Returns the submittedAnswers of logged in student
+ *
+ * Access - Students
+ */
+export const runProgram = async (req, res, next) => {
+  try {
+    const {
+      paperId,
+      questionId,
+      program,
+      time,
+      currentSection,
+    } = req.body;
+    const date = new Date().toISOString().slice(0, 10);
+
+    // find the selected answer of student
+    const _submittedAnswer = await SelectedAnswer.findOne(
+      {
+        studentId: req.user._id,
+        paperId,
+        date,
+      },
+      { currentSection: 1 },
+    ).exec();
+
+    // currentSection None then throw error
+    if (_submittedAnswer['currentSection'] === 'None') {
+      const error = new ErrorHandler(403, 'Test already submitted');
+      return handleError(error, res);
+    }
+
+    const dir = path.join(__basedir, 'code', req.user.sapId);
+
+    // Check if dir exists otherwise create a new one
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
+    }
+
+    // Creating the main-{questionId}.c file
+    fs.writeFileSync(`${dir}/main-${questionId}.c`, program, err => {
+      if (err) {
+        return handleError(err, res);
+      }
+    });
+
+    // Checks if the output file does not exists then make a new one
+    if (!fs.existsSync(`${dir}/output-${questionId}.txt`)) {
+      fs.writeFileSync(
+        `${dir}/output-${questionId}.txt`,
+        './a\nNo output',
+        err => {
+          if (err) {
+            return next(err);
+          }
+        },
+      );
+    }
+
+    // Update the progress of student
+    const submittedAnswer = await SelectedAnswer.findOneAndUpdate(
+      {
+        studentId: req.user._id,
+        paperId,
+        date,
+        'code.questionId': questionId,
+      },
+      {
+        $set: {
+          'code.$.program': program,
+          'code.$.output': 'No Output',
+          time,
+          currentSection,
+        },
+      },
+      { new: true },
+    );
+
+    // returns the selected answer of current student
+    return res.status(201).json({
+      success: true,
+      data: {
+        msg: 'File created successfully',
+        submittedAnswer: {
+          _id: submittedAnswer['_id'],
+          paperId: submittedAnswer['paperId'],
+          currentSection: submittedAnswer['currentSection'],
+          time: submittedAnswer['time'],
+          code: submittedAnswer['code'],
+          codeTotalMarks: submittedAnswer['codeTotalMarks'],
+        },
+      },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Saves the output from output-{questionId.c} file to the student's selected answer in db
+ *
+ * Returns the submittedAnswers of logged in student
+ *
+ * Access - Students
+ */
+export const saveCodeOutput = async (req, res, next) => {
+  try {
+    const { paperId, questionId, time, currentSection } = req.body;
+    const date = new Date().toISOString().slice(0, 10);
+
+    // find the selected answer of student
+    const _submittedAnswer = await SelectedAnswer.findOne(
+      {
+        studentId: req.user._id,
+        paperId,
+        date,
+      },
+      { currentSection: 1 },
+    ).exec();
+
+    // currentSection None then throw error
+    if (_submittedAnswer['currentSection'] === 'None') {
+      const error = new ErrorHandler(403, 'Test already submitted');
+      return handleError(error, res);
+    }
+
+    const filename = path.join(
+      __basedir,
+      'code',
+      req.user.sapId,
+      `output-${questionId}.txt`,
+    );
+
+    const _data = fs.readFileSync(filename, 'utf8');
+
+    const data = _data.split('\n');
+
+    // Removing the first line and also restricting to 100 lines output
+    const output = data
+      .slice(1, _data.length >= 100 ? 100 : _data.length)
+      .join('\n')
+      .replace('$', '');
+
+    // Updating the progress of the student
+    const submittedAnswer = await SelectedAnswer.findOneAndUpdate(
+      {
+        studentId: req.user._id,
+        paperId,
+        date,
+        'code.questionId': questionId,
+      },
+      { $set: { 'code.$.output': output, currentSection, time } },
+      { new: true },
+    );
+
+    // Logging out the user if the currentSection is None
+    if (currentSection === 'None') {
+      const _user = await User.findOneAndUpdate(
+        {
+          _id: req.user._id,
+        },
+        {
+          loggedIn: false,
+        },
+      );
+    }
+
+    // returning the submitted answer by the student
+    return res.status(200).json({
+      success: true,
+      data: {
+        msg: 'Output saved successfully',
+        submittedAnswer: {
+          _id: submittedAnswer['_id'],
+          paperId: submittedAnswer['paperId'],
+          currentSection: submittedAnswer['currentSection'],
+          time: submittedAnswer['time'],
+          code: submittedAnswer['code'],
+          codeTotalMarks: submittedAnswer['codeTotalMarks'],
+        },
+      },
     });
   } catch (err) {
     return handleError(err, res);

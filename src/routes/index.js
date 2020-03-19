@@ -21,6 +21,9 @@ import {
   getAllSets,
   createAnswerObjForStudents,
   getQuestionsForStudents,
+  evaluateMCQQuestion,
+  runProgram,
+  saveCodeOutput,
 } from '../controllers';
 import { protect, isTeacher, isAdmin } from '../middlewares';
 
@@ -86,4 +89,11 @@ router
   .route('/students/questions')
   .get(protect, getQuestionsForStudents);
 
+router
+  .route('/students/mcq/evaluate')
+  .post(protect, evaluateMCQQuestion);
+
+router.route('/students/runProgram').post(protect, runProgram);
+
+router.route('/students/saveOutput').post(protect, saveCodeOutput);
 export default router;
