@@ -8,7 +8,7 @@ import FormControl from '@material-ui/core/FormControl';
 class SectionA extends Component {
     state = { 
         val: '',
-        optionCount: 4
+        optionCount: 1
      }
     styles = {
         question:{
@@ -34,18 +34,19 @@ class SectionA extends Component {
         var option = event.target.value
         var text = ''
         if(option=='A'){
-            text=this.props.question.question?this.props.question.question.options[0]:''
+            text=this.props.options?this.props.options[0]:''
         }
         else if(option=='B'){
-            text=this.props.question.question?this.props.question.question.options[1]:''
+            text=this.props.options?this.props.options[1]:''
         }
         else if(option=='C'){
-            text=this.props.question.question?this.props.question.question.options[2]:''
+            text=this.props.options?this.props.options[2]:''
         }
         else{
-            text=this.props.question.question?this.props.question.question.options[3]:''
+            text=this.props.options?this.props.options[3]:''
         }
-        // this.props.update(text)
+        console.log(text)
+        this.props.update(text)
         this.setState({val: event.target.value})
     }
     componentDidUpdate(prevProps,prevState){

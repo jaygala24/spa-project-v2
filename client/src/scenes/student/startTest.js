@@ -53,7 +53,7 @@ class StartTest extends Component {
                                 <div> <b>DO NOT PROCEED IF THE SET IS INCORRECT</b> </div>
                             </Grid>
                             <Grid item xs={10}>
-                                <Button onClick={()=>window.location='/test'} style={{...this.styles.btn,margin: 10, marginTop: 100}} >Start Test</Button>
+                                <Button onClick={()=>window.location='/section-a'} style={{...this.styles.btn,margin: 10, marginTop: 100}} >Start Test</Button>
                             </Grid>
                             <Grid style={{marginTop: 100}}  item xs={10}>
                                 <Button onClick={()=>window.location='/student'} style={{...this.styles.btn, background: '#ce6262', boxShadow: '0 5px 30px 0 #ce6262',margin: 10, marginTop: 100}} >Incorrect SET</Button>

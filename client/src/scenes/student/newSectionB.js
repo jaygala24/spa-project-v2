@@ -1,16 +1,15 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import { Grid, Button } from '@material-ui/core';
 import Timer from 'react-compound-timer';
-import SectionA from './SectionA';
 import Review from './Review';
 import Info from './info';
-import alertConfirm from 'react-alert-confirm';
-import { PulseLoader } from 'react-spinners';
 import Axios from 'axios';
+import { PulseLoader } from 'react-spinners';
+import SectionB from './SectionB';
 
-class NewSectionA extends Component {
+class NewSectionB extends Component {
     state = { 
-        time: 1000,
+        time: 500,
         currentQuestion: 0,
         count: 0,
         reviews: [],
@@ -18,113 +17,6 @@ class NewSectionA extends Component {
         loading: true,
         cheat: 0
      }
-
-    // Increment the current question by 1
-    handleNext=()=>{
-        if(this.state.currentQuestion+1<this.state.count){
-            // Getting time from the Timer component
-            if (document.getElementById('timer-hours')) {
-                var h = parseInt(
-                document.getElementById('timer-hours').innerHTML,
-                );
-                var m = parseInt(
-                document.getElementById('timer-minutes').innerHTML,
-                );
-                var s = parseInt(
-                document.getElementById('timer-seconds').innerHTML,
-                );
-            }
-            Axios.post('/api/students/mcq/evaluate',{
-                "paperId": localStorage.getItem('id'),
-                "questionId": this.state.data[this.state.currentQuestion]['_id'],
-                "optionsSelected": this.state.optionsSelected[this.state.currentQuestion],
-                "time": h*60*60+m*60+s,
-                "currentSection": "MCQ"
-            },{
-                headers: {
-                    Authorization: localStorage.getItem('token'),
-                }
-            }).then(res=>{
-                console.log(res)
-                // The question number passed here is the displayed value
-                // Hence we need to subtract 1 in order to get the index
-                this.setState({ currentQuestion: this.state.currentQuestion+1 });
-            },err=>alert(err.response.data.error.msg))
-        }
-    }
-
-    // Decrement the current question by 1
-    handlePrev=()=>{
-        if(this.state.currentQuestion-1>=0){
-            // Getting time from the Timer component
-            if (document.getElementById('timer-hours')) {
-                var h = parseInt(
-                document.getElementById('timer-hours').innerHTML,
-                );
-                var m = parseInt(
-                document.getElementById('timer-minutes').innerHTML,
-                );
-                var s = parseInt(
-                document.getElementById('timer-seconds').innerHTML,
-                );
-            }
-            Axios.post('/api/students/mcq/evaluate',{
-                "paperId": localStorage.getItem('id'),
-                "questionId": this.state.data[this.state.currentQuestion]['_id'],
-                "optionsSelected": this.state.optionsSelected[this.state.currentQuestion],
-                "time": h*60*60+m*60+s,
-                "currentSection": "MCQ"
-            },{
-                headers: {
-                    Authorization: localStorage.getItem('token'),
-                }
-            }).then(res=>{
-                console.log(res)
-                // The question number passed here is the displayed value
-                // Hence we need to subtract 1 in order to get the index
-                this.setState({ currentQuestion: this.state.currentQuestion-1 });
-            },err=>alert(err.response.data.error.msg))
-        }
-    }
-
-    handleSubmit=()=>{
-        alertConfirm({
-            title: 'Confirmation',
-            content: 'Are you sure you want to submit Section A? Once submitted you will not be able to return back to section A.',
-            okText: 'Yes',
-            cancelText: 'No',
-            onOk: () => {
-                // Getting time from the Timer component
-                if (document.getElementById('timer-hours')) {
-                    var h = parseInt(
-                    document.getElementById('timer-hours').innerHTML,
-                    );
-                    var m = parseInt(
-                    document.getElementById('timer-minutes').innerHTML,
-                    );
-                    var s = parseInt(
-                    document.getElementById('timer-seconds').innerHTML,
-                    );
-                }
-                Axios.post('/api/students/mcq/evaluate',{
-                    "paperId": localStorage.getItem('id'),
-                    "questionId": this.state.data[this.state.currentQuestion]['_id'],
-                    "optionsSelected": this.state.optionsSelected[this.state.currentQuestion],
-                    "time": h*60*60+m*60+s,
-                    "currentSection": "Code"
-                },{
-                    headers: {
-                        Authorization: localStorage.getItem('token'),
-                    }
-                }).then(res=>{
-                    window.location='/section-b'
-                },err=>alert(err.response.data.error.msg))
-            },
-            onCancel: () => {
-                console.log('cancel');
-            }
-        })
-    }
 
     // ------------ Functions for the Reviews Section ------------
 
@@ -144,15 +36,27 @@ class NewSectionA extends Component {
         //   console.log(h * 3600 + m * 60 + s);
         }
 
-        Axios.post('/api/students/mcq/evaluate',{
+        Axios.post('/api/students/runProgram',{
+            "paperId": localStorage.getItem('id'),
+            "questionId": this.state.data[this.state.currentQuestion]['_id'],
+            "program": this.state.optionsSelected[this.state.currentQuestion],
+            "time": h*60*60+m*60+s,
+            "currentSection": "Code"
+        },{
+            headers: {
+                Authorization: localStorage.getItem('token')
+            }
+        })
+
+        Axios.post('/api/students/saveOutput',{
             "paperId": localStorage.getItem('id'),
             "questionId": this.state.data[this.state.currentQuestion]['_id'],
             "optionsSelected": this.state.optionsSelected[this.state.currentQuestion],
             "time": h*60*60+m*60+s,
-            "currentSection": "MCQ"
+            "currentSection": "Code"
         },{
             headers: {
-                Authorization: localStorage.getItem('token'),
+                Authorization: localStorage.getItem('token')
             }
         }).then(res=>{
             console.log(res)
@@ -201,62 +105,124 @@ class NewSectionA extends Component {
         });
         this.setState({ optionsSelected: arr, reviews: rev });
       };
-
-    componentDidMount(){
-
-        // ---------------- Avoiding copy ----------------
-        document.addEventListener('keydown', this.my_onkeydown_handler);
-        document.addEventListener('visibilitychange', () => {
-        console.log(document.hidden, document.visibilityState);
-        if (document.hidden) {
-            this.warn();
-            if (this.state.cheat % 3 === 2) {
-            var key = parseInt(window.prompt('Enter unlock key'));
-            while (key !== 6699) {
-                key = parseInt(window.prompt('Enter unlock key'));
+    
+    // Increment the current question by 1
+    handleNext=()=>{
+        if(this.state.currentQuestion+1<this.state.count){
+            // Getting time from the Timer component
+            if (document.getElementById('timer-hours')) {
+                var h = parseInt(
+                document.getElementById('timer-hours').innerHTML,
+                );
+                var m = parseInt(
+                document.getElementById('timer-minutes').innerHTML,
+                );
+                var s = parseInt(
+                document.getElementById('timer-seconds').innerHTML,
+                );
             }
-            } else {
-            alert('DO NOT MINIZIZE');
-            }
-            this.setState({ cheat: this.state.cheat + 1 });
+            Axios.post('/api/students/runProgram',{
+                "paperId": localStorage.getItem('id'),
+                "questionId": this.state.data[this.state.currentQuestion]['_id'],
+                "program": this.state.optionsSelected[this.state.currentQuestion],
+                "time": h*60*60+m*60+s,
+                "currentSection": "Code"
+            },{
+                headers: {
+                    Authorization: localStorage.getItem('token')
+                }
+            })
+    
+            Axios.post('/api/students/saveOutput',{
+                "paperId": localStorage.getItem('id'),
+                "questionId": this.state.data[this.state.currentQuestion]['_id'],
+                "optionsSelected": this.state.optionsSelected[this.state.currentQuestion],
+                "time": h*60*60+m*60+s,
+                "currentSection": "Code"
+            },{
+                headers: {
+                    Authorization: localStorage.getItem('token')
+                }
+            }).then(res=>{
+                console.log(res)
+                // The question number passed here is the displayed value
+                // Hence we need to subtract 1 in order to get the index
+                this.setState({ currentQuestion: this.state.currentQuestion+1 });
+            },err=>alert(err.response.data.error.msg))
         }
-        });
-        document.addEventListener('blur', () => {
-        console.log('blur');
-        });
+    }
 
-        // ----------------------------------------------------------------
+    // Decrement the current question by 1
+    handlePrev=()=>{
+        if(this.state.currentQuestion-1>=0){
+            // Getting time from the Timer component
+            if (document.getElementById('timer-hours')) {
+                var h = parseInt(
+                document.getElementById('timer-hours').innerHTML,
+                );
+                var m = parseInt(
+                document.getElementById('timer-minutes').innerHTML,
+                );
+                var s = parseInt(
+                document.getElementById('timer-seconds').innerHTML,
+                );
+            }
+            Axios.post('/api/students/runProgram',{
+                "paperId": localStorage.getItem('id'),
+                "questionId": this.state.data[this.state.currentQuestion]['_id'],
+                "program": this.state.optionsSelected[this.state.currentQuestion],
+                "time": h*60*60+m*60+s,
+                "currentSection": "Code"
+            },{
+                headers: {
+                    Authorization: localStorage.getItem('token')
+                }
+            })
+    
+            Axios.post('/api/students/saveOutput',{
+                "paperId": localStorage.getItem('id'),
+                "questionId": this.state.data[this.state.currentQuestion]['_id'],
+                "optionsSelected": this.state.optionsSelected[this.state.currentQuestion],
+                "time": h*60*60+m*60+s,
+                "currentSection": "Code"
+            },{
+                headers: {
+                    Authorization: localStorage.getItem('token')
+                }
+            }).then(res=>{
+                console.log(res)
+                // The question number passed here is the displayed value
+                // Hence we need to subtract 1 in order to get the index
+                this.setState({ currentQuestion: this.state.currentQuestion-1 });
+            },err=>alert(err.response.data.error.msg))
+        }
+    }
 
-        Axios.get(`/api/students/questions?paperId=${localStorage.getItem('id')}`,{
+    handleSubmit=()=>{
+        // Getting time from the Timer component
+        if (document.getElementById('timer-hours')) {
+            var h = parseInt(
+            document.getElementById('timer-hours').innerHTML,
+            );
+            var m = parseInt(
+            document.getElementById('timer-minutes').innerHTML,
+            );
+            var s = parseInt(
+            document.getElementById('timer-seconds').innerHTML,
+            );
+        }
+        Axios.post('/api/students/mcq/evaluate',{
+            "paperId": localStorage.getItem('id'),
+            "questionId": this.state.data[this.state.currentQuestion]['_id'],
+            "optionsSelected": this.state.optionsSelected[this.state.currentQuestion],
+            "time": h*60*60+m*60+s,
+            "currentSection": "Code"
+        },{
             headers: {
                 Authorization: localStorage.getItem('token'),
             }
-        })
-        .then(res=>{
-            if(res.data.data.count.mcq>0){
-                var i = 0;
-                var arr = [];
-                var os = [];
-                for (i = 0; i < res.data.data.count.mcq; i++) {
-                    arr.push({
-                        number: i + 1,
-                        status: 'null',
-                    });
-                    os.push(' ');
-                }
-                this.setState({
-                    data: res.data.data.paper.mcq,
-                    time: res.data.data.submittedAnswers.time,
-                    count: res.data.data.count.mcq,
-                    reviews: arr,
-                    optionsSelected: os,
-                    loading: false
-                }
-            )   
-            }
-            else{
-                window.location='section-b'
-            }
+        }).then(res=>{
+            window.location='/section-b'
         },err=>alert(err.response.data.error.msg))
     }
 
@@ -306,6 +272,57 @@ class NewSectionA extends Component {
     
     // ----------------------------------------------------------------
 
+    componentDidMount(){
+        // ---------------- Avoiding copy ----------------
+        document.addEventListener('keydown', this.my_onkeydown_handler);
+        document.addEventListener('visibilitychange', () => {
+        console.log(document.hidden, document.visibilityState);
+        if (document.hidden) {
+            this.warn();
+            if (this.state.cheat % 3 === 2) {
+            var key = parseInt(window.prompt('Enter unlock key'));
+            while (key !== 6699) {
+                key = parseInt(window.prompt('Enter unlock key'));
+            }
+            } else {
+            alert('DO NOT MINIZIZE');
+            }
+            this.setState({ cheat: this.state.cheat + 1 });
+        }
+        });
+        document.addEventListener('blur', () => {
+        console.log('blur');
+        });
+
+        // ----------------------------------------------------------------
+        Axios.get(`/api/students/questions?paperId=${localStorage.getItem('id')}`,{
+            headers: {
+                Authorization: localStorage.getItem('token'),
+            }
+        })
+        .then(res=>{
+            var i = 0;
+            var arr = [];
+            var os = [];
+            for (i = 0; i < res.data.data.count.code; i++) {
+                arr.push({
+                    number: i + 1,
+                    status: 'null'
+                });
+                os.push(' ');
+            }
+            this.setState({
+                data: res.data.data.paper.code,
+                time: res.data.data.submittedAnswers.time,
+                count: res.data.data.count.code,
+                reviews: arr,
+                optionsSelected: os,
+                loading: false
+            }
+        )
+        },err=>alert(err.response.data.error.msg))
+    }
+    
     render() {
         console.log(this.state)
         return ( 
@@ -318,7 +335,8 @@ class NewSectionA extends Component {
                     loading={true}
                   />
                 ):(
-                    <Grid container direction="row" justify="center">
+                    <React.Fragment>
+                        <Grid container direction="row" justify="center">
                         <Grid item xs={6}>
                             <Info
                             cheat={this.state.cheat}
@@ -344,9 +362,9 @@ class NewSectionA extends Component {
                                     Axios.post('/api/students/timeout',{
                                         "paperId": localStorage.getItem('id'),
                                         "questionId": this.state.data[this.state.currentQuestion]['_id'],
-                                        "optionsSelected": this.state.optionsSelected[this.state.currentQuestion],
+                                        "program": this.state.optionsSelected[this.state.currentQuestion],
                                         "time": 0,
-                                        "currentSection": "MCQ"
+                                        "currentSection": "Code"
                                     },{
                                         headers: {
                                             Authorization: localStorage.getItem('token'),
@@ -393,8 +411,6 @@ class NewSectionA extends Component {
                             </Timer>
                         </Grid>
 
-                        {/* Section A */}
-
                         {/* Buttons */}
 
                         <Grid container direction="row" justify="center" spacing={4} >
@@ -420,36 +436,33 @@ class NewSectionA extends Component {
                             </Grid>
                         </Grid>
 
-
-                        {/* Lower part */}
                         <Grid container direction='row' justify='center'>
                             <Grid item xs={11}>
                                 <Grid container direction='row' justify='center'>
                                     <Grid item xs={9}>
-                                        <SectionA
-                                        // +1 because indexing starts from 0
+                                        <SectionB 
                                         questionNumber={this.state.currentQuestion+1}
                                         question={this.state.data?this.state.data[this.state.currentQuestion].title:''}
-                                        options={this.state.data?this.state.data[this.state.currentQuestion].options:''}
-                                        update={text=>this.addToOptionsSelected(text)}
-                                        selectedAnswer={
-                                            this.state.optionsSelected[
-                                            this.state.currentQuestion
-                                            ] || ''
+                                        update={text =>
+                                            this.addToOptionsSelected(text)
                                         }
-                                        />         
+                                        selectedAnswer={
+                                        this.state.optionsSelected[
+                                            this.state.currentQuestion
+                                        ] || ''
+                                        }
+                                        questionId={this.state.data?this.state.data[this.state.currentQuestion]._id:''}
+                                        />
                                     </Grid>
-
-
                                     <Grid item xs={3}>
                                         <Review
-                                            // +1 because we need to pass the actual qn not the index
-                                            currentQuestion={this.state.currentQuestion+1}
-                                            show={qn => this.show(qn)}
-                                            reviews={this.state.reviews}
-                                            marked={this.calculateReviews()[0]}
-                                            attempted={this.calculateReviews()[1]}
-                                            notattempted={this.calculateReviews()[2]}
+                                        // +1 because we need to pass the actual qn not the index
+                                        currentQuestion={this.state.currentQuestion+1}
+                                        show={qn => this.show(qn)}
+                                        reviews={this.state.reviews}
+                                        marked={this.calculateReviews()[0]}
+                                        attempted={this.calculateReviews()[1]}
+                                        notattempted={this.calculateReviews()[2]}
                                         />
                                     </Grid>
                                 </Grid>
@@ -457,10 +470,11 @@ class NewSectionA extends Component {
                         </Grid>
 
                     </Grid>
+                    </React.Fragment>
                 )}
             </React.Fragment>
          );
     }
 }
  
-export default NewSectionA;
+export default NewSectionB;

@@ -5,7 +5,7 @@ import 'ace-builds/src-noconflict/mode-csharp';
 import 'ace-builds/src-noconflict/theme-kuroir';
 import 'ace-builds/src-noconflict/theme-textmate';
 import { PulseLoader } from 'react-spinners';
-import Terminal from '../components/terminal';
+// import Terminal from '../components/terminal';
 import Axios from 'axios';
 
 class SectionB extends Component {
@@ -64,9 +64,7 @@ class SectionB extends Component {
       marginBottom: 40,
     },
   };
-  componentDidMount = () => {
-    this.props.load();
-  };
+
   handleRunCode = () => {
     var code = this.state.code;
     console.log(code);
@@ -76,12 +74,13 @@ class SectionB extends Component {
         `Code cannot be executed as it contains system commands.\nINVALID : CODE`,
       );
     } else {
-      console.log(this.props.question.question._id);
       Axios.post(
-        '/api/runProgram',
+        '/api/students/runProgram',
         {
-          program: this.state.code,
-          questionId: this.props.question.question._id,
+          "paperId": localStorage.getItem('id'),
+          "questionId": this.props.questionId,
+          "program": this.state.code,
+          "currentSection": "Code"
         },
         {
           headers: {
@@ -93,20 +92,19 @@ class SectionB extends Component {
           console.log(res.data);
           this.setState({
             studentId: res.data.data.studentId,
-            path: true,
+            path: true, // This is th dummy variable for mounting terminal
           });
         },
         err => alert(err),
       );
     }
   };
+
   componentDidUpdate(prevProps, PrevState) {
     if (prevProps !== this.props) {
       this.setState({
-        code:
-          localStorage.getItem(`backUpCode${this.props.number}`) ||
-          this.props.selectedAnswer,
-        path: this.props.showTerminal,
+        code: this.props.selectedAnswer,
+        path: this.props.showTerminal
       });
     }
   }
@@ -115,8 +113,7 @@ class SectionB extends Component {
         return newText
   }
   handleCode = val => {
-    this.props.update(val);
-    localStorage.setItem(`backUpCode${this.props.number}`, val);
+    this.props.update(val)
     this.setState({ code: val, path: null });
   };
   render() {
@@ -135,22 +132,15 @@ class SectionB extends Component {
                 letterSpacing: 1,
               }}
             >
-              QUESTION {this.props.number}
+              QUESTION {this.props.questionNumber}
             </div>
           </Grid>
           <Grid item xs={9}>
             <div style={this.styles.question}>
-              {this.props.question ? this.processNewLine(this.props.question.question.title) : (
+              {this.props.question?this.processNewLine(this.props.question) : (
                 <PulseLoader
-                  // css={css`
-                  // position: absolute;
-                  // top: 50%;
-                  // left: 50%;
-                  // transform: translate(-50%, -50%);
-                  // `}
                   size={10}
                   margin={2}
-                  //size={"150px"} this also works
                   color={'#123abc'}
                   loading={true}
                 />
@@ -183,13 +173,7 @@ class SectionB extends Component {
                 }}
                 fontSize={18}
                 onChange={this.handleCode}
-                value={
-                  localStorage.getItem(
-                    `backUpCode${this.props.number}`,
-                  ) ||
-                  this.props.selectedAnswer ||
-                  this.state.code
-                }
+                value={this.props.selectedAnswer || this.state.code}
                 name="code-editor"
                 editorProps={{ $blockScrolling: true }}
               />
@@ -216,14 +200,14 @@ class SectionB extends Component {
                             defaultValue="OUTPUT"
                         /> */}
             <div>
-              {this.state.path ? (
+              {/* {this.state.path ? (
                 <Terminal
                   studentId={this.state.studentId}
                   questionId={this.props.question.question._id}
                 />
               ) : (
                 ''
-              )}
+              )} */}
             </div>
           </Grid>
         </Grid>
