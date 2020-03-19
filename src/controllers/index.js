@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import rimraf from 'rimraf';
 import puppeteer from 'puppeteer';
+import { Workbook } from 'exceljs';
 import { User, Question, Paper, SelectedAnswer } from '../models';
 import {
   handleError,
@@ -606,6 +607,10 @@ export const getPaper = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       data: {
+        count: {
+          mcq: mcq.length,
+          code: code.length,
+        },
         paper: {
           ...paper._doc,
           mcq,
@@ -1276,7 +1281,7 @@ export const runProgram = async (req, res, next) => {
       return handleError(error, res);
     }
 
-    const dir = path.join(__basedir, 'code', req.user.sapId);
+    const dir = path.join(__basedir, 'code', req.user._id.toString());
 
     // Check if dir exists otherwise create a new one
     if (!fs.existsSync(dir)) {
@@ -1331,6 +1336,7 @@ export const runProgram = async (req, res, next) => {
           _id: submittedAnswer['_id'],
           paperId: submittedAnswer['paperId'],
           currentSection: submittedAnswer['currentSection'],
+          studentId: submittedAnswer['studentId'],
           time: submittedAnswer['time'],
           code: submittedAnswer['code'],
           codeTotalMarks: submittedAnswer['codeTotalMarks'],
@@ -1374,7 +1380,7 @@ export const saveCodeOutput = async (req, res, next) => {
     const filename = path.join(
       __basedir,
       'code',
-      req.user.sapId,
+      req.user._id.toString(),
       `output-${questionId}.txt`,
     );
 
@@ -1884,6 +1890,141 @@ export const sendPdf = async (req, res, next) => {
 
     return res.sendFile(filename);
   } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Sends the excel sheet of score in response
+ *
+ * Returns the excel sheet of div
+ *
+ * Access - Teachers
+ */
+export const generateExcel = async (req, res, next) => {
+  try {
+    const { year: batch, type, div } = req.query;
+
+    // Finds the students based on the div and batch
+    const _studentId = await User.find(
+      { div, batch },
+      { _id: 1 },
+    ).exec();
+
+    // Finds the paper based on the year and type
+    const _paperId = await Paper.find(
+      { year: batch, type },
+      { _id: 1 },
+    ).exec();
+
+    const studentId = [],
+      paperId = [];
+
+    for (let i = 0; i < _studentId.length; i++) {
+      studentId.push(_studentId[i]['_id']);
+    }
+
+    for (let i = 0; i < _paperId.length; i++) {
+      paperId.push(_paperId[i]['_id']);
+    }
+
+    // Finds the selected answers of students as per the studentIds and paperIds
+    const _selectedAnswer = await SelectedAnswer.find(
+      {
+        studentId,
+        paperId,
+      },
+      { currentSection: 0, print: 0, time: 0, date: 0 },
+    )
+      .populate('studentId', 'sapId')
+      .populate('paperId', 'set')
+      .exec();
+
+    // Sort by the sapId in ascending order
+    const selectedAnswer = _selectedAnswer.sort(
+      (a, b) => a['studentId']['sapId'] - b['studentId']['sapId'],
+    );
+
+    const dir = path.join(
+      __basedir,
+      'media',
+      'excel',
+      batch.toString(),
+      type,
+    );
+
+    // Creates the dir if doesn't exists
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    const filename = path.join(dir, `${div}.xlsx`);
+
+    // Generate the excel
+    const workbook = new Workbook();
+    const worksheet = workbook.addWorksheet(div);
+
+    let arr = [];
+
+    arr.push({ header: 'SAP ID', key: 'sapId', width: 25 });
+
+    for (let i = 0; i < selectedAnswer[0]['mcq'].length; i++) {
+      arr.push({
+        header: `MCQ Q. ${i + 1}`,
+        key: `mcq${i + 1}`,
+        width: 15,
+      });
+    }
+
+    for (let i = 0; i < selectedAnswer[0]['code'].length; i++) {
+      arr.push({
+        header: `Code Q. ${i + 1}`,
+        key: `code${i + 1}`,
+        width: 15,
+      });
+    }
+
+    arr.push({ header: 'Total', key: 'total', width: 15 });
+
+    // set the columns
+    worksheet.columns = arr;
+
+    // Iterating through answer
+    for (let i = 0; i < selectedAnswer.length; i++) {
+      const obj = {
+        sapId: selectedAnswer[i]['studentId']['sapId'],
+      };
+
+      for (let j = 0; j < selectedAnswer[i]['mcq'].length; j++) {
+        obj[`mcq${j + 1}`] = selectedAnswer[i]['mcq'][j]['marks'];
+      }
+
+      for (let j = 0; j < selectedAnswer[i]['code'].length; j++) {
+        obj[`code${j + 1}`] = selectedAnswer[i]['code'][j]['marks'];
+      }
+
+      obj['total'] =
+        selectedAnswer[i]['mcqMarksObtained'] +
+        selectedAnswer[i]['codeMarksObtained'];
+
+      worksheet.addRow(obj);
+    }
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename=' + filename,
+    );
+
+    workbook.xlsx.writeFile(filename).then(function() {
+      workbook.xlsx.write(res);
+    });
+  } catch (err) {
+    console.log(err);
     return handleError(err, res);
   }
 };

@@ -5,7 +5,7 @@ import 'ace-builds/src-noconflict/mode-csharp';
 import 'ace-builds/src-noconflict/theme-kuroir';
 import 'ace-builds/src-noconflict/theme-textmate';
 import { PulseLoader } from 'react-spinners';
-// import Terminal from '../components/terminal';
+import Terminal from '../components/terminal';
 import Axios from 'axios';
 
 class SectionB extends Component {
@@ -77,10 +77,10 @@ class SectionB extends Component {
       Axios.post(
         '/api/students/runProgram',
         {
-          "paperId": localStorage.getItem('id'),
-          "questionId": this.props.questionId,
-          "program": this.state.code,
-          "currentSection": "Code"
+          paperId: localStorage.getItem('id'),
+          questionId: this.props.questionId,
+          program: this.state.code,
+          currentSection: 'Code',
         },
         {
           headers: {
@@ -91,7 +91,7 @@ class SectionB extends Component {
         res => {
           console.log(res.data);
           this.setState({
-            studentId: res.data.data.studentId,
+            studentId: res.data.data.submittedAnswer.studentId,
             path: true, // This is th dummy variable for mounting terminal
           });
         },
@@ -104,16 +104,16 @@ class SectionB extends Component {
     if (prevProps !== this.props) {
       this.setState({
         code: this.props.selectedAnswer,
-        path: this.props.showTerminal
+        path: this.props.showTerminal,
       });
     }
   }
-  processNewLine=(text)=>{
-        let newText = text.split ('\n').map ((item, i) => <p>{item}</p>)
-        return newText
-  }
+  processNewLine = text => {
+    let newText = text.split('\n').map((item, i) => <p>{item}</p>);
+    return newText;
+  };
   handleCode = val => {
-    this.props.update(val)
+    this.props.update(val);
     this.setState({ code: val, path: null });
   };
   render() {
@@ -137,7 +137,9 @@ class SectionB extends Component {
           </Grid>
           <Grid item xs={9}>
             <div style={this.styles.question}>
-              {this.props.question?this.processNewLine(this.props.question) : (
+              {this.props.question ? (
+                this.processNewLine(this.props.question)
+              ) : (
                 <PulseLoader
                   size={10}
                   margin={2}
@@ -200,14 +202,14 @@ class SectionB extends Component {
                             defaultValue="OUTPUT"
                         /> */}
             <div>
-              {/* {this.state.path ? (
+              {this.state.path ? (
                 <Terminal
                   studentId={this.state.studentId}
-                  questionId={this.props.question.question._id}
+                  questionId={this.props.questionId}
                 />
               ) : (
                 ''
-              )} */}
+              )}
             </div>
           </Grid>
         </Grid>

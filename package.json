@@ -12,6 +12,8 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "client": "npm start --prefix client",
     "build-client": "npm run build --prefix client",
+    "terminal-dev": "nodemon TerminalServer.js",
+    "terminal-prod": "node TerminalServer.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -27,12 +29,16 @@
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
+    "exceljs": "^3.8.1",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.2",
     "morgan": "^1.9.1",
+    "node-pty": "^0.9.0",
     "puppeteer": "^2.1.1",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "ws": "^7.2.3",
+    "xterm": "^4.4.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",

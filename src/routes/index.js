@@ -30,6 +30,7 @@ import {
   evaluateCodeResponses,
   getCodeResponses,
   sendPdf,
+  generateExcel,
 } from '../controllers';
 import { protect, isTeacher, isAdmin } from '../middlewares';
 
@@ -103,6 +104,10 @@ router
   .post(protect, evaluateCodeResponses);
 
 router.route('/generate/pdf/:id').get(protect, isTeacher, sendPdf);
+
+router
+  .route('/generate/excel')
+  .get(protect, isTeacher, generateExcel);
 
 // Route for the students
 router.route('/sets').get(protect, getAllSets);
