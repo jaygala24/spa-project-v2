@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import rimraf from 'rimraf';
 import { User, Question, Paper, SelectedAnswer } from '../models';
 import {
   handleError,
@@ -1406,6 +1407,13 @@ export const saveCodeOutput = async (req, res, next) => {
           loggedIn: false,
         },
       );
+
+      const dir = path.join(__basedir, 'code', req.user.sapId);
+
+      // If dir exists then remove the dir otherwise do nothing
+      if (fs.existsSync(dir)) {
+        rimraf.sync(dir);
+      }
     }
 
     // returning the submitted answer by the student
