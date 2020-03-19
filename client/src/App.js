@@ -13,17 +13,31 @@ import CreateStudentUser from './scenes/teacher/CreateStudentUser';
 import CreateTeacherUser from './scenes/teacher/CreateTeacherUser';
 import CreateCode from './scenes/teacher/createQuestion/createCode';
 import CreateTest from './scenes/teacher/createTest/createTest';
+import ViewQuestions from './scenes/teacher/question/ViewQuestions';
+import ViewTests from './scenes/teacher/test/ViewTests';
+import ViewTest from './scenes/teacher/test/ViewTest';
+import SLogin from './scenes/StudentLogin/slogin';
+import EnterSet from './scenes/student/enterSet';
+import NewSectionA from './scenes/student/newSectionA';
+import NewSectionB from './scenes/student/newSectionB';
 
 function App() {
   return (
     <BrowserRouter>
       <Switch>
         <Route exact path="/" component={Login} />
+        <Route path="/student" component={SLogin} />
         <ProtectedRoute path="/manage" component={HomeTeacher} />
+        <ProtectedRoute path="/enter-set" component={EnterSet} />
+        <ProtectedRoute path="/section-a" component={NewSectionA} />
+        <ProtectedRoute path="/section-b" component={NewSectionB} />
         <ProtectedRoute path="/reset" component={LoggedInList} />
         <ProtectedRoute path="/create-test" component={CreateTest} />
         <ProtectedRoute path="/create-question" component={SelectType} />
         <ProtectedRoute path="/create-mcq" component={CreateMcq} />
+        <ProtectedRoute path="/questions" component={ViewQuestions} />
+        <ProtectedRoute path="/view-tests" component={ViewTests} />
+        <ProtectedRoute path="/view-paper" component={ViewTest} />
         <ProtectedRoute path="/create-code" component={CreateCode} />
         <ProtectedRoute
           path="/generate-password"
