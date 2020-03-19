@@ -1056,6 +1056,7 @@ export const getQuestionsForStudents = async (req, res) => {
         category: 0,
       })
       .populate('code.questionId', {
+        options: 0,
         correctAnswers: 0,
         tag: 0,
         category: 0,
