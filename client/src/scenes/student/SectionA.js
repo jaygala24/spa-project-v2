@@ -45,7 +45,7 @@ class SectionA extends Component {
         else{
             text=this.props.question.question?this.props.question.question.options[3]:''
         }
-        this.props.update(text)
+        // this.props.update(text)
         this.setState({val: event.target.value})
     }
     componentDidUpdate(prevProps,prevState){

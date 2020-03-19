@@ -79,25 +79,25 @@ class NewSectionA extends Component {
 
     // ------------ End of function related to Reviews section ------------
 
-    addToOptionsSelected = text => {
-        console.log(text)
-        var arr = this.state.optionsSelected;
-        console.log(this.state.currentQuestion)
-        arr[this.state.currentQuestion] = text;
-        var rev = this.state.reviews;
-        this.state.reviews.forEach(r => {
-        //   console.log(r.status);
-          if (r.number === this.state.currentQuestion) {
-            if (r.status !== 'marked') {
-              rev[r.number - 1] = {
-                number: r.number,
-                status: 'reviewed',
-              };
-            }
-          }
-        });
-        this.setState({ optionsSelected: arr, reviews: rev });
-      };
+    // addToOptionsSelected = text => {
+    //     console.log(text)
+    //     var arr = this.state.optionsSelected;
+    //     console.log(this.state.currentQuestion)
+    //     arr[this.state.currentQuestion] = text;
+    //     var rev = this.state.reviews;
+    //     this.state.reviews.forEach(r => {
+    //     //   console.log(r.status);
+    //       if (r.number === this.state.currentQuestion) {
+    //         if (r.status !== 'marked') {
+    //           rev[r.number - 1] = {
+    //             number: r.number,
+    //             status: 'reviewed',
+    //           };
+    //         }
+    //       }
+    //     });
+    //     this.setState({ optionsSelected: arr, reviews: rev });
+    //   };
 
     componentDidMount(){
         Axios.get(`/api/students/questions?paperId=${localStorage.getItem('id')}`,{
@@ -233,9 +233,11 @@ class NewSectionA extends Component {
                                     questionNumber={this.state.currentQuestion+1}
                                     question={this.state.data?this.state.data[this.state.currentQuestion].title:''}
                                     options={this.state.data?this.state.data[this.state.currentQuestion].options:''}
-                                    update={text=>this.addToOptionsSelected(text)}
+                                    // update={text=>this.addToOptionsSelected(text)}
                                     />         
                                 </Grid>
+
+
                                 <Grid item xs={3}>
                                     <Review
                                         // +1 because we need to pass the actual qn not the index
