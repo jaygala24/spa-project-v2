@@ -24,6 +24,11 @@ import {
   evaluateMCQQuestion,
   runProgram,
   saveCodeOutput,
+  saveProgressOnTimeOut,
+  getAllFiltersForEvaluate,
+  getStudentResponses,
+  evaluateCodeResponses,
+  getCodeResponses,
 } from '../controllers';
 import { protect, isTeacher, isAdmin } from '../middlewares';
 
@@ -80,6 +85,22 @@ router
   .put(protect, isTeacher, updatePaper)
   .delete(protect, isTeacher, deletePaper);
 
+router
+  .route('/evaluate/filters')
+  .get(protect, isTeacher, getAllFiltersForEvaluate);
+
+router
+  .route('/evaluate/responses')
+  .get(protect, isTeacher, getStudentResponses);
+
+router
+  .route('/students/responses')
+  .get(protect, isTeacher, getCodeResponses);
+
+router
+  .route('/evaluate/code/responses')
+  .post(protect, evaluateCodeResponses);
+
 // Route for the students
 router.route('/sets').get(protect, getAllSets);
 
@@ -96,4 +117,9 @@ router
 router.route('/students/runProgram').post(protect, runProgram);
 
 router.route('/students/saveOutput').post(protect, saveCodeOutput);
+
+router
+  .route('/students/timeout')
+  .post(protect, saveProgressOnTimeOut);
+
 export default router;
