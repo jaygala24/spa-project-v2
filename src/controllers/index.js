@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import rimraf from 'rimraf';
+import puppeteer from 'puppeteer';
 import { User, Question, Paper, SelectedAnswer } from '../models';
 import {
   handleError,
@@ -9,6 +10,7 @@ import {
   newToken,
 } from '../utils';
 import ErrorHandler from '../utils/error';
+import { reportCardTemplate } from '../utils/reportCardTemplate';
 
 /**
  * login controller for the teachers and students
@@ -1784,6 +1786,60 @@ export const evaluateCodeResponses = async (req, res, next) => {
       },
     );
 
+    const selectedAnswer = await SelectedAnswer.findOne({
+      _id: id,
+    })
+      .populate('paperId', {
+        set: 1,
+        time: 1,
+        code: 1,
+        mcq: 1,
+        year: 1,
+        type: 1,
+        _id: 0,
+      })
+      .populate('studentId', { sapId: 1, _id: 0, div: 1, batch: 1 })
+      .populate('mcq.questionId')
+      .populate('code.questionId')
+      .exec();
+
+    // Generating PDF
+    const browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+
+    const content = reportCardTemplate(selectedAnswer);
+
+    await page.setContent(content);
+
+    const dir = path.join(
+      __basedir,
+      'media',
+      'results',
+      selectedAnswer['studentId']['batch'].toString(),
+      selectedAnswer['paperId']['type'],
+      selectedAnswer['studentId']['div'],
+    );
+
+    // Creates the dir if doesn't exists
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    await page.pdf({
+      path: path.join(
+        dir,
+        `${selectedAnswer['studentId']['sapId']}.pdf`,
+      ),
+      format: 'A4',
+      printBackground: true,
+      margin: {
+        left: '32px',
+        top: '32px',
+        right: '32px',
+        bottom: '32px',
+      },
+    });
+
     // returns the acknowledgement msg
     return res.status(200).json({
       success: true,
@@ -1791,6 +1847,42 @@ export const evaluateCodeResponses = async (req, res, next) => {
         msg: `Paper evaluated of sapId: ${student.sapId}`,
       },
     });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Sends the pdf file in response
+ *
+ * Returns the pdf file of student progress
+ *
+ * Access - Teachers
+ */
+export const sendPdf = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const selectedAnswer = await SelectedAnswer.findOne({
+      _id: id,
+    })
+      .populate('paperId', {
+        type: 1,
+        _id: 0,
+      })
+      .populate('studentId', { sapId: 1, _id: 0, div: 1, batch: 1 });
+
+    const filename = path.join(
+      __basedir,
+      'media',
+      'results',
+      selectedAnswer['studentId']['batch'].toString(),
+      selectedAnswer['paperId']['type'],
+      selectedAnswer['studentId']['div'],
+      `${selectedAnswer['studentId']['sapId']}.pdf`,
+    );
+
+    return res.sendFile(filename);
   } catch (err) {
     return handleError(err, res);
   }
