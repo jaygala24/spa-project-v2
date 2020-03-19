@@ -43,6 +43,13 @@ class HomeTeacher extends Component {
                   text="Questions"
                 />
               </Grid>
+              <Grid item xs={6} md={4} lg={3}>
+                <Card
+                  delay={{ transitionDelay: '200ms' }}
+                  link="/view-tests"
+                  text="View Tests"
+                />
+              </Grid>
               {localStorage.getItem('admin') === 'true' ? (
                 <Grid item xs={6} md={4} lg={3}>
                   <Card
