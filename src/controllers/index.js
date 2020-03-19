@@ -1056,6 +1056,7 @@ export const getQuestionsForStudents = async (req, res) => {
         category: 0,
       })
       .populate('code.questionId', {
+        options: 0,
         correctAnswers: 0,
         tag: 0,
         category: 0,
@@ -1181,7 +1182,7 @@ export const evaluateMCQQuestion = async (req, res, next) => {
     }
 
     // Find the selected answer of student
-    const _submittedAnswers = await SelectedAnswer.findOne({
+    const _submittedAnswer = await SelectedAnswer.findOne({
       studentId: req.user._id,
       paperId,
       date,
@@ -1190,15 +1191,15 @@ export const evaluateMCQQuestion = async (req, res, next) => {
     const mcq = [];
 
     // Creating mcq object as per the format for saving in db
-    for (let i = 0; i < _submittedAnswers['mcq'].length; i++) {
-      if (_submittedAnswers['mcq'][i]['questionId'] == questionId) {
+    for (let i = 0; i < _submittedAnswer['mcq'].length; i++) {
+      if (_submittedAnswer['mcq'][i]['questionId'] == questionId) {
         mcq.push({
           questionId,
           optionsSelected,
           marks,
         });
       } else {
-        mcq.push(_submittedAnswers['mcq'][i]);
+        mcq.push(_submittedAnswer['mcq'][i]);
       }
       mcqMarksObtained += mcq[i]['marks'];
     }
@@ -1294,7 +1295,7 @@ export const runProgram = async (req, res, next) => {
         './a\nNo output',
         err => {
           if (err) {
-            return next(err);
+            return handleError(err, res);
           }
         },
       );
@@ -1429,6 +1430,365 @@ export const saveCodeOutput = async (req, res, next) => {
           code: submittedAnswer['code'],
           codeTotalMarks: submittedAnswer['codeTotalMarks'],
         },
+      },
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Saves the progress of the students on the timeout
+ *
+ * Returns the acknowledgement after saving the progress
+ *
+ * Access - Students
+ */
+export const saveProgressOnTimeOut = async (req, res, next) => {
+  try {
+    const { paperId, currentSection } = req.body;
+    const date = new Date().toISOString().slice(0, 10);
+
+    // find the selected answer of student
+    const _submittedAnswer = await SelectedAnswer.findOne(
+      {
+        studentId: req.user._id,
+        paperId,
+        date,
+      },
+      { currentSection: 1, mcq: 1 },
+    ).exec();
+
+    // currentSection None then throw error
+    if (_submittedAnswer['currentSection'] === 'None') {
+      const error = new ErrorHandler(403, 'Test already submitted');
+      return handleError(error, res);
+    }
+
+    if (currentSection === 'MCQ') {
+      const { questionId, optionsSelected } = req.body;
+      let marks = 0,
+        mcqMarksObtained = 0;
+
+      // Find the paper in the db using the paperId
+      const paperObj = await Paper.findOne(
+        {
+          _id: paperId,
+          'mcq.questionId': questionId,
+        },
+        { set: 1, mcq: 1 },
+      )
+        .populate('mcq.questionId', {
+          _id: 1,
+          correctAnswers: 1,
+          marks: 1,
+        })
+        .exec();
+
+      // Evaluate the question based on the question id
+      for (let i = 0; i < paperObj['mcq'].length; i++) {
+        if (
+          paperObj['mcq'][i]['questionId']['_id'] == questionId &&
+          paperObj['mcq'][i]['questionId']['correctAnswers'].includes(
+            optionsSelected,
+          )
+        ) {
+          marks = paperObj['mcq'][i]['marks'];
+          break;
+        }
+      }
+
+      const mcq = [];
+
+      // Creating mcq object as per the format for saving in db
+      for (let i = 0; i < _submittedAnswer['mcq'].length; i++) {
+        if (_submittedAnswer['mcq'][i]['questionId'] == questionId) {
+          mcq.push({
+            questionId,
+            optionsSelected,
+            marks,
+          });
+        } else {
+          mcq.push(_submittedAnswer['mcq'][i]);
+        }
+        mcqMarksObtained += mcq[i]['marks'];
+      }
+
+      // Updating the selected answers of student
+      await SelectedAnswer.findOneAndUpdate(
+        {
+          studentId: req.user._id,
+          paperId,
+          date,
+        },
+        {
+          mcq,
+          mcqMarksObtained,
+          time: 0,
+          currentSection: 'None',
+        },
+      );
+    } else {
+      const { questionId, program } = req.body;
+
+      const dir = path.join(__basedir, 'code', req.user.sapId);
+
+      // If dir exists then remove the dir otherwise do nothing
+      if (fs.existsSync(dir)) {
+        rimraf.sync(dir);
+      }
+
+      // Update the progress of student
+      await SelectedAnswer.findOneAndUpdate(
+        {
+          studentId: req.user._id,
+          paperId,
+          date,
+          'code.questionId': questionId,
+        },
+        {
+          $set: {
+            'code.$.program': program,
+            'code.$.output': 'No Output',
+            time: 0,
+            currentSection: 'None',
+          },
+        },
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        msg: 'Test submitted',
+      },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Gives the filter parameters for the evaluation of papers
+ *
+ * Returns the list of filters
+ *
+ * Access - Teachers
+ */
+export const getAllFiltersForEvaluate = async (req, res, next) => {
+  try {
+    const year = await Paper.distinct('year');
+    const type = await Paper.distinct('type');
+    const div = await User.distinct('div');
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        year,
+        type,
+        div,
+      },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Gives the list of students as per the filters
+ *
+ * Returns the list of students
+ *
+ * Access - Teachers
+ */
+export const getStudentResponses = async (req, res, next) => {
+  try {
+    const { year: batch, type, div } = req.query;
+
+    // Finds the students based on the div and batch
+    const _studentId = await User.find(
+      { div, batch },
+      { _id: 1 },
+    ).exec();
+
+    // Finds the paper based on the year and type
+    const _paperId = await Paper.find(
+      { year: batch, type },
+      { _id: 1 },
+    ).exec();
+
+    const studentId = [],
+      paperId = [];
+
+    for (let i = 0; i < _studentId.length; i++) {
+      studentId.push(_studentId[i]['_id']);
+    }
+
+    for (let i = 0; i < _paperId.length; i++) {
+      paperId.push(_paperId[i]['_id']);
+    }
+
+    // Finds the selected answers of students as per the studentIds and paperIds
+    const selectedAnswer = await SelectedAnswer.find({
+      studentId,
+      paperId,
+    })
+      .populate('studentId', 'sapId')
+      .populate('paperId', 'set')
+      .exec();
+
+    const _students = [];
+
+    // Format the student object for the api response
+    for (let i = 0; i < selectedAnswer.length; i++) {
+      _students.push({
+        studentId: selectedAnswer[i]['studentId']['_id'],
+        sapId: selectedAnswer[i]['studentId']['sapId'],
+        set: selectedAnswer[i]['paperId']['set'],
+        paperId: selectedAnswer[i]['paperId']['_id'],
+        _id: selectedAnswer[i]['_id'],
+        print: selectedAnswer[i]['print'],
+      });
+    }
+
+    // Sort by the sapId in ascending order
+    const students = _students.sort((a, b) => a.sapId - b.sapId);
+
+    // Returns the list of students
+    return res.status(200).json({
+      success: true,
+      data: {
+        year: batch,
+        type,
+        div,
+        students,
+      },
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Gives the selected answer of student
+ *
+ * Returns the selected answer of student
+ *
+ * Access - Teachers
+ */
+export const getCodeResponses = async (req, res, next) => {
+  try {
+    const { id, sapId } = req.query;
+
+    const student = await User.findOne(
+      { sapId },
+      { _id: 1, sapId: 1 },
+    ).exec();
+
+    // find the selected answer of student
+    const _selectedAnswer = await SelectedAnswer.findOne({
+      _id: id,
+      studentId: student._id,
+    })
+      .populate('paperId', {
+        set: 1,
+        code: 1,
+        type: 1,
+        year: 1,
+        _id: 0,
+      })
+      .exec();
+
+    const code = [];
+
+    // format as per the response
+    for (let i = 0; i < _selectedAnswer['code'].length; i++) {
+      const question = await Question.findById(
+        _selectedAnswer['code'][i]['questionId'],
+      );
+
+      code.push({
+        _id: _selectedAnswer['code'][i]['questionId'],
+        title: question['title'],
+        program: _selectedAnswer['code'][i]['program'],
+        output: _selectedAnswer['code'][i]['output'],
+        marks: _selectedAnswer['code'][i]['marks'],
+      });
+    }
+
+    // returns the selected answer of student
+    return res.status(200).json({
+      success: true,
+      data: {
+        count: {
+          mcq: _selectedAnswer['mcq'].length,
+          code: _selectedAnswer['code'].length,
+        },
+        mcqMarksObtained: _selectedAnswer['mcqMarksObtained'],
+        mcqTotalMarks: _selectedAnswer['mcqTotalMarks'],
+        codeMarksObtained: _selectedAnswer['codeMarksObtained'],
+        codeTotalMarks: _selectedAnswer['codeTotalMarks'],
+        code,
+        set: _selectedAnswer['paperId']['set'],
+        type: _selectedAnswer['paperId']['type'],
+        year: _selectedAnswer['paperId']['year'],
+      },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Evaluates the code responses submitted by student
+ *
+ * Returns the acknowledgement msg
+ *
+ * Access - Teachers
+ */
+export const evaluateCodeResponses = async (req, res, next) => {
+  try {
+    const { id, sapId, code } = req.body;
+    let codeMarksObtained = 0;
+
+    const student = await User.findOne(
+      { sapId },
+      { _id: 1, sapId: 1 },
+    ).exec();
+
+    // Updates the individual code question marks
+    for (let i = 0; i < code.length; i++) {
+      await SelectedAnswer.findOneAndUpdate(
+        {
+          _id: id,
+          studentId: student._id,
+          'code.questionId': code[i]['questionId'],
+        },
+        { $set: { 'code.$.marks': code[i]['marks'] } },
+      );
+      codeMarksObtained += code[i]['marks'];
+    }
+
+    // Updates the total code marks obtained
+    await SelectedAnswer.findOneAndUpdate(
+      {
+        _id: id,
+        studentId: student._id,
+      },
+      {
+        codeMarksObtained,
+        print: true,
+      },
+    );
+
+    // returns the acknowledgement msg
+    return res.status(200).json({
+      success: true,
+      data: {
+        msg: `Paper evaluated of sapId: ${student.sapId}`,
       },
     });
   } catch (err) {
