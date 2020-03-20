@@ -1465,7 +1465,7 @@ export const saveCodeOutput = async (req, res, next) => {
         },
       );
 
-      const dir = path.join(__basedir, 'code', req.user.sapId);
+      const dir = path.join(__basedir, 'code', req.user._id);
 
       // If dir exists then remove the dir otherwise do nothing
       if (fs.existsSync(dir)) {
@@ -1587,7 +1587,7 @@ export const saveProgressOnTimeOut = async (req, res, next) => {
     } else {
       const { questionId, program } = req.body;
 
-      const dir = path.join(__basedir, 'code', req.user.sapId);
+      const dir = path.join(__basedir, 'code', req.user._id);
 
       // If dir exists then remove the dir otherwise do nothing
       if (fs.existsSync(dir)) {
