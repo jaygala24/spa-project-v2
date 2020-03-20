@@ -1613,6 +1613,15 @@ export const saveProgressOnTimeOut = async (req, res, next) => {
       );
     }
 
+    await User.findOneAndUpdate(
+      {
+        _id: req.user._id,
+      },
+      {
+        loggedIn: false,
+      },
+    );
+
     return res.status(200).json({
       success: true,
       data: {
