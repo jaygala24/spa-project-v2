@@ -22,6 +22,8 @@ import NewSectionA from './scenes/student/newSectionA';
 import NewSectionB from './scenes/student/newSectionB';
 import StudentList from './scenes/teacher/eval/StudentList';
 import EvalCode from './scenes/teacher/eval/EvalCode';
+import EditMcq from './scenes/teacher/createQuestion/editMCQQuestion';
+import EditCode from './scenes/teacher/createQuestion/editQuestionCode';
 
 function App() {
   return (
@@ -43,6 +45,8 @@ function App() {
         <ProtectedRoute path="/create-code" component={CreateCode} />
         <ProtectedRoute path="/student-list" component={StudentList} />
         <ProtectedRoute path="/eval-code" component={EvalCode} />
+        <ProtectedRoute path="/edit-question-mcq" component={EditMcq} />
+        {/* <ProtectedRoute path="/edit-question-code" component={EditCode} /> */}
         <ProtectedRoute
           path="/generate-password"
           component={GeneratePassword}
