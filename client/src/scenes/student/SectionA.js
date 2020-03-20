@@ -50,6 +50,7 @@ class SectionA extends Component {
         this.setState({val: event.target.value})
     }
     componentDidUpdate(prevProps,prevState){
+        console.log("Did update",this.props.selectedAnswer)
         if(this.props!==prevProps&&this.state==prevState){
             console.log(this.props)
             this.setState({

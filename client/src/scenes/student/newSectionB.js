@@ -341,7 +341,7 @@ class NewSectionB extends Component {
                 time: res.data.data.submittedAnswers.time,
                 count: res.data.data.count.code,
                 reviews: arr,
-                optionsSelected: os,
+                optionsSelected: res.data.data.submittedAnswers.responses,
                 loading: false
             }
         )

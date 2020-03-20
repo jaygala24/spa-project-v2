@@ -103,6 +103,20 @@ class CreateMcq extends Component {
       }
     }
   };
+  getIndexOfCorrectAnswer=(char)=>{
+    if(char=='A'){
+      return 0
+    }
+    else if(char=='B'){
+      return 1
+    }
+    else if(char=='C'){
+      return 2
+    }
+    else if(char=='D'){
+      return 3
+    }
+  }
   componentDidMount = () => {
     window.scroll(0, 0);
     Axios.get('/api/questions/tags', {
@@ -139,7 +153,7 @@ class CreateMcq extends Component {
           type: 'Single',
           title: this.state.question,
           options: this.state.options,
-          correctAnswers: [this.state.correctAnswer],
+          correctAnswers: [this.state.options[this.getIndexOfCorrectAnswer(this.state.correctAnswer)]],
           tag: tag,
           category: this.state.difficulty,
         },
@@ -159,7 +173,7 @@ class CreateMcq extends Component {
     }
   };
   render() {
-    console.log(this.state);
+    console.log(this.state.options[this.getIndexOfCorrectAnswer(this.state.correctAnswer)]);
     const renderOptions = this.state.receivedTags.map(tag => {
       return <MenuItem value={`${tag}`}> {tag} </MenuItem>;
     });

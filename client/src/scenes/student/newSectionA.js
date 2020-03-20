@@ -237,11 +237,20 @@ class NewSectionA extends Component {
                 var i = 0;
                 var arr = [];
                 var os = [];
+                var selected=[...res.data.data.submittedAnswers.responses]
                 for (i = 0; i < res.data.data.count.mcq; i++) {
-                    arr.push({
-                        number: i + 1,
-                        status: 'null',
-                    });
+                    if(selected[i]!=' '){
+                        arr.push({
+                            number: i + 1,
+                            status: 'reviewed'
+                        });    
+                    }
+                    else{
+                        arr.push({
+                            number: i + 1,
+                            status: 'null'
+                        });
+                    }
                     os.push(' ');
                 }
                 this.setState({
@@ -249,7 +258,7 @@ class NewSectionA extends Component {
                     time: res.data.data.submittedAnswers.time,
                     count: res.data.data.count.mcq,
                     reviews: arr,
-                    optionsSelected: os,
+                    optionsSelected: res.data.data.submittedAnswers.responses,
                     loading: false
                 }
             )   
