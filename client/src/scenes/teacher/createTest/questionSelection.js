@@ -6,6 +6,7 @@ import {
   Checkbox,
   Select,
   MenuItem,
+  InputBase,
 } from '@material-ui/core';
 import {
   createMuiTheme,
@@ -36,6 +37,7 @@ class SelectQuestions extends Component {
     receivedTags: [],
     questions: [],
     redirect: false,
+    search: ''
   };
   styles = {
     card: {
@@ -58,6 +60,15 @@ class SelectQuestions extends Component {
     font: {
       fontFamily: 'Nunito',
       letterSpacing: 1,
+    },
+    inp: {
+      background: '#fff',
+      padding: '16px 24px',
+      borderRadius: 16,
+      boxShadow: '0 5px 30px 0 #d2d2d270',
+      width: '60%',
+      fontFamily: 'Nunito',
+      margin: 10,
     },
     btn: {
       width: '100%',
@@ -183,8 +194,8 @@ class SelectQuestions extends Component {
         }
         this.setState({
           // Appending 'All' tag to display all questions
-          receivedTags: ['All', ...res.data.data.tags],
-          questions: newQuestions,
+          receivedTags: ['All', 'MCQ', 'Code', ...res.data.data.tags],
+          questions: newQuestions
         });
       },
       err => console.log(err),
@@ -243,6 +254,7 @@ class SelectQuestions extends Component {
               {this.trimContent(question.title)}
               <div style={{ flexGrow: 1 }}></div>
             </div>
+            <span style={{letterSpacing: 2}} >Marks&nbsp;</span>
             <NumericInput
               onChange={val => {
                 var newQuestions = this.state.questions;
@@ -269,9 +281,23 @@ class SelectQuestions extends Component {
     const renderQuestions = this.state.questions
       .filter(q => {
         if (this.state.filter !== 'All') {
-          return q.tag == this.state.filter;
+          if(this.state.filter=='MCQ'){
+            return q.tag == this.state.filter||q.type == 'Single';
+          }
+          else{
+            return q.tag == this.state.filter||q.type == this.state.filter;
+          }
         } else {
           return true;
+        }
+      })
+      .filter(q=>{
+        if(this.state.search.trim()!=''){
+          return Boolean(q.title.toLowerCase().includes(this.state.search.toLocaleLowerCase()))
+        }
+        else{
+          console.log('in')
+          return true
         }
       })
       .map(question => {
@@ -334,15 +360,18 @@ class SelectQuestions extends Component {
             </Select>
           </Grid>
           <Grid item xs={3}>
+            <InputBase onChange={(e)=>this.setState({search: e.target.value})} fullWidth style={{...this.styles.inp, width: '80%', padding: '12px 24px'}} placeholder='Search keyword' />
+          </Grid>
+          <Grid item xs={2}>
             <Button
               variant="outlined"
               onClick={() => this.props.goBack(this.state)}
             >
               {' '}
-              Go to previous step
+              Previous step
             </Button>
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={1}>
             <Button
               variant="contained"
               color="primary"

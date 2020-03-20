@@ -301,18 +301,22 @@ class StudentList extends Component {
               </Grid>
               <Grid style={{marginBottom: 40}} item xs={12}>
               {this.state.rangeMax>0&&this.state.rangeMax-this.state.rangeMin>5?(
-                <InputRange
-                step={1}
-                formatLabel={value => `${value} SAP ID`}
-                maxValue={parseInt(this.state.rangeMax)}
-                minValue={parseInt(this.state.rangeMin)}
-                value={this.state.value}
-                onChange={value =>{
-                    localStorage.setItem('min', value.min)
-                    localStorage.setItem('max', value.max)
-                    this.setState({ value })
-                  }
-                } />
+                <React.Fragment>
+                  <div style={{opacity: '0.8', letterSpacing: 2}} >Note : The slider provided below can be used to filter the range of SAP IDs</div>
+                  <div style={{marginBottom: 30, opacity: '0.8', letterSpacing: 2}} >- Adjust the slider to specify the range </div>
+                  <InputRange
+                  step={1}
+                  formatLabel={value => `${value}`}
+                  maxValue={parseInt(this.state.rangeMax)}
+                  minValue={parseInt(this.state.rangeMin)}
+                  value={this.state.value}
+                  onChange={value =>{
+                      localStorage.setItem('min', value.min)
+                      localStorage.setItem('max', value.max)
+                      this.setState({ value })
+                    }
+                  } />
+                </React.Fragment>
               ):('')}
               </Grid>
               {this.state.filter.length>0?renderCard:'No results found'}
