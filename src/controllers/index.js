@@ -1768,7 +1768,6 @@ export const getCodeResponses = async (req, res, next) => {
 
     // Extract field values
     const extractFieldValue = (id, obj, field) => {
-      console.log({ id, obj, field });
       let value;
       for (let i = 0; i < obj.length; i++) {
         if (String(id) === String(obj[i]['questionId'])) {
@@ -1837,6 +1836,8 @@ export const evaluateCodeResponses = async (req, res, next) => {
     const { id, sapId, code } = req.body;
     let codeMarksObtained = 0;
 
+    console.log({ code });
+
     const student = await User.findOne(
       { sapId },
       { _id: 1, sapId: 1 },
@@ -1852,7 +1853,7 @@ export const evaluateCodeResponses = async (req, res, next) => {
         },
         { $set: { 'code.$.marks': code[i]['marks'] } },
       );
-      codeMarksObtained += code[i]['marks'];
+      codeMarksObtained += Number(code[i]['marks']);
     }
 
     // Updates the total code marks obtained
@@ -2103,7 +2104,6 @@ export const generateExcel = async (req, res, next) => {
       workbook.xlsx.write(res);
     });
   } catch (err) {
-    console.log(err);
     return handleError(err, res);
   }
 };
