@@ -320,7 +320,9 @@ class StudentList extends Component {
                     }
                   } />
                 </React.Fragment>
-              ):('')}
+              ):(
+                <div style={{ letterSpacing: 1, fontSize: 20}} > <b>Corrected Papers : {correctedCount}</b></div>
+              )}
               </Grid>
               {this.state.filter.length>0?renderCard:'No results found'}
             </Grid>
