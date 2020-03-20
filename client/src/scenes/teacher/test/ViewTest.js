@@ -180,10 +180,10 @@ class ViewTest extends Component {
             <QuestionCard
               show={() =>
                 this.handleDetailsOpen(
-                  m.question.type,
-                  m.question.options,
-                  m.question.correctAnswers[0],
-                  m.question.title,
+                  m.type,
+                  m.options,
+                  m.correctAnswers[0],
+                  m.title,
                 )
               }
               font={this.styles.font}

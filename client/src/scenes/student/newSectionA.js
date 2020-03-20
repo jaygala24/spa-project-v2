@@ -428,6 +428,7 @@ class NewSectionA extends Component {
                                     <Grid item xs={9}>
                                         <SectionA
                                         // +1 because indexing starts from 0
+                                        marks={this.state.data?this.state.data[this.state.currentQuestion].marks:''}
                                         questionNumber={this.state.currentQuestion+1}
                                         question={this.state.data?this.state.data[this.state.currentQuestion].title:''}
                                         options={this.state.data?this.state.data[this.state.currentQuestion].options:''}

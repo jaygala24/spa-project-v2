@@ -106,7 +106,7 @@ class SectionA extends Component {
                 {/* Lower part */}
                 <Grid container direction='row' justify='center' style={{fontFamily: 'Nunito'}}>
                     {/* Question number */}
-                    <Grid item xs={12} ><div style={{textAlign: 'center',marginTop: 30, fontFamily: 'Nunito',fontSize: 22, color: '#515154', letterSpacing: 1}} >QUESTION {this.props.questionNumber} </div></Grid>
+                    <Grid item xs={12} ><div style={{textAlign: 'center',marginTop: 30, fontFamily: 'Nunito',fontSize: 22, color: '#515154', letterSpacing: 1}} >QUESTION {this.props.questionNumber} ({this.props.marks}m) </div></Grid>
                     <Grid item xs={9}>
                         <div style={this.styles.question} >
                             {/* Question */}

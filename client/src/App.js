@@ -20,6 +20,8 @@ import SLogin from './scenes/StudentLogin/slogin';
 import EnterSet from './scenes/student/enterSet';
 import NewSectionA from './scenes/student/newSectionA';
 import NewSectionB from './scenes/student/newSectionB';
+import StudentList from './scenes/teacher/eval/StudentList';
+import EvalCode from './scenes/teacher/eval/EvalCode';
 
 function App() {
   return (
@@ -39,6 +41,8 @@ function App() {
         <ProtectedRoute path="/view-tests" component={ViewTests} />
         <ProtectedRoute path="/view-paper" component={ViewTest} />
         <ProtectedRoute path="/create-code" component={CreateCode} />
+        <ProtectedRoute path="/student-list" component={StudentList} />
+        <ProtectedRoute path="/eval-code" component={EvalCode} />
         <ProtectedRoute
           path="/generate-password"
           component={GeneratePassword}

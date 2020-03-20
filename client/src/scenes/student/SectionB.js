@@ -95,7 +95,7 @@ class SectionB extends Component {
             path: true, // This is th dummy variable for mounting terminal
           });
         },
-        err => alert(err),
+        err => alert(err.response.data.error.msg),
       );
     }
   };
@@ -132,7 +132,7 @@ class SectionB extends Component {
                 letterSpacing: 1,
               }}
             >
-              QUESTION {this.props.questionNumber}
+              QUESTION {this.props.questionNumber} ({this.props.marks} m)
             </div>
           </Grid>
           <Grid item xs={9}>
