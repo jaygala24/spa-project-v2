@@ -1117,11 +1117,59 @@ export const getQuestionsForStudents = async (req, res) => {
       }
     }
 
+    // Extract field values
+    const extractFieldValue = (id, obj, field) => {
+      let value;
+      for (let i = 0; i < obj.length; i++) {
+        if (String(id) === String(obj[i]['questionId'])) {
+          value = obj[i][field];
+          break;
+        }
+      }
+      return value;
+    };
+
+    let responses = [];
+
+    if (selectedAnswer['currentSection'] === 'MCQ') {
+      // MCQ section
+      for (let i = 0; i < paper['mcq'].length; i++) {
+        responses.push(
+          extractFieldValue(
+            paper['mcq'][i]['_id'],
+            selectedAnswer['mcq'],
+            'optionsSelected',
+          ),
+        );
+      }
+    } else {
+      // MCQ section
+      for (let i = 0; i < paper['code'].length; i++) {
+        responses.push(
+          extractFieldValue(
+            paper['code'][i]['_id'],
+            selectedAnswer['code'],
+            'program',
+          ),
+        );
+      }
+    }
+
     // submittedAnswer as per the students current section
     let submittedAnswers =
       selectedAnswer['currentSection'] === 'MCQ'
-        ? { ...selectedAnswer._doc, code: undefined }
-        : { ...selectedAnswer._doc, mcq: undefined };
+        ? {
+            ...selectedAnswer._doc,
+            mcq: undefined,
+            code: undefined,
+            responses,
+          }
+        : {
+            ...selectedAnswer._doc,
+            mcq: undefined,
+            code: undefined,
+            responses,
+          };
 
     return res.status(200).json({
       success: true,
@@ -1709,6 +1757,19 @@ export const getCodeResponses = async (req, res, next) => {
       })
       .exec();
 
+    // Extract field values
+    const extractFieldValue = (id, obj, field) => {
+      console.log({ id, obj, field });
+      let value;
+      for (let i = 0; i < obj.length; i++) {
+        if (String(id) === String(obj[i]['questionId'])) {
+          value = obj[i][field];
+          break;
+        }
+      }
+      return value;
+    };
+
     const code = [];
 
     // format as per the response
@@ -1723,6 +1784,11 @@ export const getCodeResponses = async (req, res, next) => {
         program: _selectedAnswer['code'][i]['program'],
         output: _selectedAnswer['code'][i]['output'],
         marks: _selectedAnswer['code'][i]['marks'],
+        maximumMarks: extractFieldValue(
+          _selectedAnswer['code'][i]['questionId'],
+          _selectedAnswer['paperId']['code'],
+          'marks',
+        ),
       });
     }
 
@@ -1934,7 +2000,7 @@ export const generateExcel = async (req, res, next) => {
         studentId,
         paperId,
       },
-      { currentSection: 0, print: 0, time: 0, date: 0 },
+      { currentSection: 0, time: 0, date: 0 },
     )
       .populate('studentId', 'sapId')
       .populate('paperId', 'set')
@@ -1985,6 +2051,7 @@ export const generateExcel = async (req, res, next) => {
     }
 
     arr.push({ header: 'Total', key: 'total', width: 15 });
+    arr.push({ header: 'Evaluated', key: 'eval', width: 15 });
 
     // set the columns
     worksheet.columns = arr;
@@ -2006,6 +2073,9 @@ export const generateExcel = async (req, res, next) => {
       obj['total'] =
         selectedAnswer[i]['mcqMarksObtained'] +
         selectedAnswer[i]['codeMarksObtained'];
+
+      obj['eval'] =
+        selectedAnswer[i]['print'] === true ? 'Yes' : 'No';
 
       worksheet.addRow(obj);
     }
