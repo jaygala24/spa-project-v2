@@ -178,10 +178,12 @@ class StudentList extends Component {
   render() {
     console.log(this.state);
     var delay = -50;
+    var correctedCount=0
     const renderCard = this.state.filter.filter(s=>{
       return parseInt(s.sapId)>=this.state.value.min&&parseInt(s.sapId)<=this.state.value.max
     }).map(s => {
       delay = delay + 50;
+      correctedCount=s.print?correctedCount+1:correctedCount
       return (
         <Grid item xs={12}>
           <Zoom in={true} style={{ transitionDelay: `${delay}ms` }}>
@@ -302,6 +304,7 @@ class StudentList extends Component {
               <Grid style={{marginBottom: 40}} item xs={12}>
               {this.state.rangeMax>0&&this.state.rangeMax-this.state.rangeMin>5?(
                 <React.Fragment>
+                  <div style={{ letterSpacing: 1, fontSize: 20}} > <b>Corrected Papers : {correctedCount}</b> <span style={{opacity: '0.4'}} >(For the specified range)</span> </div>
                   <div style={{opacity: '0.8', letterSpacing: 2}} >Note : The slider provided below can be used to filter the range of SAP IDs</div>
                   <div style={{marginBottom: 30, opacity: '0.8', letterSpacing: 2}} >- Adjust the slider to specify the range </div>
                   <InputRange
