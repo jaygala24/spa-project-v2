@@ -5,6 +5,7 @@ import Review from './Review';
 import Info from './info';
 import Axios from 'axios';
 import { PulseLoader } from 'react-spinners';
+import alertConfirm from 'react-alert-confirm';
 import SectionB from './SectionB';
 
 class NewSectionB extends Component {
@@ -199,31 +200,55 @@ class NewSectionB extends Component {
     }
 
     handleSubmit=()=>{
-        // Getting time from the Timer component
-        if (document.getElementById('timer-hours')) {
-            var h = parseInt(
-            document.getElementById('timer-hours').innerHTML,
-            );
-            var m = parseInt(
-            document.getElementById('timer-minutes').innerHTML,
-            );
-            var s = parseInt(
-            document.getElementById('timer-seconds').innerHTML,
-            );
-        }
-        Axios.post('/api/students/mcq/evaluate',{
-            "paperId": localStorage.getItem('id'),
-            "questionId": this.state.data[this.state.currentQuestion]['_id'],
-            "optionsSelected": this.state.optionsSelected[this.state.currentQuestion],
-            "time": h*60*60+m*60+s,
-            "currentSection": "Code"
-        },{
-            headers: {
-                Authorization: localStorage.getItem('token'),
+        alertConfirm({
+            title: 'Confirmation',
+            content: 'Are you sure you want to submit the Test?',
+            okText: 'Yes',
+            cancelText: 'No',
+            onOk: () => {
+                // Getting time from the Timer component
+                if (document.getElementById('timer-hours')) {
+                    var h = parseInt(
+                    document.getElementById('timer-hours').innerHTML,
+                    );
+                    var m = parseInt(
+                    document.getElementById('timer-minutes').innerHTML,
+                    );
+                    var s = parseInt(
+                    document.getElementById('timer-seconds').innerHTML,
+                    );
+                }
+                Axios.post('/api/students/runProgram',{
+                    "paperId": localStorage.getItem('id'),
+                    "questionId": this.state.data[this.state.currentQuestion]['_id'],
+                    "program": this.state.optionsSelected[this.state.currentQuestion],
+                    "time": h*60*60+m*60+s,
+                    "currentSection": "Code"
+                },{
+                    headers: {
+                        Authorization: localStorage.getItem('token')
+                    }
+                })
+
+                Axios.post('/api/students/saveOutput',{
+                    "paperId": localStorage.getItem('id'),
+                    "questionId": this.state.data[this.state.currentQuestion]['_id'],
+                    "optionsSelected": this.state.optionsSelected[this.state.currentQuestion],
+                    "time": h*60*60+m*60+s,
+                    "currentSection": "Code"
+                },{
+                    headers: {
+                        Authorization: localStorage.getItem('token')
+                    }
+                }).then(res=>{
+                    console.log(res)
+                    window.location='/student'
+                },err=>alert(err.response.data.error.msg))
+            },
+            onCancel: () => {
+                console.log('cancel');
             }
-        }).then(res=>{
-            window.location='/section-b'
-        },err=>alert(err.response.data.error.msg))
+        })
     }
 
     // ---------------- Copying ----------------
@@ -452,6 +477,7 @@ class NewSectionB extends Component {
                                         ] || ''
                                         }
                                         questionId={this.state.data?this.state.data[this.state.currentQuestion]._id:''}
+                                        marks={this.state.data?this.state.data[this.state.currentQuestion].marks:''}
                                         />
                                     </Grid>
                                     <Grid item xs={3}>

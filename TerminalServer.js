@@ -12,7 +12,7 @@ const wss = new WebSocket.Server({ server });
 wss.on('connection', (ws, req) => {
   ws.send('Hi there, I am a WebSocket server');
   // Create Terminal
-  let ptyProcess = pty.spawn('sh', [], {
+  let ptyProcess = pty.spawn('powershell', [], {
     name: 'xterm-color',
     cols: 80,
     rows: 24,
