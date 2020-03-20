@@ -1094,13 +1094,8 @@ export const getQuestionsForStudents = async (req, res) => {
 
     // Test already submitted
     if (selectedAnswer['currentSection'] === 'None') {
-      return res.status(200).json({
-        success: true,
-        data: {
-          msg: 'Test already submitted!',
-        },
-        error: {},
-      });
+      const error = new ErrorHandler(400, 'Test already submitted!');
+      return handleError(error, res);
     } else if (selectedAnswer['currentSection'] === 'MCQ') {
       for (let ind = 0; ind < paperObj['mcq'].length; ind++) {
         paper['mcq'].push({
@@ -1450,13 +1445,13 @@ export const saveCodeOutput = async (req, res, next) => {
         date,
         'code.questionId': questionId,
       },
-      { $set: { 'code.$.output': output, currentSection, time } },
+      { $set: { 'code.$.output': output, currentSection, time: 0 } },
       { new: true },
     );
 
     // Logging out the user if the currentSection is None
     if (currentSection === 'None') {
-      const _user = await User.findOneAndUpdate(
+      await User.findOneAndUpdate(
         {
           _id: req.user._id,
         },
@@ -1465,7 +1460,11 @@ export const saveCodeOutput = async (req, res, next) => {
         },
       );
 
-      const dir = path.join(__basedir, 'code', req.user._id);
+      const dir = path.join(
+        __basedir,
+        'code',
+        req.user._id.toString(),
+      );
 
       // If dir exists then remove the dir otherwise do nothing
       if (fs.existsSync(dir)) {
@@ -1587,7 +1586,11 @@ export const saveProgressOnTimeOut = async (req, res, next) => {
     } else {
       const { questionId, program } = req.body;
 
-      const dir = path.join(__basedir, 'code', req.user._id);
+      const dir = path.join(
+        __basedir,
+        'code',
+        req.user._id.toString(),
+      );
 
       // If dir exists then remove the dir otherwise do nothing
       if (fs.existsSync(dir)) {
