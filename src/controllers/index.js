@@ -1117,11 +1117,59 @@ export const getQuestionsForStudents = async (req, res) => {
       }
     }
 
+    // Extract field values
+    const extractFieldValue = (id, obj, field) => {
+      let value;
+      for (let i = 0; i < obj.length; i++) {
+        if (String(id) === String(obj[i]['questionId'])) {
+          value = obj[i][field];
+          break;
+        }
+      }
+      return value;
+    };
+
+    let responses = [];
+
+    if (selectedAnswer['currentSection'] === 'MCQ') {
+      // MCQ section
+      for (let i = 0; i < paper['mcq'].length; i++) {
+        responses.push(
+          extractFieldValue(
+            paper['mcq'][i]['_id'],
+            selectedAnswer['mcq'],
+            'optionsSelected',
+          ),
+        );
+      }
+    } else {
+      // MCQ section
+      for (let i = 0; i < paper['code'].length; i++) {
+        responses.push(
+          extractFieldValue(
+            paper['code'][i]['_id'],
+            selectedAnswer['code'],
+            'program',
+          ),
+        );
+      }
+    }
+
     // submittedAnswer as per the students current section
     let submittedAnswers =
       selectedAnswer['currentSection'] === 'MCQ'
-        ? { ...selectedAnswer._doc, code: undefined }
-        : { ...selectedAnswer._doc, mcq: undefined };
+        ? {
+            ...selectedAnswer._doc,
+            mcq: undefined,
+            code: undefined,
+            responses,
+          }
+        : {
+            ...selectedAnswer._doc,
+            mcq: undefined,
+            code: undefined,
+            responses,
+          };
 
     return res.status(200).json({
       success: true,
