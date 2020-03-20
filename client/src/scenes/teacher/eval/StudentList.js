@@ -25,13 +25,13 @@ class StudentList extends Component {
     filter: [],
     search: '',
     sapId: '',
-    year: '',
-    div: 'Others',
-    type: 'TT1',
+    year: localStorage.getItem('year')||'',
+    div: localStorage.getItem('division')||'Others',
+    type: localStorage.getItem('type')||'TT1',
     yearList: [],
     typeList: [],
     divisionList: [],
-    value: ''
+    value: { min: 99999999999, max: -1 }
   };
   styles = {
     card: {
@@ -77,16 +77,19 @@ class StudentList extends Component {
   };
   handleYear=event=>{
     this.setState({year: event.target.value},()=>{
+      localStorage.setItem('year',event.target.value)
       this.getStudentsList()
     })
   }
   handleType=event=>{
     this.setState({type: event.target.value},()=>{
+      localStorage.setItem('type',event.target.value)
       this.getStudentsList()
     })
   }
   handleDivision=event=>{
     this.setState({div: event.target.value},()=>{
+      localStorage.setItem('division',event.target.value)
       this.getStudentsList()
     })
   }
@@ -143,7 +146,7 @@ class StudentList extends Component {
         yearList: res.data.data.year,
         typeList: res.data.data.type,
         divisionList: res.data.data.div
-      });
+      },()=>this.getStudentsList());
     });
   }
   getStudentsList=()=>{
@@ -153,7 +156,20 @@ class StudentList extends Component {
       }
     })
     .then(res=>{
+      var minSapId=99999999999;
+      var maxSapId=-1;
+      var students=[...res.data.data.students]
+      students.forEach(s=>{
+        minSapId=s.sapId<minSapId?s.sapId:minSapId
+        maxSapId=s.sapId>maxSapId?s.sapId:maxSapId
+      })
       this.setState({
+        rangeMin: parseInt(minSapId),
+        rangeMax: parseInt(maxSapId),
+        value: {
+          min: parseInt(localStorage.getItem('min'))||parseInt(minSapId),
+          max: parseInt(localStorage.getItem('max'))||parseInt(maxSapId)
+        },
         students: res.data.data.students,
         filter: res.data.data.students
       })
@@ -162,7 +178,9 @@ class StudentList extends Component {
   render() {
     console.log(this.state);
     var delay = -50;
-    const renderCard = this.state.filter.map(s => {
+    const renderCard = this.state.filter.filter(s=>{
+      return parseInt(s.sapId)>=this.state.value.min&&parseInt(s.sapId)<=this.state.value.max
+    }).map(s => {
       delay = delay + 50;
       return (
         <Grid item xs={12}>
@@ -187,7 +205,7 @@ class StudentList extends Component {
                   <MailOutlineIcon />
                 </IconButton> */}
                 <Button
-                  onClick={() => this.handlePrint(s.id, s.sapId)}
+                  onClick={() => this.handlePrint(s._id, s.sapId)}
                   disabled={!s.print}
                   variant="outlined"
                 >
@@ -281,13 +299,21 @@ class StudentList extends Component {
                   {this.state.divisionList.map(d=><MenuItem value={d}> {d} </MenuItem>)}
               </Select>
               </Grid>
-              <Grid item xs={12}>
-              <InputRange
-              step={10}
-              maxValue={60004170100}
-              minValue={60004170061}
-              value={this.state.value}
-              onChange={value => this.setState({ value: value })} />
+              <Grid style={{marginBottom: 40}} item xs={12}>
+              {this.state.rangeMax>0&&this.state.rangeMax-this.state.rangeMin>5?(
+                <InputRange
+                step={1}
+                formatLabel={value => `${value} SAP ID`}
+                maxValue={parseInt(this.state.rangeMax)}
+                minValue={parseInt(this.state.rangeMin)}
+                value={this.state.value}
+                onChange={value =>{
+                    localStorage.setItem('min', value.min)
+                    localStorage.setItem('max', value.max)
+                    this.setState({ value })
+                  }
+                } />
+              ):('')}
               </Grid>
               {this.state.filter.length>0?renderCard:'No results found'}
             </Grid>

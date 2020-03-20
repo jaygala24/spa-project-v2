@@ -235,9 +235,9 @@ class EvalCode extends Component {
             id={`q${count}`}
             type='number'
             value={this.state.inp[`q${count}`]}
-            onChange={event => this.handleField(event, 5)}
+            onChange={event => this.handleField(event, q.maximumMarks)}
             style={{ ...this.styles.inp, marginBottom: 20 }}
-            placeholder={`Q${count}. Out of ${q.totalMarks} marks`}
+            placeholder={`Q${count}. Out of ${q.maximumMarks} marks`}
           />
         </Zoom>
       );
