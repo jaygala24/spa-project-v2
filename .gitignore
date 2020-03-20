@@ -63,3 +63,7 @@ typings/
 
 # build output
 dist
+
+# media files
+media/results
+media/excel
