@@ -4,6 +4,9 @@ import { Grid } from '@material-ui/core';
 import Card from './Card';
 
 class HomeTeacher extends Component {
+  componentDidMount(){
+    document.removeEventListener("keyup",()=>true,true)
+  }
   render() {
     return (
       <React.Fragment>

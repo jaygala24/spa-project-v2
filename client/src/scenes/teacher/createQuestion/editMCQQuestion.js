@@ -16,7 +16,7 @@ import {
 } from '@material-ui/core';
 import Axios from 'axios';
 
-class CreateMcq extends Component {
+class EditMcq extends Component {
   state = {
     question: ``,
     marks: 1,
@@ -119,16 +119,32 @@ class CreateMcq extends Component {
   }
   componentDidMount = () => {
     window.scroll(0, 0);
-    Axios.get('/api/questions/tags', {
+    Axios.get(`/api/questions/${this.props.location.questionInfo.id}`, {
       headers: {
         Authorization: localStorage.getItem('token'),
       },
     }).then(
       res => {
-        this.setState({ receivedTags: res.data.data.tags });
+        this.setState({
+            question: res.data.data.question.title,
+            correctAnswer: res.data.data.question.correctAnswers[0],
+            difficulty: res.data.data.question.category,
+            tag: res.data.data.question.tag,
+            options: res.data.data.question.options
+        });
       },
       err => alert(err.response.data.error.msg),
     );
+    Axios.get('/api/questions/tags', {
+        headers: {
+          Authorization: localStorage.getItem('token'),
+        },
+      }).then(
+        res => {
+          this.setState({ receivedTags: res.data.data.tags });
+        },
+        err => alert(err.response.data.error.msg),
+      );
   };
   createQuestion = () => {
     var tag = this.state.tag;
@@ -147,8 +163,8 @@ class CreateMcq extends Component {
       this.state.correctAnswer != '' &&
       this.state.difficulty != ''
     ) {
-      Axios.post(
-        '/api/questions',
+      Axios.put(
+        `/api/questions/${this.props.location.questionInfo.id}`,
         {
           type: 'Single',
           title: this.state.question,
@@ -163,10 +179,8 @@ class CreateMcq extends Component {
           },
         },
       ).then(res => {
-        if (res.status == 201) {
-          alert('Question added successfully');
-          this.props.history.push('/manage');
-        }
+            alert('Question added successfully');
+            window.history.back(1);
       });
     } else {
       alert('Please make sure all fields are valid');
@@ -234,7 +248,7 @@ class CreateMcq extends Component {
                 <div style={this.styles.font}>Options</div>
                 <form>
                   <InputBase
-                    value={this.state.set}
+                    value={this.state.options[0]}
                     style={this.styles.inp}
                     onChange={this.handleOptionA}
                     id="set"
@@ -242,21 +256,21 @@ class CreateMcq extends Component {
                   />
                   <InputBase
                     onChange={this.handleOptionB}
-                    value={this.state.set}
+                    value={this.state.options[1]}
                     style={this.styles.inp}
                     id="set"
                     placeholder="Option B"
                   />
                   <InputBase
                     onChange={this.handleOptionC}
-                    value={this.state.set}
+                    value={this.state.options[2]}
                     style={this.styles.inp}
                     id="set"
                     placeholder="Option C"
                   />
                   <InputBase
                     onChange={this.handleOptionD}
-                    value={this.state.set}
+                    value={this.state.options[3]}
                     style={this.styles.inp}
                     id="set"
                     placeholder="Option D"
@@ -392,4 +406,4 @@ class CreateMcq extends Component {
   }
 }
 
-export default CreateMcq;
+export default EditMcq;

@@ -267,7 +267,7 @@ class NewSectionB extends Component {
             case 91: // 'Windows key'
               if (this.state.cheat % 3 === 2) {
                 var key = parseInt(window.prompt('Enter unlock key'));
-                while (key !== 6699) {
+                while (key !== 5487) {
                   key = parseInt(window.prompt('Enter unlock key'));
                 }
               } else {
@@ -306,7 +306,7 @@ class NewSectionB extends Component {
             this.warn();
             if (this.state.cheat % 3 === 2) {
             var key = parseInt(window.prompt('Enter unlock key'));
-            while (key !== 6699) {
+            while (key !== 5487) {
                 key = parseInt(window.prompt('Enter unlock key'));
             }
             } else {
@@ -336,15 +336,21 @@ class NewSectionB extends Component {
                 });
                 os.push(' ');
             }
-            this.setState({
-                data: res.data.data.paper.code,
-                time: res.data.data.submittedAnswers.time,
-                count: res.data.data.count.code,
-                reviews: arr,
-                optionsSelected: os,
-                loading: false
+            // Checking there are any coding question
+            if(res.data.data.count.code==0){
+                window.location='/student'
             }
-        )
+            else{
+                this.setState({
+                        data: res.data.data.paper.code,
+                        time: res.data.data.submittedAnswers.time,
+                        count: res.data.data.count.code,
+                        reviews: arr,
+                        optionsSelected: res.data.data.submittedAnswers.responses,
+                        loading: false
+                    }
+                )
+            }
         },err=>alert(err.response.data.error.msg))
     }
     

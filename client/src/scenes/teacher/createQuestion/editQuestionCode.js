@@ -4,28 +4,19 @@ import Editor from 'react-simple-code-editor';
 import MenuItem from '@material-ui/core/MenuItem';
 import { highlight, languages } from 'prismjs';
 import '../../../prism-c.css';
-import { useAlert } from 'react-alert';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import { TagInput } from 'reactjs-tag-input';
-import {
-  Grid,
-  InputBase,
-  Button,
-  TextField,
-} from '@material-ui/core';
+import { Grid, Button } from '@material-ui/core';
 import Axios from 'axios';
 
-class CreateMcq extends Component {
+class EditCode extends Component {
   state = {
     question: ``,
-    marks: 1,
-    correctAnswer: 'A',
     difficulty: 'E',
-    receivedTags: [],
     tags: [],
     tag: '',
-    options: ['', '', '', ''],
+    marks: 1,
   };
   styles = {
     font: {
@@ -57,34 +48,74 @@ class CreateMcq extends Component {
   handleTag = event => {
     this.setState({ tag: event.target.value });
   };
-  handleCorrectAnswer = event => {
-    this.setState({ correctAnswer: event.target.value });
-  };
   handleDifficulty = event => {
     this.setState({ difficulty: event.target.value });
   };
   onTagsChanged = tags => {
     this.setState({ tags });
   };
-  handleOptionA = event => {
-    var newOptions = [...this.state.options];
-    newOptions[0] = event.target.value;
-    this.setState({ options: newOptions });
+  createQuestion = () => {
+    var tag = this.state.tag;
+    console.log('outside', tag);
+    if (tag === '') {
+      console.log('inside', tag);
+      tag = this.state.tags[0].displayValue;
+      console.log('inside', tag);
+    }
+    if (
+      this.state.question != '' &&
+      this.state.correctAnswer != '' &&
+      this.state.difficulty != ''
+    ) {
+      Axios.put(
+        `/api/questions/${this.props.location.questionInfo.id}`,
+        {
+          type: 'Code',
+          title: this.state.question,
+          tag: tag,
+          category: this.state.difficulty
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem('token'),
+          },
+        },
+      ).then(res => {
+        if (res.status == 201) {
+          alert('Question added successfully');
+          this.props.history.push('/manage');
+        }
+      });
+    } else {
+      alert('Please make sure all fields are valid');
+    }
   };
-  handleOptionB = event => {
-    var newOptions = [...this.state.options];
-    newOptions[1] = event.target.value;
-    this.setState({ options: newOptions });
-  };
-  handleOptionC = event => {
-    var newOptions = [...this.state.options];
-    newOptions[2] = event.target.value;
-    this.setState({ options: newOptions });
-  };
-  handleOptionD = event => {
-    var newOptions = [...this.state.options];
-    newOptions[3] = event.target.value;
-    this.setState({ options: newOptions });
+  componentDidMount = () => {
+    window.scroll(0, 0);
+    Axios.get(`/api/questions/${this.props.location.questionInfo.id}`, {
+      headers: {
+        Authorization: localStorage.getItem('token'),
+      },
+    }).then(
+      res => {
+        this.setState({
+            question: res.data.data.title,
+            difficulty: res.data.data.category,
+            tag: res.data.data.tag
+        });
+      },
+      err => alert(err.response.data.error.msg),
+    );
+    Axios.get('/api/questions/tags', {
+        headers: {
+          Authorization: localStorage.getItem('token'),
+        },
+      }).then(
+        res => {
+          this.setState({ receivedTags: res.data.data.tags });
+        },
+        err => alert(err.response.data.error.msg),
+      );
   };
   handleBtn = event => {
     if (event.target.innerHTML === '+') {
@@ -103,78 +134,8 @@ class CreateMcq extends Component {
       }
     }
   };
-  getIndexOfCorrectAnswer=(char)=>{
-    if(char=='A'){
-      return 0
-    }
-    else if(char=='B'){
-      return 1
-    }
-    else if(char=='C'){
-      return 2
-    }
-    else if(char=='D'){
-      return 3
-    }
-  }
-  componentDidMount = () => {
-    window.scroll(0, 0);
-    Axios.get('/api/questions/tags', {
-      headers: {
-        Authorization: localStorage.getItem('token'),
-      },
-    }).then(
-      res => {
-        this.setState({ receivedTags: res.data.data.tags });
-      },
-      err => alert(err.response.data.error.msg),
-    );
-  };
-  createQuestion = () => {
-    var tag = this.state.tag;
-    console.log('outside', tag);
-    if (tag === '') {
-      console.log('inside', tag);
-      tag = this.state.tags[0].displayValue;
-      console.log('inside', tag);
-    }
-    if (
-      this.state.question != '' &&
-      this.state.options[0] != '' &&
-      this.state.options[1] != '' &&
-      this.state.options[2] != '' &&
-      this.state.options[3] != '' &&
-      this.state.correctAnswer != '' &&
-      this.state.difficulty != ''
-    ) {
-      Axios.post(
-        '/api/questions',
-        {
-          type: 'Single',
-          title: this.state.question,
-          options: this.state.options,
-          correctAnswers: [this.state.options[this.getIndexOfCorrectAnswer(this.state.correctAnswer)]],
-          tag: tag,
-          category: this.state.difficulty,
-        },
-        {
-          headers: {
-            Authorization: localStorage.getItem('token'),
-          },
-        },
-      ).then(res => {
-        if (res.status == 201) {
-          alert('Question added successfully');
-          this.props.history.push('/manage');
-        }
-      });
-    } else {
-      alert('Please make sure all fields are valid');
-    }
-  };
   render() {
-    console.log(this.state.options[this.getIndexOfCorrectAnswer(this.state.correctAnswer)]);
-    const renderOptions = this.state.receivedTags.map(tag => {
+    const renderOptions = this.state.tags.map(tag => {
       return <MenuItem value={`${tag}`}> {tag} </MenuItem>;
     });
     return (
@@ -231,57 +192,6 @@ class CreateMcq extends Component {
                 />
               </Grid>
               <Grid item xs={12}>
-                <div style={this.styles.font}>Options</div>
-                <form>
-                  <InputBase
-                    value={this.state.set}
-                    style={this.styles.inp}
-                    onChange={this.handleOptionA}
-                    id="set"
-                    placeholder="Option A"
-                  />
-                  <InputBase
-                    onChange={this.handleOptionB}
-                    value={this.state.set}
-                    style={this.styles.inp}
-                    id="set"
-                    placeholder="Option B"
-                  />
-                  <InputBase
-                    onChange={this.handleOptionC}
-                    value={this.state.set}
-                    style={this.styles.inp}
-                    id="set"
-                    placeholder="Option C"
-                  />
-                  <InputBase
-                    onChange={this.handleOptionD}
-                    value={this.state.set}
-                    style={this.styles.inp}
-                    id="set"
-                    placeholder="Option D"
-                  />
-                </form>
-                <div style={this.styles.font}>Correct Answer</div>
-                <FormControl>
-                  <Select
-                    variant="outlined"
-                    style={{
-                      ...this.styles.inp,
-                      padding: '2px 20px',
-                    }}
-                    labelId="demo-simple-select-label"
-                    value={this.state.correctAnswer}
-                    onChange={this.handleCorrectAnswer}
-                  >
-                    <MenuItem value={'A'}>Option A</MenuItem>
-                    <MenuItem value={'B'}>Option B</MenuItem>
-                    <MenuItem value={'C'}>Option C</MenuItem>
-                    <MenuItem value={'D'}>Option D</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
                 <div style={this.styles.font}> Select a tag</div>
                 <div
                   style={{
@@ -295,7 +205,7 @@ class CreateMcq extends Component {
                   Tags will be used for filtering the questions.
                   Please select a tag from the dropdown below. If the
                   required tag is not available, then a new tag can be
-                  added from the inout field below the dropdown.
+                  added from the input field below the dropdown.
                 </div>
                 <div>
                   <FormControl>
@@ -392,4 +302,4 @@ class CreateMcq extends Component {
   }
 }
 
-export default CreateMcq;
+export default EditCode;

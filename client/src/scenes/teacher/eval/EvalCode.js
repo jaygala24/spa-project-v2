@@ -9,6 +9,7 @@ import {
   Zoom,
 } from '@material-ui/core';
 import 'ace-builds/src-noconflict/mode-csharp';
+import HashLoader from "react-spinners/HashLoader";
 import 'ace-builds/src-noconflict/theme-kuroir';
 import 'ace-builds/src-noconflict/theme-textmate';
 import Info from '../../student/info';
@@ -21,6 +22,7 @@ class EvalCode extends Component {
     data: null,
     code: [],
     inp: {},
+    loading: false,
     currentQuestion: 1,
   };
   styles = {
@@ -215,8 +217,9 @@ class EvalCode extends Component {
       headers: {
         Authorization: localStorage.getItem('token'),
       },
-    }).then(res => this.props.history.push('/student-list'),err=>{
+    }).then(res =>this.props.history.push('/student-list'),err=>{
       alert("Please try again\n\n"+err)
+      this.setState({ loading: false },window.location='/student-list')
     });
   };
   processProgram = pgm => {
@@ -245,237 +248,250 @@ class EvalCode extends Component {
     return (
       <React.Fragment>
         <Header />
-        <Grid container direction="row" justify="center">
-          <Grid item xs={6} style={{ marginTop: 40 }}>
-            <Info
-              sapId={
-                this.props.location.studentProps
-                  ? this.props.location.studentProps.sapId
-                  : ''
-              }
-              set={
-                this.props.location.studentProps
-                  ? this.props.location.studentProps.set
-                  : ''
-              }
+        {this.state.loading?(
+          <div style={{display: "flex", justifyContent: "center", height: "80vh", alignItems: "center"}} >
+            <HashLoader
+              // css={override}
+              size={100}
+              color={"#123abc"}
+              loading={this.state.loading}
             />
-          </Grid>
-          <Grid item xs={12}></Grid>
-          <Grid item xs={7}>
+          </div>
+        ):(
+          <React.Fragment>
             <Grid container direction="row" justify="center">
-              <Grid item xs={10} lg={8}>
-                <Grid
-                  container
-                  style={{ marginTop: 20 }}
-                  direction="row"
-                  alignItems="center"
-                  justify="center"
-                  spacing={4}
-                >
-                  <Grid item>
-                    {this.state.currentQuestion == 1 ? (
-                      <Button
-                        variant="outlined"
-                        disabled
-                        onClick={this.handlePrev}
-                      >
-                        Prev
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="outlined"
-                        onClick={this.handlePrev}
-                      >
-                        Prev
-                      </Button>
-                    )}
-                  </Grid>
-                  <Grid item>
-                    {this.state.count ==
-                    this.state.currentQuestion ? (
-                      <Button
-                        variant="outlined"
-                        disabled
-                        onClick={this.handleNext}
-                      >
-                        Next
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="outlined"
-                        onClick={this.handleNext}
-                      >
-                        Next
-                      </Button>
-                    )}
-                    {/* <Button variant='outlined' onClick={this.handlePrev} >Next</Button> */}
+            <Grid item xs={6} style={{ marginTop: 40 }}>
+              <Info
+                sapId={
+                  this.props.location.studentProps
+                    ? this.props.location.studentProps.sapId
+                    : ''
+                }
+                set={
+                  this.props.location.studentProps
+                    ? this.props.location.studentProps.set
+                    : ''
+                }
+              />
+            </Grid>
+            <Grid item xs={12}></Grid>
+            <Grid item xs={7}>
+              <Grid container direction="row" justify="center">
+                <Grid item xs={10} lg={8}>
+                  <Grid
+                    container
+                    style={{ marginTop: 20 }}
+                    direction="row"
+                    alignItems="center"
+                    justify="center"
+                    spacing={4}
+                  >
+                    <Grid item>
+                      {this.state.currentQuestion == 1 ? (
+                        <Button
+                          variant="outlined"
+                          disabled
+                          onClick={this.handlePrev}
+                        >
+                          Prev
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outlined"
+                          onClick={this.handlePrev}
+                        >
+                          Prev
+                        </Button>
+                      )}
+                    </Grid>
+                    <Grid item>
+                      {this.state.count ==
+                      this.state.currentQuestion ? (
+                        <Button
+                          variant="outlined"
+                          disabled
+                          onClick={this.handleNext}
+                        >
+                          Next
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outlined"
+                          onClick={this.handleNext}
+                        >
+                          Next
+                        </Button>
+                      )}
+                      {/* <Button variant='outlined' onClick={this.handlePrev} >Next</Button> */}
+                    </Grid>
                   </Grid>
                 </Grid>
-              </Grid>
-              <Grid item xs={12}>
-                <div
-                  style={{
-                    marginTop: 40,
-                    textAlign: 'center',
-                    fontFamily: 'Nunito',
-                    fontSize: 22,
-                    color: '#515154',
-                    letterSpacing: 1,
-                  }}
-                >
-                  QUESTION {this.props.number}
-                </div>
-              </Grid>
-              <Grid item xs={9}>
-                <div style={this.styles.question}>
-                  {/* {this.props.question?this.props.question.question.title:(
-                                    <PulseLoader
-                                    size={10}
-                                    margin={2}
-                                    color={"#123abc"}
-                                    loading={true}
-                                    />
-                                    )} */}
-                  {this.state.data
-                    ? this.processNewLine(this.state.data.code[
-                        this.state.currentQuestion - 1
-                      ].title)
-                    : ''}
-                </div>
-              </Grid>
-              <Grid item xs={12}></Grid>
-              <Grid item xs={9}>
-                <div
-                  style={{
-                    ...this.styles.myPaper,
-                    ...this.styles.card,
-                    padding: 0,
-                  }}
-                >
-                  <div style={{ display: 'flex' }}>
-                    <div style={this.styles.code}>CODE</div>
+                <Grid item xs={12}>
+                  <div
+                    style={{
+                      marginTop: 40,
+                      textAlign: 'center',
+                      fontFamily: 'Nunito',
+                      fontSize: 22,
+                      color: '#515154',
+                      letterSpacing: 1,
+                    }}
+                  >
+                    QUESTION {this.props.number}
                   </div>
-                </div>
-                <div>
+                </Grid>
+                <Grid item xs={9}>
+                  <div style={this.styles.question}>
+                    {/* {this.props.question?this.props.question.question.title:(
+                                      <PulseLoader
+                                      size={10}
+                                      margin={2}
+                                      color={"#123abc"}
+                                      loading={true}
+                                      />
+                                      )} */}
+                    {this.state.data
+                      ? this.processNewLine(this.state.data.code[
+                          this.state.currentQuestion - 1
+                        ].title)
+                      : ''}
+                  </div>
+                </Grid>
+                <Grid item xs={12}></Grid>
+                <Grid item xs={9}>
+                  <div
+                    style={{
+                      ...this.styles.myPaper,
+                      ...this.styles.card,
+                      padding: 0,
+                    }}
+                  >
+                    <div style={{ display: 'flex' }}>
+                      <div style={this.styles.code}>CODE</div>
+                    </div>
+                  </div>
+                  <div>
+                    <InputBase
+                      disabled={true}
+                      value={
+                        this.state.data
+                          ? this.processProgram(
+                              this.state.data.code[
+                                this.state.currentQuestion - 1
+                              ].program,
+                            )
+                          : ''
+                      }
+                      style={{
+                        ...this.styles.stdin,
+                        ...this.styles.inp,
+                        color: '#000',
+                        fontFamily: 'Nunito',
+                        letterSpacing: 2,
+                      }}
+                      placeholder="INPUT"
+                      multiline={true}
+                      rows={20}
+                    />
+                  </div>
+                  {/* <div style={{...this.styles.stdin, ...this.styles.inp, color: '#000', fontFamily: 'Nunito',letterSpacing: 2}} >
+                                      <div>
+                                          <div style={this.styles.code} >OUTPUT</div>
+                                      </div>
+                                  </div> */}
                   <InputBase
-                    disabled={true}
-                    value={
-                      this.state.data
-                        ? this.processProgram(
-                            this.state.data.code[
-                              this.state.currentQuestion - 1
-                            ].program,
-                          )
-                        : ''
-                    }
+                    // style={this.styles.stdout}
                     style={{
                       ...this.styles.stdin,
                       ...this.styles.inp,
                       color: '#000',
                       fontFamily: 'Nunito',
                       letterSpacing: 2,
+                      marginBottom: 60,
                     }}
-                    placeholder="INPUT"
                     multiline={true}
-                    rows={20}
+                    rows={5}
+                    disabled
+                    defaultValue="OUTPUT"
+                    value={
+                      this.state.data
+                        ? this.state.data.code[
+                            this.state.currentQuestion - 1
+                          ].output.split('$')[0]
+                        : ''
+                    }
                   />
-                </div>
-                {/* <div style={{...this.styles.stdin, ...this.styles.inp, color: '#000', fontFamily: 'Nunito',letterSpacing: 2}} >
-                                    <div>
-                                        <div style={this.styles.code} >OUTPUT</div>
-                                    </div>
-                                </div> */}
-                <InputBase
-                  // style={this.styles.stdout}
-                  style={{
-                    ...this.styles.stdin,
-                    ...this.styles.inp,
-                    color: '#000',
-                    fontFamily: 'Nunito',
-                    letterSpacing: 2,
-                    marginBottom: 60,
-                  }}
-                  multiline={true}
-                  rows={5}
-                  disabled
-                  defaultValue="OUTPUT"
-                  value={
-                    this.state.data
-                      ? this.state.data.code[
-                          this.state.currentQuestion - 1
-                        ].output.split('$')[0]
-                      : ''
-                  }
-                />
+                </Grid>
               </Grid>
             </Grid>
-          </Grid>
-          <Grid item xs={4}>
-            <Grid container direction="row" justify="center">
-              <Grid item xs={12}>
-                <div
-                  style={{
-                    marginTop: 40,
-                    textAlign: 'center',
-                    fontFamily: 'Nunito',
-                    fontSize: 22,
-                    color: '#515154',
-                    letterSpacing: 1,
-                  }}
-                >
-                  Marks
-                </div>
-              </Grid>
-              <Grid item xs={12} md={12} lg={9}>
-                <Slide in={true} direction="up">
-                  <Paper style={this.styles.card}>
-                    {/* <Zoom in={true} style={{transitionDelay: '100ms'}} >
-                                        <InputBase
-                                        style={{...this.styles.inp, marginBottom: 20}}
-                                        placeholder='Question 1'
-                                        />
-                                    </Zoom>
-                                    <Zoom in={true} style={{transitionDelay: '150ms'}} >
-                                        <InputBase
-                                        style={{...this.styles.inp, marginBottom: 20}}
-                                        placeholder='Question 2'
-                                        />
-                                    </Zoom>
-                                    <Zoom in={true} style={{transitionDelay: '200ms'}} >
-                                        <InputBase
-                                        style={{...this.styles.inp, marginBottom: 20}}
-                                        placeholder='Question 3'
-                                        />
-                                    </Zoom> */}
-                    {renderInp}
-                    <div>
-                      MCQ marks :{' '}
-                      {this.state.data
-                        ? this.state.data.mcqMarksObtained
-                        : ''}
-                      /
-                      {this.state.data
-                        ? this.state.data.mcqTotalMarks
-                        : ''}{' '}
-                    </div>
-                    <div>Total Marks : {this.calculateTotal()} </div>
-                    <Zoom
-                      in={true}
-                      style={{ transitionDelay: '250ms' }}
-                    >
-                      <Button
-                        onClick={this.handleSubmit}
-                        style={{ ...this.styles.btn, marginTop: 20 }}
+            <Grid item xs={4}>
+              <Grid container direction="row" justify="center">
+                <Grid item xs={12}>
+                  <div
+                    style={{
+                      marginTop: 40,
+                      textAlign: 'center',
+                      fontFamily: 'Nunito',
+                      fontSize: 22,
+                      color: '#515154',
+                      letterSpacing: 1,
+                    }}
+                  >
+                    Marks
+                  </div>
+                </Grid>
+                <Grid item xs={12} md={12} lg={9}>
+                  <Slide in={true} direction="up">
+                    <Paper style={this.styles.card}>
+                      {/* <Zoom in={true} style={{transitionDelay: '100ms'}} >
+                                          <InputBase
+                                          style={{...this.styles.inp, marginBottom: 20}}
+                                          placeholder='Question 1'
+                                          />
+                                      </Zoom>
+                                      <Zoom in={true} style={{transitionDelay: '150ms'}} >
+                                          <InputBase
+                                          style={{...this.styles.inp, marginBottom: 20}}
+                                          placeholder='Question 2'
+                                          />
+                                      </Zoom>
+                                      <Zoom in={true} style={{transitionDelay: '200ms'}} >
+                                          <InputBase
+                                          style={{...this.styles.inp, marginBottom: 20}}
+                                          placeholder='Question 3'
+                                          />
+                                      </Zoom> */}
+                      {renderInp}
+                      <div>
+                        MCQ marks :{' '}
+                        {this.state.data
+                          ? this.state.data.mcqMarksObtained
+                          : ''}
+                        /
+                        {this.state.data
+                          ? this.state.data.mcqTotalMarks
+                          : ''}{' '}
+                      </div>
+                      <div>Total Marks : {this.calculateTotal()} </div>
+                      <Zoom
+                        in={true}
+                        style={{ transitionDelay: '250ms' }}
                       >
-                        Submit
-                      </Button>
-                    </Zoom>
-                  </Paper>
-                </Slide>
+                        <Button
+                          onClick={()=>this.setState({loading: true},this.handleSubmit)}
+                          style={{ ...this.styles.btn, marginTop: 20 }}
+                        >
+                          Submit
+                        </Button>
+                      </Zoom>
+                    </Paper>
+                  </Slide>
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
-        </Grid>
+        </React.Fragment>
+        )}
       </React.Fragment>
     );
   }

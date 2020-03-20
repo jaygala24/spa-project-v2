@@ -144,11 +144,11 @@ class ViewQuestions extends Component {
         }).map(q=>{
             delay=delay+50
             return(
-                <QuestionCard 
+                <QuestionCard
                     open={this.handleDetailsOpen} 
                     checked={this.state.selectedQuestions.includes(q.id)} 
                     updateQuestions={this.updateSelectedQuestions} 
-                    id={q.id} 
+                    id={q._id} 
                     question={q.title}
                     type={q.type} 
                     correctAnswer={q.correctAnswers}

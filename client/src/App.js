@@ -22,17 +22,25 @@ import NewSectionA from './scenes/student/newSectionA';
 import NewSectionB from './scenes/student/newSectionB';
 import StudentList from './scenes/teacher/eval/StudentList';
 import EvalCode from './scenes/teacher/eval/EvalCode';
+import EditMcq from './scenes/teacher/createQuestion/editMCQQuestion';
+import EditCode from './scenes/teacher/createQuestion/editQuestionCode';
 
 function App() {
   return (
     <BrowserRouter>
+
+    {/* Note : The key for resuming the test is 5487 */}
+
+
       <Switch>
+        {/* ---------------- LoginIn Routes ---------------- */}
         <Route exact path="/" component={Login} />
         <Route path="/student" component={SLogin} />
+        {/* ---------------------------------------------------------------- */}
+
+
+        {/* ---------------- Teachers Side Routes ---------------- */}
         <ProtectedRoute path="/manage" component={HomeTeacher} />
-        <ProtectedRoute path="/enter-set" component={EnterSet} />
-        <ProtectedRoute path="/section-a" component={NewSectionA} />
-        <ProtectedRoute path="/section-b" component={NewSectionB} />
         <ProtectedRoute path="/reset" component={LoggedInList} />
         <ProtectedRoute path="/create-test" component={CreateTest} />
         <ProtectedRoute path="/create-question" component={SelectType} />
@@ -43,25 +51,26 @@ function App() {
         <ProtectedRoute path="/create-code" component={CreateCode} />
         <ProtectedRoute path="/student-list" component={StudentList} />
         <ProtectedRoute path="/eval-code" component={EvalCode} />
-        <ProtectedRoute
-          path="/generate-password"
-          component={GeneratePassword}
-        />
-        <ProtectedRoute
-          path="/change-password"
-          component={ChangePassword}
-        />
-        <ProtectedRoute
-          path="/add-student"
-          component={CreateStudentUser}
-        />
-        <ProtectedRoute
-          path="/add-teacher"
-          component={CreateTeacherUser}
-        />
-        <Route
-          render={() => <h1 align="center">404 Page Not Found</h1>}
-        />
+        <ProtectedRoute path="/edit-question-mcq" component={EditMcq} />
+        <ProtectedRoute path="/generate-password" component={GeneratePassword} />
+        <ProtectedRoute path="/change-password" component={ChangePassword} />
+        <ProtectedRoute path="/add-student" component={CreateStudentUser} />
+        <ProtectedRoute path="/add-teacher" component={CreateTeacherUser} />
+        {/* <ProtectedRoute path="/edit-question-code" component={EditCode} /> */}
+        {/* ---------------------------------------------------------------- */}
+
+
+        {/* ---------------- Student Side Routes ---------------- */}
+        <ProtectedRoute path="/enter-set" component={EnterSet} />
+        <ProtectedRoute path="/section-a" component={NewSectionA} />
+        <ProtectedRoute path="/section-b" component={NewSectionB} />
+        {/* ---------------------------------------------------------------- */}
+
+        {/* Error Page Not Found */}
+        <Route render={() => <h1 align="center">404 Page Not Found</h1>} />
+        {/* ---------------------------------------------------------------- */}
+
+
       </Switch>
     </BrowserRouter>
   );

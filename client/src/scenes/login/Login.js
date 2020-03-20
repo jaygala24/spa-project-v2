@@ -143,7 +143,7 @@ class Login extends Component {
                   color: '#717171',
                 }}
               >
-                Computer Programming
+                Computer Programming <span style={{fontSize: 16, opacity: '0.4', letterSpacing: 1}} >v1.1</span>
               </div>
               <div
                 style={{

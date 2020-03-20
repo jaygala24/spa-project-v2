@@ -19,6 +19,8 @@ class NewSectionA extends Component {
         cheat: 0
      }
 
+    // ---------------- Functions for handling Buttons ----------------
+
     // Increment the current question by 1
     handleNext=()=>{
         if(this.state.currentQuestion+1<this.state.count){
@@ -90,7 +92,7 @@ class NewSectionA extends Component {
     handleSubmit=()=>{
         alertConfirm({
             title: 'Confirmation',
-            content: 'Are you sure you want to submit Section A? Once submitted you will not be able to return back to section A.',
+            content: 'Are you sure you want to submit this section? Once submitted you will not be able to return back to section A.',
             okText: 'Yes',
             cancelText: 'No',
             onOk: () => {
@@ -125,6 +127,8 @@ class NewSectionA extends Component {
             }
         })
     }
+
+    // ----------------------------------------------------------------
 
     // ------------ Functions for the Reviews Section ------------
 
@@ -185,6 +189,8 @@ class NewSectionA extends Component {
 
     // ------------ End of function related to Reviews section ------------
 
+    // -This function is used to update the state
+    // - It adds the text argument to the options selected array at the index of the current question
     addToOptionsSelected = text => {
         var arr = this.state.optionsSelected;
         arr[this.state.currentQuestion] = text;
@@ -201,8 +207,12 @@ class NewSectionA extends Component {
         });
         this.setState({ optionsSelected: arr, reviews: rev });
       };
+    
+    // ----------------------------------------------------------------
 
     componentDidMount(){
+
+        console.log('Did Mount')
 
         // ---------------- Avoiding copy ----------------
         document.addEventListener('keydown', this.my_onkeydown_handler);
@@ -212,7 +222,7 @@ class NewSectionA extends Component {
             this.warn();
             if (this.state.cheat % 3 === 2) {
             var key = parseInt(window.prompt('Enter unlock key'));
-            while (key !== 6699) {
+            while (key !== 5487) {
                 key = parseInt(window.prompt('Enter unlock key'));
             }
             } else {
@@ -237,19 +247,29 @@ class NewSectionA extends Component {
                 var i = 0;
                 var arr = [];
                 var os = [];
+                var selected=[...res.data.data.submittedAnswers.responses]
                 for (i = 0; i < res.data.data.count.mcq; i++) {
-                    arr.push({
-                        number: i + 1,
-                        status: 'null',
-                    });
+                    if(selected[i]!=' '){
+                        arr.push({
+                            number: i + 1,
+                            status: 'reviewed'
+                        });    
+                    }
+                    else{
+                        arr.push({
+                            number: i + 1,
+                            status: 'null'
+                        });
+                    }
                     os.push(' ');
                 }
+                console.log('Updating', res.data.data.submittedAnswers.responses)
                 this.setState({
                     data: res.data.data.paper.mcq,
                     time: res.data.data.submittedAnswers.time,
                     count: res.data.data.count.mcq,
                     reviews: arr,
-                    optionsSelected: os,
+                    optionsSelected: res.data.data.submittedAnswers.responses,
                     loading: false
                 }
             )   
@@ -276,7 +296,7 @@ class NewSectionA extends Component {
             case 91: // 'Windows key'
               if (this.state.cheat % 3 === 2) {
                 var key = parseInt(window.prompt('Enter unlock key'));
-                while (key !== 6699) {
+                while (key !== 5487) {
                   key = parseInt(window.prompt('Enter unlock key'));
                 }
               } else {
@@ -307,9 +327,11 @@ class NewSectionA extends Component {
     // ----------------------------------------------------------------
 
     render() {
+        console.log('rendering')
         console.log(this.state)
         return ( 
             <React.Fragment>
+                {/* Shows the spinner */}
                 {this.state.loading?(
                     <PulseLoader
                     size={10}
@@ -318,8 +340,10 @@ class NewSectionA extends Component {
                     loading={true}
                   />
                 ):(
+                    // If loading is false then display the content
                     <Grid container direction="row" justify="center">
-                        <Grid item xs={6}>
+                        <Grid item xs={5}>
+                            {/* Info component show the basic information of the student */}
                             <Info
                             cheat={this.state.cheat}
                             sapId={
@@ -333,6 +357,7 @@ class NewSectionA extends Component {
                             />
                         </Grid>
                         <Grid item xs={6}>
+                        {/* ---------------- Timer ---------------- */}
                             <Timer
                                 initialTime={this.state.time * 1000}
                                 direction="backward"
@@ -391,13 +416,14 @@ class NewSectionA extends Component {
                                 </React.Fragment>
                                 )}
                             </Timer>
+                        {/* ---------------- Timer Ends ---------------- */}
                         </Grid>
 
-                        {/* Section A */}
+                        {/* -------------------------------- Section A -------------------------------- */}
 
-                        {/* Buttons */}
+                        {/* -------------------------------- Buttons -------------------------------- */}
 
-                        <Grid container direction="row" justify="center" spacing={4} >
+                        <Grid container style={{width: '100%'}} direction="row" justify="center" spacing={4} >
                             <Grid item xs={10} lg={8}>
                                 <Grid container direction="row" alignItems="center" justify="center" spacing={4} >
                                     <Grid item>
@@ -420,12 +446,14 @@ class NewSectionA extends Component {
                             </Grid>
                         </Grid>
 
+                        {/* ---------------------------------------------------------------- */}
 
-                        {/* Lower part */}
+
+                        {/* -------------------------------- Lower part -------------------------------- */}
                         <Grid container direction='row' justify='center'>
                             <Grid item xs={11}>
                                 <Grid container direction='row' justify='center'>
-                                    <Grid item xs={9}>
+                                    <Grid item xs={8}>
                                         <SectionA
                                         // +1 because indexing starts from 0
                                         marks={this.state.data?this.state.data[this.state.currentQuestion].marks:''}
@@ -435,14 +463,14 @@ class NewSectionA extends Component {
                                         update={text=>this.addToOptionsSelected(text)}
                                         selectedAnswer={
                                             this.state.optionsSelected[
-                                            this.state.currentQuestion
-                                            ] || ''
+                                                this.state.currentQuestion
+                                            ]
                                         }
                                         />         
                                     </Grid>
 
-
-                                    <Grid item xs={3}>
+                                    {/* ---------------- Right side section ---------------- */}
+                                    <Grid item xs={2}>
                                         <Review
                                             // +1 because we need to pass the actual qn not the index
                                             currentQuestion={this.state.currentQuestion+1}
@@ -453,6 +481,7 @@ class NewSectionA extends Component {
                                             notattempted={this.calculateReviews()[2]}
                                         />
                                     </Grid>
+                                    {/* ---------------------------------------------------------------- */}
                                 </Grid>
                             </Grid>
                         </Grid>
