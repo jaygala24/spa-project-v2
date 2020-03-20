@@ -64,6 +64,6 @@ typings/
 # build output
 dist
 
-# media files
-media/results
-media/excel
+# media and code files
+code
+media
