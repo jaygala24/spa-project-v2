@@ -8,7 +8,7 @@ import FormControl from '@material-ui/core/FormControl';
 class SectionA extends Component {
     state = { 
         val: '',
-        optionCount: 1
+        optionCount: 4
      }
     styles = {
         question:{

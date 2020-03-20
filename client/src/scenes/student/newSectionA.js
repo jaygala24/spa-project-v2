@@ -92,7 +92,7 @@ class NewSectionA extends Component {
     handleSubmit=()=>{
         alertConfirm({
             title: 'Confirmation',
-            content: 'Are you sure you want to submit Section A? Once submitted you will not be able to return back to section A.',
+            content: 'Are you sure you want to submit this section? Once submitted you will not be able to return back to section A.',
             okText: 'Yes',
             cancelText: 'No',
             onOk: () => {
@@ -212,6 +212,8 @@ class NewSectionA extends Component {
 
     componentDidMount(){
 
+        console.log('Did Mount')
+
         // ---------------- Avoiding copy ----------------
         document.addEventListener('keydown', this.my_onkeydown_handler);
         document.addEventListener('visibilitychange', () => {
@@ -261,6 +263,7 @@ class NewSectionA extends Component {
                     }
                     os.push(' ');
                 }
+                console.log('Updating', res.data.data.submittedAnswers.responses)
                 this.setState({
                     data: res.data.data.paper.mcq,
                     time: res.data.data.submittedAnswers.time,
@@ -324,6 +327,7 @@ class NewSectionA extends Component {
     // ----------------------------------------------------------------
 
     render() {
+        console.log('rendering')
         console.log(this.state)
         return ( 
             <React.Fragment>
@@ -338,7 +342,7 @@ class NewSectionA extends Component {
                 ):(
                     // If loading is false then display the content
                     <Grid container direction="row" justify="center">
-                        <Grid item xs={6}>
+                        <Grid item xs={5}>
                             {/* Info component show the basic information of the student */}
                             <Info
                             cheat={this.state.cheat}
@@ -419,7 +423,7 @@ class NewSectionA extends Component {
 
                         {/* -------------------------------- Buttons -------------------------------- */}
 
-                        <Grid container direction="row" justify="center" spacing={4} >
+                        <Grid container style={{width: '100%'}} direction="row" justify="center" spacing={4} >
                             <Grid item xs={10} lg={8}>
                                 <Grid container direction="row" alignItems="center" justify="center" spacing={4} >
                                     <Grid item>
@@ -449,7 +453,7 @@ class NewSectionA extends Component {
                         <Grid container direction='row' justify='center'>
                             <Grid item xs={11}>
                                 <Grid container direction='row' justify='center'>
-                                    <Grid item xs={9}>
+                                    <Grid item xs={8}>
                                         <SectionA
                                         // +1 because indexing starts from 0
                                         marks={this.state.data?this.state.data[this.state.currentQuestion].marks:''}
@@ -459,14 +463,14 @@ class NewSectionA extends Component {
                                         update={text=>this.addToOptionsSelected(text)}
                                         selectedAnswer={
                                             this.state.optionsSelected[
-                                            this.state.currentQuestion
-                                            ] || ''
+                                                this.state.currentQuestion
+                                            ]
                                         }
                                         />         
                                     </Grid>
 
                                     {/* ---------------- Right side section ---------------- */}
-                                    <Grid item xs={3}>
+                                    <Grid item xs={2}>
                                         <Review
                                             // +1 because we need to pass the actual qn not the index
                                             currentQuestion={this.state.currentQuestion+1}

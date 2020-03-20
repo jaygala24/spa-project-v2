@@ -336,15 +336,21 @@ class NewSectionB extends Component {
                 });
                 os.push(' ');
             }
-            this.setState({
-                data: res.data.data.paper.code,
-                time: res.data.data.submittedAnswers.time,
-                count: res.data.data.count.code,
-                reviews: arr,
-                optionsSelected: res.data.data.submittedAnswers.responses,
-                loading: false
+            // Checking there are any coding question
+            if(res.data.data.count.code==0){
+                window.location='/student'
             }
-        )
+            else{
+                this.setState({
+                        data: res.data.data.paper.code,
+                        time: res.data.data.submittedAnswers.time,
+                        count: res.data.data.count.code,
+                        reviews: arr,
+                        optionsSelected: res.data.data.submittedAnswers.responses,
+                        loading: false
+                    }
+                )
+            }
         },err=>alert(err.response.data.error.msg))
     }
     
