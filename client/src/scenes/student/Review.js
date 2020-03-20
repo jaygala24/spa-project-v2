@@ -112,10 +112,10 @@ class Review extends Component {
                             <Grid container direction='row' justify='center' spacing={1} >
                                 <Grid item xs={12}>
                                     <div style={{textAlign: 'center',padding: '0px 0px 20px 0px'}} >Questions
+                                    {/* <div style={{textAlign: 'center',display: 'flex',alignItems: 'center'}} >
+                                        <div style={{marginRight: 20, marginLeft: 40,width: 10,height: 10,borderRadius: 20, background: 'rgba(245, 170, 0, 0.57)'}} ></div>Marked-{this.props.marked} </div> */}
                                     <div style={{textAlign: 'center',display: 'flex',alignItems: 'center'}} >
-                                        <div style={{marginRight: 20, marginLeft: 40,width: 10,height: 10,borderRadius: 20, background: 'rgba(245, 170, 0, 0.57)'}} ></div>Marked-{this.props.marked} </div>
-                                    <div style={{textAlign: 'center',display: 'flex',alignItems: 'center'}} >
-                                        <div style={{marginRight: 20, marginLeft: 40,width: 10,height: 10,borderRadius: 20, background: 'rgb(94, 222, 101)'}} ></div>Reviewed-{this.props.attempted} </div>
+                                        <div style={{marginRight: 20, marginLeft: 40,width: 10,height: 10,borderRadius: 20, background: 'rgb(94, 222, 101)'}} ></div>Attempted-{this.props.attempted} </div>
                                     <div style={{textAlign: 'center',paddingBottom: 20,display: 'flex',alignItems: 'center'}} >
                                         <div style={{marginRight: 20, marginLeft: 40,width: 10,height: 10,borderRadius: 20, background: '#eee'}} ></div>Not attempted-{this.props.notattempted} </div>
                                     </div>

@@ -19,6 +19,8 @@ class NewSectionA extends Component {
         cheat: 0
      }
 
+    // ---------------- Functions for handling Buttons ----------------
+
     // Increment the current question by 1
     handleNext=()=>{
         if(this.state.currentQuestion+1<this.state.count){
@@ -126,6 +128,8 @@ class NewSectionA extends Component {
         })
     }
 
+    // ----------------------------------------------------------------
+
     // ------------ Functions for the Reviews Section ------------
 
     // This function is used to change the current question value
@@ -185,6 +189,8 @@ class NewSectionA extends Component {
 
     // ------------ End of function related to Reviews section ------------
 
+    // -This function is used to update the state
+    // - It adds the text argument to the options selected array at the index of the current question
     addToOptionsSelected = text => {
         var arr = this.state.optionsSelected;
         arr[this.state.currentQuestion] = text;
@@ -201,6 +207,8 @@ class NewSectionA extends Component {
         });
         this.setState({ optionsSelected: arr, reviews: rev });
       };
+    
+    // ----------------------------------------------------------------
 
     componentDidMount(){
 
@@ -212,7 +220,7 @@ class NewSectionA extends Component {
             this.warn();
             if (this.state.cheat % 3 === 2) {
             var key = parseInt(window.prompt('Enter unlock key'));
-            while (key !== 6699) {
+            while (key !== 5487) {
                 key = parseInt(window.prompt('Enter unlock key'));
             }
             } else {
@@ -285,7 +293,7 @@ class NewSectionA extends Component {
             case 91: // 'Windows key'
               if (this.state.cheat % 3 === 2) {
                 var key = parseInt(window.prompt('Enter unlock key'));
-                while (key !== 6699) {
+                while (key !== 5487) {
                   key = parseInt(window.prompt('Enter unlock key'));
                 }
               } else {
@@ -319,6 +327,7 @@ class NewSectionA extends Component {
         console.log(this.state)
         return ( 
             <React.Fragment>
+                {/* Shows the spinner */}
                 {this.state.loading?(
                     <PulseLoader
                     size={10}
@@ -327,8 +336,10 @@ class NewSectionA extends Component {
                     loading={true}
                   />
                 ):(
+                    // If loading is false then display the content
                     <Grid container direction="row" justify="center">
                         <Grid item xs={6}>
+                            {/* Info component show the basic information of the student */}
                             <Info
                             cheat={this.state.cheat}
                             sapId={
@@ -342,6 +353,7 @@ class NewSectionA extends Component {
                             />
                         </Grid>
                         <Grid item xs={6}>
+                        {/* ---------------- Timer ---------------- */}
                             <Timer
                                 initialTime={this.state.time * 1000}
                                 direction="backward"
@@ -400,11 +412,12 @@ class NewSectionA extends Component {
                                 </React.Fragment>
                                 )}
                             </Timer>
+                        {/* ---------------- Timer Ends ---------------- */}
                         </Grid>
 
-                        {/* Section A */}
+                        {/* -------------------------------- Section A -------------------------------- */}
 
-                        {/* Buttons */}
+                        {/* -------------------------------- Buttons -------------------------------- */}
 
                         <Grid container direction="row" justify="center" spacing={4} >
                             <Grid item xs={10} lg={8}>
@@ -429,8 +442,10 @@ class NewSectionA extends Component {
                             </Grid>
                         </Grid>
 
+                        {/* ---------------------------------------------------------------- */}
 
-                        {/* Lower part */}
+
+                        {/* -------------------------------- Lower part -------------------------------- */}
                         <Grid container direction='row' justify='center'>
                             <Grid item xs={11}>
                                 <Grid container direction='row' justify='center'>
@@ -450,7 +465,7 @@ class NewSectionA extends Component {
                                         />         
                                     </Grid>
 
-
+                                    {/* ---------------- Right side section ---------------- */}
                                     <Grid item xs={3}>
                                         <Review
                                             // +1 because we need to pass the actual qn not the index
@@ -462,6 +477,7 @@ class NewSectionA extends Component {
                                             notattempted={this.calculateReviews()[2]}
                                         />
                                     </Grid>
+                                    {/* ---------------------------------------------------------------- */}
                                 </Grid>
                             </Grid>
                         </Grid>

@@ -28,13 +28,19 @@ import EditCode from './scenes/teacher/createQuestion/editQuestionCode';
 function App() {
   return (
     <BrowserRouter>
+
+    {/* Note : The key for resuming the test is 5487 */}
+
+
       <Switch>
+        {/* ---------------- LoginIn Routes ---------------- */}
         <Route exact path="/" component={Login} />
         <Route path="/student" component={SLogin} />
+        {/* ---------------------------------------------------------------- */}
+
+
+        {/* ---------------- Teachers Side Routes ---------------- */}
         <ProtectedRoute path="/manage" component={HomeTeacher} />
-        <ProtectedRoute path="/enter-set" component={EnterSet} />
-        <ProtectedRoute path="/section-a" component={NewSectionA} />
-        <ProtectedRoute path="/section-b" component={NewSectionB} />
         <ProtectedRoute path="/reset" component={LoggedInList} />
         <ProtectedRoute path="/create-test" component={CreateTest} />
         <ProtectedRoute path="/create-question" component={SelectType} />
@@ -46,26 +52,25 @@ function App() {
         <ProtectedRoute path="/student-list" component={StudentList} />
         <ProtectedRoute path="/eval-code" component={EvalCode} />
         <ProtectedRoute path="/edit-question-mcq" component={EditMcq} />
+        <ProtectedRoute path="/generate-password" component={GeneratePassword} />
+        <ProtectedRoute path="/change-password" component={ChangePassword} />
+        <ProtectedRoute path="/add-student" component={CreateStudentUser} />
+        <ProtectedRoute path="/add-teacher" component={CreateTeacherUser} />
         {/* <ProtectedRoute path="/edit-question-code" component={EditCode} /> */}
-        <ProtectedRoute
-          path="/generate-password"
-          component={GeneratePassword}
-        />
-        <ProtectedRoute
-          path="/change-password"
-          component={ChangePassword}
-        />
-        <ProtectedRoute
-          path="/add-student"
-          component={CreateStudentUser}
-        />
-        <ProtectedRoute
-          path="/add-teacher"
-          component={CreateTeacherUser}
-        />
-        <Route
-          render={() => <h1 align="center">404 Page Not Found</h1>}
-        />
+        {/* ---------------------------------------------------------------- */}
+
+
+        {/* ---------------- Student Side Routes ---------------- */}
+        <ProtectedRoute path="/enter-set" component={EnterSet} />
+        <ProtectedRoute path="/section-a" component={NewSectionA} />
+        <ProtectedRoute path="/section-b" component={NewSectionB} />
+        {/* ---------------------------------------------------------------- */}
+
+        {/* Error Page Not Found */}
+        <Route render={() => <h1 align="center">404 Page Not Found</h1>} />
+        {/* ---------------------------------------------------------------- */}
+
+
       </Switch>
     </BrowserRouter>
   );

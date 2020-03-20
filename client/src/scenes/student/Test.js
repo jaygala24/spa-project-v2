@@ -110,7 +110,7 @@ class Test extends Component {
         case 91: // 'Windows key'
           if (this.state.cheat % 3 === 2) {
             var key = parseInt(window.prompt('Enter unlock key'));
-            while (key !== 6699) {
+            while (key !== 5487) {
               key = parseInt(window.prompt('Enter unlock key'));
             }
           } else {
@@ -145,7 +145,7 @@ class Test extends Component {
         this.warn();
         if (this.state.cheat % 3 === 2) {
           var key = parseInt(window.prompt('Enter unlock key'));
-          while (key !== 6699) {
+          while (key !== 5487) {
             key = parseInt(window.prompt('Enter unlock key'));
           }
         } else {
