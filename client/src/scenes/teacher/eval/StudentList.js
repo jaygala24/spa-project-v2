@@ -17,6 +17,7 @@ import { NavLink } from 'react-router-dom';
 import { saveAs } from 'file-saver';
 import InputRange from 'react-input-range';
 import "react-input-range/lib/css/index.css";
+import NotFound from './no-results.png';
 import Axios from 'axios';
 
 class StudentList extends Component {
@@ -42,10 +43,9 @@ class StudentList extends Component {
       boxShadow: '0 3px 20px 0 rgba(0,0,0,.1)',
     },
     btn: {
-      width: '100%',
       background: '#62ce97',
       color: 'white',
-      padding: '12px 0px',
+      padding: '12px 50px',
       fontFamily: 'Nunito',
       letterSpacing: 1,
       borderRadius: 10,
@@ -73,6 +73,10 @@ class StudentList extends Component {
     link: {
       textDecoration: 'none',
       cursor: 'pointer',
+      fontFamily: 'Nunito',
+      letterSpacing: 2,
+      fontSize: 22,
+      color: '#797979',
     },
   };
   handleYear=event=>{
@@ -200,19 +204,29 @@ class StudentList extends Component {
                   }}
                   style={this.styles.link}
                 >
-                  <div>{s.sapId}</div>
+                  <div style={this.styles.font} >{s.sapId}</div>
                 </NavLink>
                 <div style={{ flexGrow: 1 }}></div>
                 {/* <IconButton style={{marginRight: 20}} >
                   <MailOutlineIcon />
                 </IconButton> */}
-                <Button
-                  onClick={() => this.handlePrint(s._id, s.sapId)}
-                  disabled={!s.print}
-                  variant="outlined"
-                >
-                  Print
-                </Button>
+                {s.print?(
+                  <Button
+                    style={this.styles.btn}
+                    onClick={() => this.handlePrint(s._id, s.sapId)}
+                  >
+                    Print
+                  </Button>
+                ):(
+                  <Button
+                    onClick={() => this.handlePrint(s._id, s.sapId)}
+                    disabled={!s.print}
+                    style={{padding: '10px 12px'}}
+                    variant='outlined'
+                  >
+                    Print
+                  </Button>
+                )}
               </div>
             </Paper>
           </Zoom>
@@ -304,9 +318,9 @@ class StudentList extends Component {
               <Grid style={{marginBottom: 40}} item xs={12}>
               {this.state.rangeMax>0&&this.state.rangeMax-this.state.rangeMin>5?(
                 <React.Fragment>
-                  <div style={{ letterSpacing: 1, fontSize: 20}} > <b>Corrected Papers : {correctedCount}</b> <span style={{opacity: '0.4'}} >(For the specified range)</span> </div>
-                  <div style={{opacity: '0.8', letterSpacing: 2}} >Note : The slider provided below can be used to filter the range of SAP IDs</div>
-                  <div style={{marginBottom: 30, opacity: '0.8', letterSpacing: 2}} >- Adjust the slider to specify the range </div>
+                  <div style={{ letterSpacing: 1, fontSize: 20, fontFamily: 'Nunito', letterSpacing: 4}} > <b>Corrected Papers : {correctedCount}</b> <span style={{opacity: '0.4'}} >(For the specified range)</span> </div>
+                  <div style={{opacity: '0.8', fontFamily: 'Nunito', letterSpacing: 1}} >Note : The slider provided below can be used to filter the range of SAP IDs</div>
+                  <div style={{marginBottom: 30, opacity: '0.8', fontFamily: 'Nunito', letterSpacing: 4}} >- Adjust the slider to specify the range </div>
                   <InputRange
                   step={1}
                   formatLabel={value => `${value}`}
@@ -321,10 +335,12 @@ class StudentList extends Component {
                   } />
                 </React.Fragment>
               ):(
-                <div style={{ letterSpacing: 1, fontSize: 20}} > <b>Corrected Papers : {correctedCount}</b></div>
+                <div style={{ letterSpacing: 1, fontSize: 20, fontFamily: 'Nunito', letterSpacing: 4}} > <b>Corrected Papers : {correctedCount}</b></div>
               )}
               </Grid>
-              {this.state.filter.length>0?renderCard:'No results found'}
+              {this.state.filter.length>0?renderCard:(
+                <img src={NotFound} alt="No Results found"/>
+              )}
             </Grid>
           </Grid>
         </Grid>

@@ -23,6 +23,7 @@ import NewSectionB from './scenes/student/newSectionB';
 import StudentList from './scenes/teacher/eval/StudentList';
 import EvalCode from './scenes/teacher/eval/EvalCode';
 import EditMcq from './scenes/teacher/createQuestion/editMCQQuestion';
+import NotFound from './scenes/components/NotFound';
 import EditCode from './scenes/teacher/createQuestion/editQuestionCode';
 
 function App() {
@@ -67,7 +68,7 @@ function App() {
         {/* ---------------------------------------------------------------- */}
 
         {/* Error Page Not Found */}
-        <Route render={() => <h1 align="center">404 Page Not Found</h1>} />
+        <Route component={NotFound} />
         {/* ---------------------------------------------------------------- */}
 
 

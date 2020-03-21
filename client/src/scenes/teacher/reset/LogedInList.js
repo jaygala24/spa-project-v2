@@ -10,6 +10,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
+import NotFound from './no-results.png';
 import Axios from 'axios';
 
 class LoggedInList extends Component {
@@ -197,7 +198,9 @@ class LoggedInList extends Component {
                   RESET ALL
                 </Button>
               </Grid>
-              {filter.length > 0 ? renderCard : 'No results found'}
+              {filter.length > 0 ? renderCard : (
+                <img src={NotFound} alt="No Results found"/>
+              )}
             </Grid>
           </Grid>
         </Grid>
