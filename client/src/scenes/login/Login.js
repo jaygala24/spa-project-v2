@@ -101,12 +101,13 @@ class Login extends Component {
         this.handleSubmit(event)
       }
     })
-    if (auth.isAuthenticated()) {
-      // If token exists then redirect to dashboard
-      this.props.history.push('/manage');
-    } else {
-      auth.logout();
-    }
+    localStorage.clear()
+    // if (auth.isAuthenticated()) {
+       // If token exists then redirect to dashboard
+    //   this.props.history.push('/manage');
+    // } else {
+    //   auth.logout();
+    // }
   }
 
   render() {

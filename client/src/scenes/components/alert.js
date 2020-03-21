@@ -22,8 +22,6 @@ class Alert extends Component {
     var res = event.target.innerHTML;
     if (this.props.affirmative === res) {
       this.props.callback(res);
-    } else {
-      this.props.callback(res);
     }
     this.setState({ open: false });
   };
