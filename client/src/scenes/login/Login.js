@@ -92,13 +92,13 @@ class Login extends Component {
   };
 
   componentDidMount() {
-    document.addEventListener("keyup", (event)=>{
+    document.addEventListener('keyup', event => {
       // Number 13 is the "Enter" key on the keyboard
       if (event.keyCode === 13) {
         // Cancel the default action, if needed
         event.preventDefault();
         // Trigger the button element with a click
-        this.handleSubmit(event)
+        this.handleSubmit(event);
       }
     })
     localStorage.clear()
@@ -144,7 +144,16 @@ class Login extends Component {
                   color: '#717171',
                 }}
               >
-                Computer Programming <span style={{fontSize: 16, opacity: '0.4', letterSpacing: 1}} >v1.1</span>
+                Computer Programming{' '}
+                <span
+                  style={{
+                    fontSize: 16,
+                    opacity: '0.4',
+                    letterSpacing: 1,
+                  }}
+                >
+                  v1.1
+                </span>
               </div>
               <div
                 style={{
