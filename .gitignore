@@ -67,3 +67,8 @@ dist
 # media and code files
 code
 media
+
+#python compiled files
+*pycache*
+*.pyc
+temp
