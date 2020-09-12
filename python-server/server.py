@@ -2,14 +2,15 @@ from flask import Flask, request, Response, jsonify,json
 
 from multiprocessing import Process
 import requests
-
+import os
 from config.lang_config import langs
 from util.compile import compile_and_run_code
 
+
 # Set this according to env vars in deployment
-EXPRESS_BASE_URL = 'http://localhost:5000'
-EXPRESS_RETURN_ROUTE = '/output'
-SERVER_PORT = 5001
+EXPRESS_BASE_URL = os.environ.get('NODE_SERVER_ROOT')+'/'+os.environ.get('NODE_SERVER_PORT')+'/'
+EXPRESS_RETURN_ROUTE = os.environ.get('NODE_CALLBACK_ENDPOINT')
+SERVER_PORT = os.environ.get('PORT')
 SERVER_HOST = '0.0.0.0'
 
 # Helper function
@@ -31,7 +32,9 @@ def compile_and_send(data):
     return requests.post(post_route,json.dumps(ret),headers=headers)
 
 
+
 app = Flask(__name__);
+
 
 @app.route('/compile',methods=['POST'])
 def compile():
@@ -49,6 +52,7 @@ def compile():
     # We do not wait for for it to join
     # We immediately return success as we have received the code
     return Response(json.dumps({'success': True}), mimetype="application/json", status=200)
+
 
 # set debug=True for nodemon like facilities
 app.run(host=SERVER_HOST, port=SERVER_PORT,debug=False)
