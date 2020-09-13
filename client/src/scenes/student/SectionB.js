@@ -5,10 +5,13 @@ import 'ace-builds/src-noconflict/mode-csharp';
 import 'ace-builds/src-noconflict/theme-kuroir';
 import 'ace-builds/src-noconflict/theme-textmate';
 import { PulseLoader } from 'react-spinners';
-import Terminal from '../components/terminal';
 import Axios from 'axios';
 
 class SectionB extends Component {
+  // TODO 
+  /**
+   * Add input and output in state
+   */
   state = {
     code: ``,
   };
@@ -64,6 +67,27 @@ class SectionB extends Component {
       marginBottom: 40,
     },
   };
+
+  // TODO
+  /**
+   * Setup websocket here, maybe in didMount
+   * on receive of 'output' :
+   * update state of output as :
+   * it will have components: success, timeout, and stdout, stderr
+   * depending on true/false of success and timeout, one can set style of output and display respective
+   * message : 
+   * success false and timeout true  will have both std as empty string,
+   * success false and timeout false, means either compiling or execution had error which is in stderr string
+   * success true will contain the output in stdout string
+   */
+
+
+  // TODO 
+  /**  update following as:
+    * add metadata as {sap id,ip?}
+    * add code as code
+    * add input as input 
+  */
 
   handleRunCode = () => {
     var code = this.state.code;
@@ -140,13 +164,13 @@ class SectionB extends Component {
               {this.props.question ? (
                 this.processNewLine(this.props.question)
               ) : (
-                <PulseLoader
-                  size={10}
-                  margin={2}
-                  color={'#123abc'}
-                  loading={true}
-                />
-              )}
+                  <PulseLoader
+                    size={10}
+                    margin={2}
+                    color={'#123abc'}
+                    loading={true}
+                  />
+                )}
             </div>
           </Grid>
           <Grid item xs={12}></Grid>
@@ -202,14 +226,11 @@ class SectionB extends Component {
                             defaultValue="OUTPUT"
                         /> */}
             <div>
-              {this.state.path ? (
-                <Terminal
-                  studentId={this.state.studentId}
-                  questionId={this.props.questionId}
-                />
-              ) : (
-                ''
-              )}
+              // Always show both i/p and o/p text areas
+              // TODO connect these to i/p and o/p part of state of this component
+              <textarea id='inputs'></textarea>
+              <textarea id='output' readOnly={true}></textarea>
+              <button onClick={this.handleRunCode}></button>
             </div>
           </Grid>
         </Grid>
