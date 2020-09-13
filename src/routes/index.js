@@ -31,8 +31,12 @@ import {
   getCodeResponses,
   sendPdf,
   generateExcel,
+  handlePythonCallback,
 } from '../controllers';
 import { protect, isTeacher, isAdmin } from '../middlewares';
+
+// route which python server will POST to to return the output of code
+const callbackEndpoint = `/api/${process.env.PYTHON_CALLBACK_ENDPOINT}`;
 
 const router = Router();
 
@@ -129,5 +133,8 @@ router.route('/students/saveOutput').post(protect, saveCodeOutput);
 router
   .route('/students/timeout')
   .post(protect, saveProgressOnTimeOut);
+
+// routes which will be hit by python server
+router.route(callbackEndpoint).post(handlePythonCallback);
 
 export default router;
