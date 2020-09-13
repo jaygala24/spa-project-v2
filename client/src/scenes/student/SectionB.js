@@ -77,8 +77,9 @@ class SectionB extends Component {
    * ! as terminal server was running on 8080, but will that work after dockerisation is not clear...???
    */
   // DUMMY CODE
-  async componentDidMount() {
+  componentDidMount() {
     // maybe make this global, as will need this to close it in component will unmount
+    // like : window.ws = ws;
 
     const ws = new WebSocket(`/path?param=${this.props.studentId}`);
 
@@ -103,15 +104,18 @@ class SectionB extends Component {
 
   // TODO also setup component will unmount (?) and close the websocket
   // TODO closing it is important, as that will remove the socket from server's memory
+  componentWillUnmount() {
+    window.ws.close();
+  }
 
   // TODO 
   /**  update following as:
     * add following in the req sent
     * add metadata as this.props.studentId
-    * add code as code in state
+    * add code as code in state (rename program)
     * add input as input in state
   */
-
+  // TODO set the button to disabled for 5 seconds or so, in handler, and after five seconds enable again
   handleRunCode = () => {
     var code = this.state.code;
     console.log(code);
@@ -138,8 +142,7 @@ class SectionB extends Component {
         res => {
           console.log(res.data);
           this.setState({
-            studentId: res.data.data.submittedAnswer.studentId,
-            path: true, // This is th dummy variable for mounting terminal
+            studentId: res.data.studentId,
           });
         },
         err => alert(err.response.data.error.msg),
@@ -253,6 +256,7 @@ class SectionB extends Component {
               // TODO connect these to i/p and o/p part of state of this component
               <textarea id='inputs'></textarea>
               <textarea id='output' readOnly={true}></textarea>
+              // TODO set this button to disabled for 5 seconds or so, in handler, and after five seconds enable again
               <button onClick={this.handleRunCode}></button>
             </div>
           </Grid>

@@ -21,6 +21,23 @@ class NewSectionB extends Component {
 
   // ------------ Functions for the Reviews Section ------------
 
+  // NOTE : Following changes should be made in every request to /api/students/runProgram and /api/students/saveOutput
+  /**
+   * make a single request to /api/students/getQandA
+   * required params are : paperId and questionId only.
+   * 
+   * one can remove rest
+   * 
+   * in response, one will get , among other things :
+   * data.data.submittedAnswer.code.program  and
+   * data.data.submittedAnswer.code.output
+   * 
+   * Now these should be given as props (?) to the SectionB component in the render of this,
+   * and those should set as default values for its state's code and output values.
+   * then the updating of question num state should be done as is done in .then() of all 2nd reqs.
+   * 
+   */
+
   // This function is used to change the current question value
   show = qn => {
     // Getting time from the Timer component
@@ -457,203 +474,203 @@ class NewSectionB extends Component {
             loading={true}
           />
         ) : (
-          <React.Fragment>
-            <Grid container direction="row" justify="center">
-              <Grid item xs={6}>
-                <Info
-                  cheat={this.state.cheat}
-                  sapId={
-                    localStorage.getItem('sapId')
-                      ? localStorage.getItem('sapId')
-                      : ''
-                  }
-                  set={
-                    localStorage.getItem('set')
-                      ? localStorage.getItem('set')
-                      : ''
-                  }
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <Timer
-                  initialTime={this.state.time * 1000}
-                  direction="backward"
-                  checkpoints={[
-                    {
-                      time: 0,
-                      callback: () => {
-                        alert('Timer expired');
-                        Axios.post(
-                          '/api/students/timeout',
-                          {
-                            paperId: localStorage.getItem('id'),
-                            questionId: this.state.data[
-                              this.state.currentQuestion
-                            ]['_id'],
-                            program: this.state.optionsSelected[
-                              this.state.currentQuestion
-                            ],
-                            time: 0,
-                            currentSection: 'Code',
-                          },
-                          {
-                            headers: {
-                              Authorization: localStorage.getItem(
-                                'token',
-                              ),
+            <React.Fragment>
+              <Grid container direction="row" justify="center">
+                <Grid item xs={6}>
+                  <Info
+                    cheat={this.state.cheat}
+                    sapId={
+                      localStorage.getItem('sapId')
+                        ? localStorage.getItem('sapId')
+                        : ''
+                    }
+                    set={
+                      localStorage.getItem('set')
+                        ? localStorage.getItem('set')
+                        : ''
+                    }
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <Timer
+                    initialTime={this.state.time * 1000}
+                    direction="backward"
+                    checkpoints={[
+                      {
+                        time: 0,
+                        callback: () => {
+                          alert('Timer expired');
+                          Axios.post(
+                            '/api/students/timeout',
+                            {
+                              paperId: localStorage.getItem('id'),
+                              questionId: this.state.data[
+                                this.state.currentQuestion
+                              ]['_id'],
+                              program: this.state.optionsSelected[
+                                this.state.currentQuestion
+                              ],
+                              time: 0,
+                              currentSection: 'Code',
                             },
-                          },
-                        ).then(res => (window.location = '/student'));
+                            {
+                              headers: {
+                                Authorization: localStorage.getItem(
+                                  'token',
+                                ),
+                              },
+                            },
+                          ).then(res => (window.location = '/student'));
+                        },
                       },
-                    },
-                  ]}
-                >
-                  {(
-                    start,
-                    resume,
-                    pause,
-                    stop,
-                    reset,
-                    timerState,
-                  ) => (
-                    <React.Fragment>
-                      <div
-                        style={{
-                          fontFamily: 'Nunito',
-                          fontSize: 32,
-                          color: '#6b6b6b',
-                          textAlign: 'center',
-                          marginTop: 20,
-                        }}
-                      >
-                        <span>Timer : </span>
-                        <span id="timer-hours">
-                          <Timer.Hours />
-                        </span>{' '}
+                    ]}
+                  >
+                    {(
+                      start,
+                      resume,
+                      pause,
+                      stop,
+                      reset,
+                      timerState,
+                    ) => (
+                        <React.Fragment>
+                          <div
+                            style={{
+                              fontFamily: 'Nunito',
+                              fontSize: 32,
+                              color: '#6b6b6b',
+                              textAlign: 'center',
+                              marginTop: 20,
+                            }}
+                          >
+                            <span>Timer : </span>
+                            <span id="timer-hours">
+                              <Timer.Hours />
+                            </span>{' '}
                         hours
                         <span id="timer-minutes">
-                          <Timer.Minutes />
-                        </span>{' '}
+                              <Timer.Minutes />
+                            </span>{' '}
                         minutes
                         <span id="timer-seconds">
-                          <Timer.Seconds />
-                        </span>{' '}
+                              <Timer.Seconds />
+                            </span>{' '}
                         seconds
                       </div>
-                    </React.Fragment>
-                  )}
-                </Timer>
-              </Grid>
-
-              {/* Buttons */}
-
-              <Grid
-                container
-                direction="row"
-                justify="center"
-                spacing={4}
-              >
-                <Grid item xs={10} lg={8}>
-                  <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    justify="center"
-                    spacing={4}
-                  >
-                    <Grid item>
-                      <Button
-                        variant="outlined"
-                        disabled={this.state.currentQuestion == 0}
-                        onClick={this.handlePrev}
-                      >
-                        Prev
-                      </Button>
-                    </Grid>
-                    <Grid item>
-                      {this.state.currentQuestion + 1 ==
-                      this.state.count ? (
-                        <Button
-                          variant="outlined"
-                          onClick={this.handleSubmit}
-                        >
-                          Submit
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="outlined"
-                          disabled={
-                            this.state.currentQuestion + 1 ==
-                            this.state.count
-                          }
-                          onClick={this.handleNext}
-                        >
-                          Next
-                        </Button>
+                        </React.Fragment>
                       )}
+                  </Timer>
+                </Grid>
+
+                {/* Buttons */}
+
+                <Grid
+                  container
+                  direction="row"
+                  justify="center"
+                  spacing={4}
+                >
+                  <Grid item xs={10} lg={8}>
+                    <Grid
+                      container
+                      direction="row"
+                      alignItems="center"
+                      justify="center"
+                      spacing={4}
+                    >
+                      <Grid item>
+                        <Button
+                          variant="outlined"
+                          disabled={this.state.currentQuestion == 0}
+                          onClick={this.handlePrev}
+                        >
+                          Prev
+                      </Button>
+                      </Grid>
+                      <Grid item>
+                        {this.state.currentQuestion + 1 ==
+                          this.state.count ? (
+                            <Button
+                              variant="outlined"
+                              onClick={this.handleSubmit}
+                            >
+                              Submit
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outlined"
+                              disabled={
+                                this.state.currentQuestion + 1 ==
+                                this.state.count
+                              }
+                              onClick={this.handleNext}
+                            >
+                              Next
+                            </Button>
+                          )}
+                      </Grid>
                     </Grid>
                   </Grid>
                 </Grid>
-              </Grid>
 
-              <Grid container direction="row" justify="center">
-                <Grid item xs={11}>
-                  <Grid container direction="row" justify="center">
-                    <Grid item xs={9}>
-                      <SectionB
-                        questionNumber={
-                          this.state.currentQuestion + 1
-                        }
-                        question={
-                          this.state.data
-                            ? this.state.data[
+                <Grid container direction="row" justify="center">
+                  <Grid item xs={11}>
+                    <Grid container direction="row" justify="center">
+                      <Grid item xs={9}>
+                        <SectionB
+                          questionNumber={
+                            this.state.currentQuestion + 1
+                          }
+                          question={
+                            this.state.data
+                              ? this.state.data[
                                 this.state.currentQuestion
                               ].title
-                            : ''
-                        }
-                        update={text =>
-                          this.addToOptionsSelected(text)
-                        }
-                        selectedAnswer={
-                          this.state.optionsSelected[
+                              : ''
+                          }
+                          update={text =>
+                            this.addToOptionsSelected(text)
+                          }
+                          selectedAnswer={
+                            this.state.optionsSelected[
                             this.state.currentQuestion
-                          ] || ''
-                        }
-                        questionId={
-                          this.state.data
-                            ? this.state.data[
+                            ] || ''
+                          }
+                          questionId={
+                            this.state.data
+                              ? this.state.data[
                                 this.state.currentQuestion
                               ]._id
-                            : ''
-                        }
-                        marks={
-                          this.state.data
-                            ? this.state.data[
+                              : ''
+                          }
+                          marks={
+                            this.state.data
+                              ? this.state.data[
                                 this.state.currentQuestion
                               ].marks
-                            : ''
-                        }
-                      />
-                    </Grid>
-                    <Grid item xs={3}>
-                      <Review
-                        // +1 because we need to pass the actual qn not the index
-                        currentQuestion={
-                          this.state.currentQuestion + 1
-                        }
-                        show={qn => this.show(qn)}
-                        reviews={this.state.reviews}
-                        marked={this.calculateReviews()[0]}
-                        attempted={this.calculateReviews()[1]}
-                        notattempted={this.calculateReviews()[2]}
-                      />
+                              : ''
+                          }
+                        />
+                      </Grid>
+                      <Grid item xs={3}>
+                        <Review
+                          // +1 because we need to pass the actual qn not the index
+                          currentQuestion={
+                            this.state.currentQuestion + 1
+                          }
+                          show={qn => this.show(qn)}
+                          reviews={this.state.reviews}
+                          marked={this.calculateReviews()[0]}
+                          attempted={this.calculateReviews()[1]}
+                          notattempted={this.calculateReviews()[2]}
+                        />
+                      </Grid>
                     </Grid>
                   </Grid>
                 </Grid>
               </Grid>
-            </Grid>
-          </React.Fragment>
-        )}
+            </React.Fragment>
+          )}
       </React.Fragment>
     );
   }
