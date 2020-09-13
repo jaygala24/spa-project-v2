@@ -1154,17 +1154,17 @@ export const getQuestionsForStudents = async (req, res) => {
     let submittedAnswers =
       selectedAnswer['currentSection'] === 'MCQ'
         ? {
-            ...selectedAnswer._doc,
-            mcq: undefined,
-            code: undefined,
-            responses,
-          }
+          ...selectedAnswer._doc,
+          mcq: undefined,
+          code: undefined,
+          responses,
+        }
         : {
-            ...selectedAnswer._doc,
-            mcq: undefined,
-            code: undefined,
-            responses,
-          };
+          ...selectedAnswer._doc,
+          mcq: undefined,
+          code: undefined,
+          responses,
+        };
 
     return res.status(200).json({
       success: true,
@@ -1297,6 +1297,7 @@ export const evaluateMCQQuestion = async (req, res, next) => {
  *
  * Access - Students
  */
+// TODO remove creation of file, as that will be taken care by python server on its side
 export const runProgram = async (req, res, next) => {
   try {
     const {
@@ -1399,6 +1400,7 @@ export const runProgram = async (req, res, next) => {
  *
  * Access - Students
  */
+// TODO remove saving the output of student here and add it to the python callback fn
 export const saveCodeOutput = async (req, res, next) => {
   try {
     const { paperId, questionId, time, currentSection } = req.body;
@@ -2103,10 +2105,27 @@ export const generateExcel = async (req, res, next) => {
       'attachment; filename=' + filename,
     );
 
-    workbook.xlsx.writeFile(filename).then(function() {
+    workbook.xlsx.writeFile(filename).then(function () {
       workbook.xlsx.write(res);
     });
   } catch (err) {
     return handleError(err, res);
   }
 };
+
+/**
+ * Handles the return of data from python server
+ * the python server will send data with following params :
+ * success : true only if the program has executed without any errors
+ * timeout : if the program was killed due to timeout
+ * stderr : error message if there was any error in compiling/ running the program, empty for timeout or success
+ * stdout : output of code if everything went well, empty for all other conditions
+ * metadata : metadata sent along with compile request
+ * 
+ * Accessible to all, no authentication
+ */
+export const handlePythonCallback = async (req, res, next) => {
+  // TODO connect to correct websocket according to metadata in req.body and send req.body to that
+  // TODO which will be caught on front-end and put correct values accordingly
+  // TODO also save the output of code in db
+}
