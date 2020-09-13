@@ -71,22 +71,45 @@ class SectionB extends Component {
   // TODO
   /**
    * Setup websocket here, maybe in didMount
-   * on receive of 'output' :
-   * update state of output as :
-   * it will have components: success, timeout, and stdout, stderr
-   * depending on true/false of success and timeout, one can set style of output and display respective
-   * message : 
-   * success false and timeout true  will have both std as empty string,
-   * success false and timeout false, means either compiling or execution had error which is in stderr string
-   * success true will contain the output in stdout string
+   * code will be like :
+   * ! not sure about the connection URL though, in original Terminal component is was
+   * ! ws://localhost:8080/path....
+   * ! as terminal server was running on 8080, but will that work after dockerisation is not clear...???
    */
+  // DUMMY CODE
+  async componentDidMount() {
+    // maybe make this global, as will need this to close it in component will unmount
 
+    const ws = new WebSocket(`/path?param=${this.props.studentId}`);
+
+    ws.addEventListener('message', (event) => {
+      try {
+        let data = JSON.parse(event.data);
+        /** 
+         * data will have following
+         * update state of output as :
+         * it will have components: success, timeout, and stdout, stderr
+         * depending on true/false of success and timeout, one can set style of output and display respective
+         * message : 
+         * success false and timeout true  will have both std as empty string,
+         * success false and timeout false, means either compiling or execution had error which is in stderr string
+         * success true will contain the output in stdout string
+         */
+      } catch (e) {
+        console.error(e);
+      }
+    })
+  }
+
+  // TODO also setup component will unmount (?) and close the websocket
+  // TODO closing it is important, as that will remove the socket from server's memory
 
   // TODO 
   /**  update following as:
-    * add metadata as {sap id,ip?}
-    * add code as code
-    * add input as input 
+    * add following in the req sent
+    * add metadata as this.props.studentId
+    * add code as code in state
+    * add input as input in state
   */
 
   handleRunCode = () => {

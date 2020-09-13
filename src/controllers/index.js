@@ -4,6 +4,7 @@ import rimraf from 'rimraf';
 import puppeteer from 'puppeteer';
 import { Workbook } from 'exceljs';
 import { User, Question, Paper, SelectedAnswer } from '../models';
+import { get } from '../utils/websocketMap';
 import {
   handleError,
   cmpPassword,
@@ -2125,7 +2126,21 @@ export const generateExcel = async (req, res, next) => {
  * Accessible to all, no authentication
  */
 export const handlePythonCallback = async (req, res, next) => {
-  // TODO connect to correct websocket according to metadata in req.body and send req.body to that
-  // TODO which will be caught on front-end and put correct values accordingly
+  let { id } = req.body.metadata;
+  if (!id) {
+    console.error('internal error : metadata should have had \'id\' parameter');
+    return res.status(400).send();
+  }
+  const body = req.body;
+  // we send the response early as we do not need to hold the python server anymore
+  res.status(200).send();
+  let ws = get(id);
+  if (!ws) {
+    console.error(`internal error : socket for id ${id} has been closed before returning the output`);
+    return;
+  }
+
+  ws.send(JSON.stringify(body));
   // TODO also save the output of code in db
+
 }
