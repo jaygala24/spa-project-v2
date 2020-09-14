@@ -64,7 +64,15 @@ class EditMcq extends Component {
     this.setState({ difficulty: event.target.value });
   };
   onTagsChanged = tags => {
-    this.setState({ tags });
+    if(tags.length > 0 ){
+      this.setState({
+        tag: '',
+        tags
+      })
+    }
+    else{
+      this.setState({ tags })
+    }
   };
   handleOptionA = event => {
     var newOptions = [...this.state.options];
@@ -147,6 +155,10 @@ class EditMcq extends Component {
       );
   };
   createQuestion = () => {
+    var tag = this.state.tag;
+    if (tag === '' && this.state.tags.length > 0) {
+      tag = this.state.tags[0].displayValue;
+    }
     if (
       this.state.question != '' &&
       this.state.options[0] != '' &&
@@ -155,7 +167,7 @@ class EditMcq extends Component {
       this.state.options[3] != '' &&
       this.state.correctAnswer != '' &&
       this.state.difficulty != '' &&
-      this.state.tag != ''
+      tag != ''
     ) {
       Axios.put(
         `/api/questions/${this.props.location.questionInfo.id}`,
@@ -314,6 +326,7 @@ class EditMcq extends Component {
                         padding: '2px 20px',
                       }}
                       labelId="demo-simple-select-label"
+                      disabled={this.state.tags.length > 0}
                       value={this.state.tag}
                       onChange={this.handleTag}
                     >

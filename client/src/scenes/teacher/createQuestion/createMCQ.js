@@ -64,7 +64,15 @@ class CreateMcq extends Component {
     this.setState({ difficulty: event.target.value });
   };
   onTagsChanged = tags => {
-    this.setState({ tags });
+    if(tags.length > 0 ){
+      this.setState({
+        tag: '',
+        tags
+      })
+    }
+    else{
+      this.setState({ tags })
+    }
   };
   handleOptionA = event => {
     var newOptions = [...this.state.options];
@@ -131,6 +139,10 @@ class CreateMcq extends Component {
     );
   };
   createQuestion = () => {
+    var tag = this.state.tag;
+    if (tag === '' && this.state.tags.length > 0) {
+      tag = this.state.tags[0].displayValue;
+    }
     if (
       this.state.question != '' &&
       this.state.options[0] != '' &&
@@ -139,7 +151,7 @@ class CreateMcq extends Component {
       this.state.options[3] != '' &&
       this.state.correctAnswer != '' &&
       this.state.difficulty != '' && 
-      this.state.tag != ''
+      tag != ''
     ) {
       Axios.post(
         '/api/questions',
@@ -148,7 +160,7 @@ class CreateMcq extends Component {
           title: this.state.question,
           options: this.state.options,
           correctAnswers: [this.state.options[this.getIndexOfCorrectAnswer(this.state.correctAnswer)]],
-          tag: this.state.tag,
+          tag: tag,
           category: this.state.difficulty,
         },
         {
@@ -300,6 +312,7 @@ class CreateMcq extends Component {
                         padding: '2px 20px',
                       }}
                       labelId="demo-simple-select-label"
+                      disabled={this.state.tags.length > 0}
                       value={this.state.tag}
                       onChange={this.handleTag}
                     >
@@ -329,6 +342,7 @@ class CreateMcq extends Component {
                                         color: black;
                                         }
                                         `}
+                    disabled={this.state.tag === ''}
                     tags={this.state.tags}
                     onTagsChanged={this.onTagsChanged}
                   />
