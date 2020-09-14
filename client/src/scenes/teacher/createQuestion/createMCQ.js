@@ -131,13 +131,6 @@ class CreateMcq extends Component {
     );
   };
   createQuestion = () => {
-    var tag = this.state.tag;
-    console.log('outside', tag);
-    if (tag === '') {
-      console.log('inside', tag);
-      tag = this.state.tags[0].displayValue;
-      console.log('inside', tag);
-    }
     if (
       this.state.question != '' &&
       this.state.options[0] != '' &&
@@ -145,7 +138,8 @@ class CreateMcq extends Component {
       this.state.options[2] != '' &&
       this.state.options[3] != '' &&
       this.state.correctAnswer != '' &&
-      this.state.difficulty != ''
+      this.state.difficulty != '' && 
+      this.state.tag != ''
     ) {
       Axios.post(
         '/api/questions',
@@ -154,7 +148,7 @@ class CreateMcq extends Component {
           title: this.state.question,
           options: this.state.options,
           correctAnswers: [this.state.options[this.getIndexOfCorrectAnswer(this.state.correctAnswer)]],
-          tag: tag,
+          tag: this.state.tag,
           category: this.state.difficulty,
         },
         {
