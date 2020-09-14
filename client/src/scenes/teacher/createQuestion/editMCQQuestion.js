@@ -127,7 +127,7 @@ class EditMcq extends Component {
       res => {
         this.setState({
             question: res.data.data.question.title,
-            correctAnswer: res.data.data.question.correctAnswers[0],
+            correctAnswer: String.fromCharCode(res.data.data.question.options.indexOf(res.data.data.question.correctAnswers[0]) + 65),
             difficulty: res.data.data.question.category,
             tag: res.data.data.question.tag,
             options: res.data.data.question.options
