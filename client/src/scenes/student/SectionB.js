@@ -71,24 +71,51 @@ class SectionB extends Component {
   // TODO
   /**
    * Setup websocket here, maybe in didMount
-   * on receive of 'output' :
-   * update state of output as :
-   * it will have components: success, timeout, and stdout, stderr
-   * depending on true/false of success and timeout, one can set style of output and display respective
-   * message : 
-   * success false and timeout true  will have both std as empty string,
-   * success false and timeout false, means either compiling or execution had error which is in stderr string
-   * success true will contain the output in stdout string
+   * code will be like :
+   * ! not sure about the connection URL though, in original Terminal component is was
+   * ! ws://localhost:8080/path....
+   * ! as terminal server was running on 8080, but will that work after dockerisation is not clear...???
    */
+  // DUMMY CODE
+  componentDidMount() {
+    // maybe make this global, as will need this to close it in component will unmount
+    // like : window.ws = ws;
 
+    const ws = new WebSocket(`/path?param=${this.props.studentId}`);
+
+    ws.addEventListener('message', (event) => {
+      try {
+        let data = JSON.parse(event.data);
+        /** 
+         * data will have following
+         * update state of output as :
+         * it will have components: success, timeout, and stdout, stderr
+         * depending on true/false of success and timeout, one can set style of output and display respective
+         * message : 
+         * success false and timeout true  will have both std as empty string,
+         * success false and timeout false, means either compiling or execution had error which is in stderr string
+         * success true will contain the output in stdout string
+         */
+      } catch (e) {
+        console.error(e);
+      }
+    })
+  }
+
+  // TODO also setup component will unmount (?) and close the websocket
+  // TODO closing it is important, as that will remove the socket from server's memory
+  componentWillUnmount() {
+    window.ws.close();
+  }
 
   // TODO 
   /**  update following as:
-    * add metadata as {sap id,ip?}
-    * add code as code
-    * add input as input 
+    * add following in the req sent
+    * add metadata as this.props.studentId
+    * add code as code in state (rename program)
+    * add input as input in state
   */
-
+  // TODO set the button to disabled for 5 seconds or so, in handler, and after five seconds enable again
   handleRunCode = () => {
     var code = this.state.code;
     console.log(code);
@@ -115,8 +142,7 @@ class SectionB extends Component {
         res => {
           console.log(res.data);
           this.setState({
-            studentId: res.data.data.submittedAnswer.studentId,
-            path: true, // This is th dummy variable for mounting terminal
+            studentId: res.data.studentId,
           });
         },
         err => alert(err.response.data.error.msg),
@@ -230,6 +256,7 @@ class SectionB extends Component {
               // TODO connect these to i/p and o/p part of state of this component
               <textarea id='inputs'></textarea>
               <textarea id='output' readOnly={true}></textarea>
+              // TODO set this button to disabled for 5 seconds or so, in handler, and after five seconds enable again
               <button onClick={this.handleRunCode}></button>
             </div>
           </Grid>

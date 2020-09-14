@@ -4,14 +4,18 @@ import rimraf from 'rimraf';
 import puppeteer from 'puppeteer';
 import { Workbook } from 'exceljs';
 import { User, Question, Paper, SelectedAnswer } from '../models';
+import { get } from '../utils/websocketMap';
 import {
   handleError,
   cmpPassword,
   genHashPassword,
   newToken,
 } from '../utils';
+import getPythonPath from '../utils/python';
+import axios from 'axios'
 import ErrorHandler from '../utils/error';
 import { reportCardTemplate } from '../utils/reportCardTemplate';
+import { deprecate } from 'util';
 
 /**
  * login controller for the teachers and students
@@ -1301,9 +1305,11 @@ export const evaluateMCQQuestion = async (req, res, next) => {
 export const runProgram = async (req, res, next) => {
   try {
     const {
+      code,
+      input,
+      metadata,
       paperId,
       questionId,
-      program,
       time,
       currentSection,
     } = req.body;
@@ -1325,67 +1331,22 @@ export const runProgram = async (req, res, next) => {
       return handleError(error, res);
     }
 
-    const dir = path.join(__basedir, 'code', req.user._id.toString());
-
-    // Check if dir exists otherwise create a new one
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir);
-    }
-
-    // Creating the main-{questionId}.c file
-    fs.writeFileSync(`${dir}/main-${questionId}.c`, program, err => {
-      if (err) {
-        return handleError(err, res);
-      }
-    });
-
-    // Checks if the output file does not exists then make a new one
-    if (!fs.existsSync(`${dir}/output-${questionId}.txt`)) {
-      fs.writeFileSync(
-        `${dir}/output-${questionId}.txt`,
-        './a\nNo output',
-        err => {
-          if (err) {
-            return handleError(err, res);
-          }
-        },
-      );
-    }
-
-    // Update the progress of student
-    const submittedAnswer = await SelectedAnswer.findOneAndUpdate(
-      {
-        studentId: req.user._id,
+    await axios.post(getPythonPath(), {
+      code: code,
+      input: input,
+      metadata: {
+        id: metadata,
         paperId,
         date,
-        'code.questionId': questionId,
-      },
-      {
-        $set: {
-          'code.$.program': program,
-          'code.$.output': 'No Output',
-          time,
-          currentSection,
-        },
-      },
-      { new: true },
-    );
+        questionId,
+        currentSection
+      }
+    });
 
     // returns the selected answer of current student
     return res.status(201).json({
       success: true,
-      data: {
-        msg: 'File created successfully',
-        submittedAnswer: {
-          _id: submittedAnswer['_id'],
-          paperId: submittedAnswer['paperId'],
-          currentSection: submittedAnswer['currentSection'],
-          studentId: submittedAnswer['studentId'],
-          time: submittedAnswer['time'],
-          code: submittedAnswer['code'],
-          codeTotalMarks: submittedAnswer['codeTotalMarks'],
-        },
-      },
+      studentId: submittedAnswer['studentId'],
       error: {},
     });
   } catch (err) {
@@ -1394,13 +1355,16 @@ export const runProgram = async (req, res, next) => {
 };
 
 /**
+ * Deprecated : will be removed in next iteration, as this was only used to save the output, 
+ *             which is done directly in the python callback function
+ * 
+ * 
  * Saves the output from output-{questionId.c} file to the student's selected answer in db
  *
  * Returns the submittedAnswers of logged in student
  *
  * Access - Students
  */
-// TODO remove saving the output of student here and add it to the python callback fn
 export const saveCodeOutput = async (req, res, next) => {
   try {
     const { paperId, questionId, time, currentSection } = req.body;
@@ -2125,7 +2089,129 @@ export const generateExcel = async (req, res, next) => {
  * Accessible to all, no authentication
  */
 export const handlePythonCallback = async (req, res, next) => {
-  // TODO connect to correct websocket according to metadata in req.body and send req.body to that
-  // TODO which will be caught on front-end and put correct values accordingly
-  // TODO also save the output of code in db
+  let { id } = req.body.metadata;
+  if (!id) {
+    console.error('internal error : metadata should have had \'id\' parameter');
+    return res.status(400).send();
+  }
+  const body = req.body;
+  // we send the response early as we do not need to hold the python server anymore
+  res.status(200).send();
+  let ws = get(id);
+  if (!ws) {
+    console.error(`internal error : socket for id ${id} has been closed before returning the output`);
+    return;
+  }
+
+  ws.send(JSON.stringify(body));
+
+
+  try {
+    const { paperId, questionId, currentSection } = req.body.metadata;
+    const date = new Date().toISOString().slice(0, 10);
+
+    // find the selected answer of student
+    const _submittedAnswer = await SelectedAnswer.findOne(
+      {
+        studentId: req.user._id,
+        paperId,
+        date,
+      },
+      { currentSection: 1 },
+    ).exec();
+
+    // currentSection None then throw error
+    if (_submittedAnswer['currentSection'] === 'None') {
+      const error = new ErrorHandler(403, 'Test already submitted');
+      return handleError(error, res);
+    }
+
+    // Updating the progress of the student
+    const submittedAnswer = await SelectedAnswer.findOneAndUpdate(
+      {
+        studentId: req.user._id,
+        paperId,
+        date,
+        'code.questionId': questionId,
+      },
+      { $set: { 'code.$.output': req.body.stdout, currentSection, time: 0 } },
+      { new: true },
+    );
+
+    // Logging out the user if the currentSection is None
+    if (currentSection === 'None') {
+      await User.findOneAndUpdate(
+        {
+          _id: req.user._id,
+        },
+        {
+          loggedIn: false,
+        },
+      );
+    }
+  } catch (err) {
+    return handleError(err, res);
+  }
+
+
+}
+
+// This is used in place of old runProgram's use for switching question
+
+export const getQandA = async (req, res, next) => {
+
+  try {
+    const {
+      paperId,
+      questionId,
+    } = req.body;
+    const date = new Date().toISOString().slice(0, 10);
+
+    // find the selected answer of student
+    const _submittedAnswer = await SelectedAnswer.findOne(
+      {
+        studentId: req.user._id,
+        paperId,
+        date,
+      },
+      { currentSection: 1 },
+    ).exec();
+
+    // currentSection None then throw error
+    if (_submittedAnswer['currentSection'] === 'None') {
+      const error = new ErrorHandler(403, 'Test already submitted');
+      return handleError(error, res);
+    }
+
+
+    // get last submitted answer
+    const submittedAnswer = await SelectedAnswer.findOne(
+      {
+        studentId: req.user._id,
+        paperId,
+        date,
+        'code.questionId': questionId,
+      }
+    );
+
+    // returns the selected answer of current student
+    return res.status(201).json({
+      success: true,
+      data: {
+        submittedAnswer: {
+          _id: submittedAnswer['_id'],
+          paperId: submittedAnswer['paperId'],
+          currentSection: submittedAnswer['currentSection'],
+          studentId: submittedAnswer['studentId'],
+          time: submittedAnswer['time'],
+          code: submittedAnswer['code'],
+          codeTotalMarks: submittedAnswer['codeTotalMarks'],
+        },
+      },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+
 }
