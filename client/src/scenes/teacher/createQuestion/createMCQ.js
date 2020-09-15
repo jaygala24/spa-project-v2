@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Header from '../../components/header';
 import Editor from 'react-simple-code-editor';
 import MenuItem from '@material-ui/core/MenuItem';
+import Chip from '@material-ui/core/Chip';
 import { highlight, languages } from 'prismjs';
 import '../../../prism-c.css';
 import { useAlert } from 'react-alert';
@@ -25,6 +26,7 @@ class CreateMcq extends Component {
     receivedTags: [],
     tags: [],
     tag: '',
+    newTag: '',
     options: ['', '', '', ''],
   };
   styles = {
@@ -53,6 +55,28 @@ class CreateMcq extends Component {
       borderRadius: 10,
       boxShadow: '0 5px 30px 0 #62ce97',
     },
+    newTagInput: {
+      boxShadow: 'none',
+      position: 'relative',
+      border: '1px #797979 solid',
+      background: '#fff',
+      padding: '16px 24px',
+      borderRadius: 16,
+      boxShadow: '0 5px 30px 0 #d2d2d270',
+      width: '98%',
+      fontFamily: 'Nunito',
+      margin: '10px 0px',
+      '&::-webkit-input-placeholder': {
+        fontFamily: 'Nunito',
+        color: 'black'
+      }
+    },
+    chip: {
+      fontFamily: 'Nunito',
+      fontSize: 19,
+      padding: '20px 5px',
+      backgroundColor: '#77B6EA'
+    }
   };
   handleTag = event => {
     this.setState({ tag: event.target.value });
@@ -63,17 +87,17 @@ class CreateMcq extends Component {
   handleDifficulty = event => {
     this.setState({ difficulty: event.target.value });
   };
-  onTagsChanged = tags => {
-    if(tags.length > 0 ){
-      this.setState({
-        tag: '',
-        tags
-      })
-    }
-    else{
-      this.setState({ tags })
-    }
-  };
+  // onTagsChanged = tags => {
+  //   if(tags.length > 0 ){
+  //     this.setState({
+  //       tag: '',
+  //       tags
+  //     })
+  //   }
+  //   else{
+  //     this.setState({ tags })
+  //   }
+  // };
   handleOptionA = event => {
     var newOptions = [...this.state.options];
     newOptions[0] = event.target.value;
@@ -140,8 +164,8 @@ class CreateMcq extends Component {
   };
   createQuestion = () => {
     var tag = this.state.tag;
-    if (tag === '' && this.state.tags.length > 0) {
-      tag = this.state.tags[0].displayValue;
+    if (this.state.newTag !== '') {
+      tag = this.state.newTag;
     }
     if (
       this.state.question != '' &&
@@ -178,6 +202,10 @@ class CreateMcq extends Component {
       alert('Please make sure all fields are valid');
     }
   };
+  handleDelete = () => {
+    document.getElementById('new-tag').value = ''
+    this.setState({ newTag: '' })
+  }
   render() {
     console.log(this.state.options[this.getIndexOfCorrectAnswer(this.state.correctAnswer)]);
     const renderOptions = this.state.receivedTags.map(tag => {
@@ -312,7 +340,7 @@ class CreateMcq extends Component {
                         padding: '2px 20px',
                       }}
                       labelId="demo-simple-select-label"
-                      disabled={this.state.tags.length > 0}
+                      disabled={this.state.newTag !== ''}
                       value={this.state.tag}
                       onChange={this.handleTag}
                     >
@@ -321,7 +349,13 @@ class CreateMcq extends Component {
                   </FormControl>
                 </div>
                 <div style={{ marginTop: 80 }}>
-                  <TagInput
+                  {this.state.newTag !== '' && <Chip label={this.state.newTag} onDelete={this.handleDelete} color="primary"
+                    style={this.styles.chip}
+                  />}
+                  <input style={this.styles.newTagInput} id="new-tag" placeholder='Click here to add a new "Tag" only if not available above' onChange={e => {
+                    this.setState({ newTag: e.target.value })
+                  }} />
+                  {/* <TagInput
                     wrapperStyle={`
                                         box-shadow: none;
                                         position: relative;
@@ -345,7 +379,7 @@ class CreateMcq extends Component {
                     disabled={this.state.tag === ''}
                     tags={this.state.tags}
                     onTagsChanged={this.onTagsChanged}
-                  />
+                  /> */}
                 </div>
               </Grid>
               {/* <Grid item xs={6}>
