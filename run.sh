@@ -4,5 +4,6 @@
 # dev testing
 # in deployment all operations will be taekn care of by docker compose
 
+# Please wait for react server to start
 npm run dev &
 cd ./python-server && ./start.sh
