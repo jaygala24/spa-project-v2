@@ -4,7 +4,7 @@ import rimraf from 'rimraf';
 import puppeteer from 'puppeteer';
 import { Workbook } from 'exceljs';
 import { User, Question, Paper, SelectedAnswer } from '../models';
-import { get } from '../utils/websocketMap';
+import { getSocket } from '../utils/websocketMap';
 import {
   handleError,
   cmpPassword,
@@ -2097,7 +2097,7 @@ export const handlePythonCallback = async (req, res, next) => {
   const body = req.body;
   // we send the response early as we do not need to hold the python server anymore
   res.status(200).send();
-  let ws = get(id);
+  let ws = getSocket(id);
   if (!ws) {
     console.error(`internal error : socket for id ${id} has been closed before returning the output`);
     return;

@@ -8,7 +8,7 @@ const socketMap = new Map();
  * @param {String} id - ID of student
  * @param {String} sock - instance of socket
  */
-export const save = (id, sock) => {
+export const saveSocket = (id, sock) => {
     socketMap.set(id, sock);
 }
 
@@ -17,7 +17,7 @@ export const save = (id, sock) => {
  * @param {String} id - ID of student
  * @return {WebSocket} socket object corresponding to id, if present in map
  */
-export const get = (id) => {
+export const getSocket = (id) => {
     return socketMap.get(id);
 }
 
@@ -28,7 +28,7 @@ export const get = (id) => {
  * @param {String} id - ID of student
  * @return {WebSocket} socket object corresponding to id, if present in map
  */
-export const remove = (id) => {
+export const removeSocket = (id) => {
     let ret = socketMap.get(id);
     socketMap.delete(id);
     return ret;
