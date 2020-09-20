@@ -3,6 +3,7 @@ import Header from '../../components/header';
 import Editor from 'react-simple-code-editor';
 import MenuItem from '@material-ui/core/MenuItem';
 //import { highlight, languages } from 'prismjs';
+import Chip from '@material-ui/core/Chip';
 import '../../../prism-c.css';
 import { useAlert } from 'react-alert';
 import FormControl from '@material-ui/core/FormControl';
@@ -25,6 +26,7 @@ class EditMcq extends Component {
     receivedTags: [],
     tags: [],
     tag: '',
+    newTag: '',
     options: ['', '', '', ''],
     code: '',
   };
@@ -54,40 +56,70 @@ class EditMcq extends Component {
       borderRadius: 10,
       boxShadow: '0 5px 30px 0 #62ce97',
     },
+    newTagInput: {
+      boxShadow: 'none',
+      position: 'relative',
+      border: '1px #797979 solid',
+      background: '#fff',
+      padding: '16px 24px',
+      borderRadius: 16,
+      boxShadow: '0 5px 30px 0 #d2d2d270',
+      width: '98%',
+      fontFamily: 'Nunito',
+      margin: '10px 0px',
+      '&::-webkit-input-placeholder': {
+        fontFamily: 'Nunito',
+        color: 'black',
+      },
+    },
+    chip: {
+      fontFamily: 'Nunito',
+      fontSize: 19,
+      padding: '20px 5px',
+      backgroundColor: '#77B6EA',
+    },
   };
-  handleTag = event => {
+  handleTag = (event) => {
     this.setState({ tag: event.target.value });
   };
-  handleCorrectAnswer = event => {
+  handleCorrectAnswer = (event) => {
     this.setState({ correctAnswer: event.target.value });
   };
-  handleDifficulty = event => {
+  handleDifficulty = (event) => {
     this.setState({ difficulty: event.target.value });
   };
-  onTagsChanged = tags => {
-    this.setState({ tags });
-  };
-  handleOptionA = event => {
+  // onTagsChanged = tags => {
+  //   if(tags.length > 0 ){
+  //     this.setState({
+  //       tag: '',
+  //       tags
+  //     })
+  //   }
+  //   else{
+  //     this.setState({ tags })
+  //   }
+  // };
+  handleOptionA = (event) => {
     var newOptions = [...this.state.options];
     newOptions[0] = event.target.value;
     this.setState({ options: newOptions });
   };
-  handleOptionB = event => {
+  handleOptionB = (event) => {
     var newOptions = [...this.state.options];
     newOptions[1] = event.target.value;
     this.setState({ options: newOptions });
   };
-  handleOptionC = event => {
+  handleOptionC = (event) => {
     var newOptions = [...this.state.options];
     newOptions[2] = event.target.value;
     this.setState({ options: newOptions });
   };
-  handleOptionD = event => {
+  handleOptionD = (event) => {
     var newOptions = [...this.state.options];
     newOptions[3] = event.target.value;
     this.setState({ options: newOptions });
   };
-  handleBtn = event => {
+  handleBtn = (event) => {
     if (event.target.innerHTML === '+') {
       this.setState({
         marks: this.state.marks
@@ -104,56 +136,57 @@ class EditMcq extends Component {
       }
     }
   };
-  getIndexOfCorrectAnswer=(char)=>{
-    if(char=='A'){
-      return 0
+  getIndexOfCorrectAnswer = (char) => {
+    if (char == 'A') {
+      return 0;
+    } else if (char == 'B') {
+      return 1;
+    } else if (char == 'C') {
+      return 2;
+    } else if (char == 'D') {
+      return 3;
     }
-    else if(char=='B'){
-      return 1
-    }
-    else if(char=='C'){
-      return 2
-    }
-    else if(char=='D'){
-      return 3
-    }
-  }
+  };
   componentDidMount = () => {
     window.scroll(0, 0);
-    Axios.get(`/api/questions/${this.props.location.questionInfo.id}`, {
+    Axios.get(
+      `/api/questions/${this.props.location.questionInfo.id}`,
+      {
+        headers: {
+          Authorization: localStorage.getItem('token'),
+        },
+      },
+    ).then(
+      (res) => {
+        this.setState({
+          question: res.data.data.question.title,
+          correctAnswer: String.fromCharCode(
+            res.data.data.question.options.indexOf(
+              res.data.data.question.correctAnswers[0],
+            ) + 65,
+          ),
+          difficulty: res.data.data.question.category,
+          tag: res.data.data.question.tag,
+          options: res.data.data.question.options,
+        });
+      },
+      (err) => alert(err.response.data.error.msg),
+    );
+    Axios.get('/api/questions/tags', {
       headers: {
         Authorization: localStorage.getItem('token'),
       },
     }).then(
-      res => {
-        this.setState({
-            question: res.data.data.question.title,
-            correctAnswer: res.data.data.question.correctAnswers[0],
-            difficulty: res.data.data.question.category,
-            tag: res.data.data.question.tag,
-            options: res.data.data.question.options
-        });
+      (res) => {
+        this.setState({ receivedTags: res.data.data.tags });
       },
-      err => alert(err.response.data.error.msg),
+      (err) => alert(err.response.data.error.msg),
     );
-    Axios.get('/api/questions/tags', {
-        headers: {
-          Authorization: localStorage.getItem('token'),
-        },
-      }).then(
-        res => {
-          this.setState({ receivedTags: res.data.data.tags });
-        },
-        err => alert(err.response.data.error.msg),
-      );
   };
   createQuestion = () => {
     var tag = this.state.tag;
-    console.log('outside', tag);
-    if (tag === '') {
-      console.log('inside', tag);
-      tag = this.state.tags[0].displayValue;
-      console.log('inside', tag);
+    if (this.state.newTag !== '') {
+      tag = this.state.newTag;
     }
     if (
       this.state.question != '' &&
@@ -162,7 +195,8 @@ class EditMcq extends Component {
       this.state.options[2] != '' &&
       this.state.options[3] != '' &&
       this.state.correctAnswer != '' &&
-      this.state.difficulty != ''
+      this.state.difficulty != '' &&
+      tag != ''
     ) {
       Axios.put(
         `/api/questions/${this.props.location.questionInfo.id}`,
@@ -170,8 +204,12 @@ class EditMcq extends Component {
           type: 'Single',
           title: this.state.question,
           options: this.state.options,
-          correctAnswers: [this.state.options[this.getIndexOfCorrectAnswer(this.state.correctAnswer)]],
-          tag: tag,
+          correctAnswers: [
+            this.state.options[
+              this.getIndexOfCorrectAnswer(this.state.correctAnswer)
+            ],
+          ],
+          tag: this.state.tag,
           category: this.state.difficulty,
         },
         {
@@ -179,9 +217,9 @@ class EditMcq extends Component {
             Authorization: localStorage.getItem('token'),
           },
         },
-      ).then(res => {
-            alert('Question added successfully');
-            window.history.back(1);
+      ).then((res) => {
+        alert('Question added successfully');
+        window.history.back(1);
       });
     } else {
       alert('Please make sure all fields are valid');
@@ -189,14 +227,18 @@ class EditMcq extends Component {
   };
   highlighting = async (code) => {
     const prism = await import('prismjs');
-    const res =  prism.highlight(code, prism.languages.js);
-    if(this.state.code !== res){
-      this.setState({code: res});
+    const res = prism.highlight(code, prism.languages.js);
+    if (this.state.code !== res) {
+      this.setState({ code: res });
     }
   };
   render() {
-    console.log(this.state.options[this.getIndexOfCorrectAnswer(this.state.correctAnswer)]);
-    const renderOptions = this.state.receivedTags.map(tag => {
+    console.log(
+      this.state.options[
+        this.getIndexOfCorrectAnswer(this.state.correctAnswer)
+      ],
+    );
+    const renderOptions = this.state.receivedTags.map((tag) => {
       return <MenuItem value={`${tag}`}> {tag} </MenuItem>;
     });
     return (
@@ -240,14 +282,14 @@ class EditMcq extends Component {
               >
                 <Editor
                   value={this.state.question}
-                  onValueChange={question => {
+                  onValueChange={(question) => {
                     console.log(question);
                     this.setState({ question });
                   }}
-                  highlight={(code) =>{
+                  highlight={(code) => {
                     this.highlighting(code);
                     return this.state.code;
-                    }}
+                  }}
                   padding={10}
                   style={{
                     fontFamily: 'Nunito',
@@ -331,6 +373,7 @@ class EditMcq extends Component {
                         padding: '2px 20px',
                       }}
                       labelId="demo-simple-select-label"
+                      disabled={this.state.newTag !== ''}
                       value={this.state.tag}
                       onChange={this.handleTag}
                     >
@@ -339,7 +382,23 @@ class EditMcq extends Component {
                   </FormControl>
                 </div>
                 <div style={{ marginTop: 80 }}>
-                  <TagInput
+                  {this.state.newTag !== '' && (
+                    <Chip
+                      label={this.state.newTag}
+                      onDelete={this.handleDelete}
+                      color="primary"
+                      style={this.styles.chip}
+                    />
+                  )}
+                  <input
+                    style={this.styles.newTagInput}
+                    id="new-tag"
+                    placeholder='Click here to add a new "Tag" only if not available above'
+                    onChange={(e) => {
+                      this.setState({ newTag: e.target.value });
+                    }}
+                  />
+                  {/* <TagInput
                     wrapperStyle={`
                                         box-shadow: none;
                                         position: relative;
@@ -362,7 +421,7 @@ class EditMcq extends Component {
                                         `}
                     tags={this.state.tags}
                     onTagsChanged={this.onTagsChanged}
-                  />
+                  /> */}
                 </div>
               </Grid>
               {/* <Grid item xs={6}>
