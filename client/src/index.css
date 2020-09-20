@@ -17,3 +17,10 @@ code {
   src: local('Nunito'),
     url(./fonts/Nunito-Regular.ttf) format('truetype');
 }
+
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button {  
+
+   opacity: 1;
+
+}
