@@ -3,7 +3,7 @@ import Header from '../../components/header';
 import Editor from 'react-simple-code-editor';
 import MenuItem from '@material-ui/core/MenuItem';
 import Chip from '@material-ui/core/Chip';
-import { highlight, languages } from 'prismjs';
+//import { highlight, languages } from 'prismjs';
 import '../../../prism-c.css';
 import { useAlert } from 'react-alert';
 import FormControl from '@material-ui/core/FormControl';
@@ -28,6 +28,7 @@ class EditMcq extends Component {
     tag: '',
     newTag: '',
     options: ['', '', '', ''],
+    code: '',
   };
   styles = {
     font: {
@@ -216,6 +217,13 @@ class EditMcq extends Component {
       alert('Please make sure all fields are valid');
     }
   };
+  highlighting = async (code) => {
+    const prism = await import('prismjs');
+    const res =  prism.highlight(code, prism.languages.js);
+    if(this.state.code !== res){
+      this.setState({code: res});
+    }
+  };
   render() {
     console.log(this.state.options[this.getIndexOfCorrectAnswer(this.state.correctAnswer)]);
     const renderOptions = this.state.receivedTags.map(tag => {
@@ -266,7 +274,10 @@ class EditMcq extends Component {
                     console.log(question);
                     this.setState({ question });
                   }}
-                  highlight={code => highlight(code, languages.js)}
+                  highlight={(code) =>{
+                    this.highlighting(code);
+                    return this.state.code;
+                    }}
                   padding={10}
                   style={{
                     fontFamily: 'Nunito',
