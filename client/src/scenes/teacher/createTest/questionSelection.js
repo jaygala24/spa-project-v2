@@ -12,9 +12,9 @@ import {
   createMuiTheme,
   ThemeProvider,
 } from '@material-ui/core/styles';
-import { highlight, languages } from 'prismjs';
+//import { highlight, languages } from 'prismjs';
 import Editor from 'react-simple-code-editor';
-import NumericInput from 'react-numeric-input';
+//import NumericInput from 'react-numeric-input';
 import alertConfirm from 'react-alert-confirm';
 import 'react-alert-confirm/dist/index.css';
 import { Redirect } from 'react-router-dom';
@@ -192,10 +192,12 @@ class SelectQuestions extends Component {
         if (this.props.currentState) {
           newQuestions = this.props.currentState.questions;
         }
-        this.setState({
-          // Appending 'All' tag to display all questions
-          receivedTags: ['All', 'MCQ', 'Code', ...res.data.data.tags],
-          questions: newQuestions
+        this.highlighting(newQuestions).then(()=>{
+          this.setState({
+            // Appending 'All' tag to display all questions
+            receivedTags: ['All', 'MCQ', 'Code', ...res.data.data.tags],
+            questions: newQuestions
+          });
         });
       },
       err => console.log(err),
@@ -232,6 +234,13 @@ class SelectQuestions extends Component {
     };
     return body;
   };
+  highlighting = async (questions) => {
+    const prism = await import('prismjs');
+    questions.forEach(question=>{
+      const res =  prism.highlight(question.title, prism.languages.js);
+      question.code = res;
+    });
+  }; 
   render() {
     console.log(this.generateReq());
 
@@ -255,20 +264,21 @@ class SelectQuestions extends Component {
               <div style={{ flexGrow: 1 }}></div>
             </div>
             <span style={{letterSpacing: 2}} >Marks&nbsp;</span>
-            <NumericInput
-              onChange={val => {
+            <input
+              onChange={event => {
                 var newQuestions = this.state.questions;
-
+                const target = event.target
                 // Updating the marks - search by _id
                 let obj = newQuestions.find((o, i) => {
                   if (o._id === question._id) {
-                    newQuestions[i] = { ...o, marks: val };
+                    newQuestions[i] = { ...o, marks: target.valueAsNumber };
                     return true; // stop searching
                   }
                 });
                 this.setState({ questions: newQuestions });
               }}
               size={1}
+              type="number"
               min={1}
               max={100}
               value={parseInt(question.marks)}
@@ -300,7 +310,7 @@ class SelectQuestions extends Component {
           return true
         }
       })
-      .map(question => {
+      .map((question, index) => {
         return (
           <Paper
             onClick={() => this.check(question._id)}
@@ -320,7 +330,7 @@ class SelectQuestions extends Component {
               value={question.title}
               onValueChange={() => {}}
               disabled
-              highlight={code => highlight(code, languages.js)}
+              highlight={code => this.state.questions[index].code}
               padding={10}
               style={{
                 fontFamily: 'Nunito',
