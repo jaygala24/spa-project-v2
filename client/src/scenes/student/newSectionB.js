@@ -29,8 +29,9 @@ class NewSectionB extends Component {
    * one can remove rest
    * 
    * in response, one will get , among other things :
-   * data.data.submittedAnswer.code.program  and
-   * data.data.submittedAnswer.code.output
+   * data.data.submittedAnswer.code.program  ,
+   * data.data.submittedAnswer.code.output   and
+   * data.data.submittedAnswer.code.input
    * 
    * Now these should be given as props (?) to the SectionB component in the render of this,
    * and those should set as default values for its state's code and output values.

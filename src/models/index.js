@@ -46,7 +46,7 @@ const UserSchema = new Schema({
   },
 });
 
-UserSchema.pre('save', function(next) {
+UserSchema.pre('save', function (next) {
   if (this.type !== 'Teacher') {
     this.loggedIn = false;
     return next();
@@ -84,7 +84,7 @@ const QuestionSchema = new Schema({
   },
 });
 
-QuestionSchema.pre('save', function(next) {
+QuestionSchema.pre('save', function (next) {
   if (this.type === 'Code') {
     this.options = undefined;
     this.correctAnswers = undefined;
@@ -192,9 +192,13 @@ const SelectedAnswersSchema = new Schema({
         type: String,
         default: ' ',
       },
+      input: {
+        type: String,
+        default: ''
+      },
       output: {
         type: String,
-        default: ' ',
+        default: 'No Output',
       },
       marks: {
         type: Number,

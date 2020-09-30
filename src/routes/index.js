@@ -23,7 +23,6 @@ import {
   getQuestionsForStudents,
   evaluateMCQQuestion,
   runProgram,
-  saveCodeOutput,
   saveProgressOnTimeOut,
   getAllFiltersForEvaluate,
   getStudentResponses,
@@ -130,7 +129,6 @@ router
 
 router.route('/students/runProgram').post(protect, runProgram);
 
-router.route('/students/saveOutput').post(protect, saveCodeOutput);
 
 router
   .route('/students/timeout')
