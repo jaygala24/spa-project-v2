@@ -11,7 +11,7 @@ import {
   genHashPassword,
   newToken,
 } from '../utils';
-import getPythonPath from '../utils/python';
+import { getPythonPath } from '../utils/python';
 import axios from 'axios'
 import ErrorHandler from '../utils/error';
 import { reportCardTemplate } from '../utils/reportCardTemplate';
@@ -1334,19 +1334,21 @@ export const runProgram = async (req, res, next) => {
     await axios.post(getPythonPath(), {
       code: code,
       input: input,
+      lang:'C',
       metadata: {
         id: metadata,
         paperId,
         date,
         questionId,
-        currentSection
+        currentSection,
+        sapId: req.user.studentId
       }
     });
 
     // returns the selected answer of current student
     return res.status(201).json({
       success: true,
-      studentId: submittedAnswer['studentId'],
+      studentId: _submittedAnswer['studentId'],
       error: {},
     });
   } catch (err) {
@@ -2096,7 +2098,6 @@ export const handlePythonCallback = async (req, res, next) => {
   }
   const body = req.body;
   // we send the response early as we do not need to hold the python server anymore
-  res.status(200).send();
   let ws = get(id);
   if (!ws) {
     console.error(`internal error : socket for id ${id} has been closed before returning the output`);
@@ -2113,7 +2114,7 @@ export const handlePythonCallback = async (req, res, next) => {
     // find the selected answer of student
     const _submittedAnswer = await SelectedAnswer.findOne(
       {
-        studentId: req.user._id,
+        studentId: id,
         paperId,
         date,
       },
@@ -2129,7 +2130,7 @@ export const handlePythonCallback = async (req, res, next) => {
     // Updating the progress of the student
     const submittedAnswer = await SelectedAnswer.findOneAndUpdate(
       {
-        studentId: req.user._id,
+        studentId: id,
         paperId,
         date,
         'code.questionId': questionId,
@@ -2148,11 +2149,13 @@ export const handlePythonCallback = async (req, res, next) => {
           loggedIn: false,
         },
       );
-    }
+    } 
+
+  return res.status(200).send();
   } catch (err) {
     return handleError(err, res);
   }
-
+ 
 
 }
 
