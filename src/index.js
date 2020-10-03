@@ -18,12 +18,15 @@ config({ path: 'src/config/config.env' });
 
 const app = express();
 
+const server = Server(app);
+
 // setup Web sockets
-const wss = new WebSocket.Server({ server: Server(app) });
+const wss = new WebSocket.Server({ server });
 
 // TODO verify when running frontend
 wss.on('connection', (ws, req) => {
-  let id = req.url.split('=')[0];
+  let url = req.url.split('/');
+  let id = url[url.length-1];
   console.log('web socket connection request from id : ' + id); // TODO verify
 
   // we save the websocket mapped to the student id in map
@@ -176,4 +179,4 @@ app.use((req, res, next) => {
 });
 
 const PORT = process.env.PORT;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

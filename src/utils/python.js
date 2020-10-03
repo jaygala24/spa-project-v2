@@ -11,7 +11,7 @@ const endpoint = process.env.PYTHON_SERVER_ENDPOINT;
  * @return python server URL to be used for next code compile request
  */
 export const getPythonPath = () => {
-    let retPort = startPort + counter;
+    let retPort = parseInt(startPort) + counter;
     counter = (counter + 1) % numPorts;
 
     return `${rootPath}:${retPort}/${endpoint}`;

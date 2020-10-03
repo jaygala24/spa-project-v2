@@ -56,37 +56,12 @@ class NewSectionB extends Component {
     }
 
     Axios.post(
-      '/api/students/runProgram',
+      '/api/students/getQandA',
       {
         paperId: localStorage.getItem('id'),
         questionId: this.state.data[this.state.currentQuestion][
           '_id'
         ],
-        program: this.state.optionsSelected[
-          this.state.currentQuestion
-        ],
-        time: h * 60 * 60 + m * 60 + s,
-        currentSection: 'Code',
-      },
-      {
-        headers: {
-          Authorization: localStorage.getItem('token'),
-        },
-      },
-    );
-
-    Axios.post(
-      '/api/students/saveOutput',
-      {
-        paperId: localStorage.getItem('id'),
-        questionId: this.state.data[this.state.currentQuestion][
-          '_id'
-        ],
-        optionsSelected: this.state.optionsSelected[
-          this.state.currentQuestion
-        ],
-        time: h * 60 * 60 + m * 60 + s,
-        currentSection: 'Code',
       },
       {
         headers: {
@@ -160,37 +135,12 @@ class NewSectionB extends Component {
         );
       }
       Axios.post(
-        '/api/students/runProgram',
+        '/api/students/getQandA',
         {
           paperId: localStorage.getItem('id'),
           questionId: this.state.data[this.state.currentQuestion][
             '_id'
           ],
-          program: this.state.optionsSelected[
-            this.state.currentQuestion
-          ],
-          time: h * 60 * 60 + m * 60 + s,
-          currentSection: 'Code',
-        },
-        {
-          headers: {
-            Authorization: localStorage.getItem('token'),
-          },
-        },
-      );
-
-      Axios.post(
-        '/api/students/saveOutput',
-        {
-          paperId: localStorage.getItem('id'),
-          questionId: this.state.data[this.state.currentQuestion][
-            '_id'
-          ],
-          optionsSelected: this.state.optionsSelected[
-            this.state.currentQuestion
-          ],
-          time: h * 60 * 60 + m * 60 + s,
-          currentSection: 'Code',
         },
         {
           headers: {
@@ -227,37 +177,12 @@ class NewSectionB extends Component {
         );
       }
       Axios.post(
-        '/api/students/runProgram',
+        '/api/students/getQandA',
         {
           paperId: localStorage.getItem('id'),
           questionId: this.state.data[this.state.currentQuestion][
             '_id'
           ],
-          program: this.state.optionsSelected[
-            this.state.currentQuestion
-          ],
-          time: h * 60 * 60 + m * 60 + s,
-          currentSection: 'Code',
-        },
-        {
-          headers: {
-            Authorization: localStorage.getItem('token'),
-          },
-        },
-      );
-
-      Axios.post(
-        '/api/students/saveOutput',
-        {
-          paperId: localStorage.getItem('id'),
-          questionId: this.state.data[this.state.currentQuestion][
-            '_id'
-          ],
-          optionsSelected: this.state.optionsSelected[
-            this.state.currentQuestion
-          ],
-          time: h * 60 * 60 + m * 60 + s,
-          currentSection: 'Code',
         },
         {
           headers: {
@@ -298,37 +223,12 @@ class NewSectionB extends Component {
           );
         }
         Axios.post(
-          '/api/students/runProgram',
+          '/api/students/getQandA',
           {
             paperId: localStorage.getItem('id'),
             questionId: this.state.data[this.state.currentQuestion][
               '_id'
             ],
-            program: this.state.optionsSelected[
-              this.state.currentQuestion
-            ],
-            time: h * 60 * 60 + m * 60 + s,
-            currentSection: 'Code',
-          },
-          {
-            headers: {
-              Authorization: localStorage.getItem('token'),
-            },
-          },
-        );
-
-        Axios.post(
-          '/api/students/saveOutput',
-          {
-            paperId: localStorage.getItem('id'),
-            questionId: this.state.data[this.state.currentQuestion][
-              '_id'
-            ],
-            optionsSelected: this.state.optionsSelected[
-              this.state.currentQuestion
-            ],
-            time: h * 60 * 60 + m * 60 + s,
-            currentSection: 'None',
           },
           {
             headers: {
