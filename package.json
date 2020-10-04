@@ -11,10 +11,7 @@
     "server": "nodemon --exec babel-node src/index.js",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "client": "npm start --prefix client",
-    "build-client": "npm run build --prefix client",
-    "terminal-dev": "nodemon TerminalServer.js",
-    "terminal-prod": "node TerminalServer.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build-client": "npm run build --prefix client"
   },
   "keywords": [
     "node",
@@ -26,6 +23,7 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "axios": "^0.20.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
@@ -34,18 +32,15 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.2",
     "morgan": "^1.9.1",
-    "node-pty": "^0.9.0",
     "puppeteer": "^2.1.1",
     "rimraf": "^3.0.2",
-    "ws": "^7.2.3",
-    "xterm": "^4.4.0",
-    "xterm-addon-fit": "^0.3.0"
+    "ws": "^7.2.3"
   },
   "devDependencies": {
-    "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.8.6",
-    "@babel/node": "^7.8.4",
-    "@babel/preset-env": "^7.11.5",
+    "@babel/cli": "^7.11.6",
+    "@babel/core": "^7.11.6",
+    "@babel/node": "^7.10.5",
+    "@babel/preset-env": "^7.8.6",
     "concurrently": "^5.1.0",
     "nodemon": "^2.0.2"
   }

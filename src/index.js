@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import express from 'express';
+import WebSocket from 'ws';
+import { Server } from 'http';
 import cors from 'cors';
 import { config } from 'dotenv';
 import morgan from 'morgan';
@@ -9,11 +11,40 @@ import apiRoutes from './routes';
 import { handleError } from './utils';
 import { genHashPassword } from './utils/index';
 import { User, Question } from './models';
+import { saveSocket, removeSocket } from './utils/websocketMap'
 import ErrorHandler from './utils/error';
 
 config({ path: 'src/config/config.env' });
 
 const app = express();
+
+const server = Server(app);
+
+// setup Web sockets
+const wss = new WebSocket.Server({ server });
+
+// TODO verify when running frontend
+wss.on('connection', (ws, req) => {
+  let url = req.url.split('/');
+  let id = url[url.length-1];
+  console.log('web socket connection request from id : ' + id); // TODO verify
+
+  // we save the websocket mapped to the student id in map
+  saveSocket(id, ws);
+
+  // on error or closing of connection we remove the socket from the map
+  ws.on('error', (err) => {
+    console.error(`Removing WS id : ${id} due to error :${err}`);
+    removeSocket(id);
+    ws.close();
+  });
+  ws.on('close', (code, reason) => {
+    console.log(`closing ws with id ${id} with code ${code} for reason ${reason}`);
+    removeSocket(id);
+  });
+
+});
+
 
 // Connect to DB
 const uri = process.env.MONGO_URI;
@@ -148,4 +179,4 @@ app.use((req, res, next) => {
 });
 
 const PORT = process.env.PORT;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
