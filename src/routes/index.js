@@ -23,7 +23,6 @@ import {
   getQuestionsForStudents,
   evaluateMCQQuestion,
   runProgram,
-  saveCodeOutput,
   saveProgressOnTimeOut,
   getAllFiltersForEvaluate,
   getStudentResponses,
@@ -31,8 +30,14 @@ import {
   getCodeResponses,
   sendPdf,
   generateExcel,
+  handlePythonCallback,
+  getQandA
 } from '../controllers';
 import { protect, isTeacher, isAdmin } from '../middlewares';
+
+// route which python server will POST to to return the output of code
+// this will give net route : /api/api/endpoint
+const callbackEndpoint = `/api/${process.env.PYTHON_CALLBACK_ENDPOINT}`;
 
 const router = Router();
 
@@ -124,10 +129,14 @@ router
 
 router.route('/students/runProgram').post(protect, runProgram);
 
-router.route('/students/saveOutput').post(protect, saveCodeOutput);
 
 router
   .route('/students/timeout')
   .post(protect, saveProgressOnTimeOut);
+
+router.route('/students/getQandA').post(protect, getQandA);
+
+// routes which will be hit by python server
+router.route(callbackEndpoint).post(handlePythonCallback);
 
 export default router;

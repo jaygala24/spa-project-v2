@@ -40,8 +40,8 @@ def compile_and_send(data):
 
 
 # setup server
-app = Flask(__name__);
-logging.basicConfig(filename=LOG_PATH,level=logging.INFO);
+app = Flask(__name__)
+logging.basicConfig(filename=LOG_PATH,level=logging.INFO)
 
 @app.route('/compile',methods=['POST'])
 def compile():

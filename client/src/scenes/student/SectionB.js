@@ -5,12 +5,18 @@ import 'ace-builds/src-noconflict/mode-csharp';
 import 'ace-builds/src-noconflict/theme-kuroir';
 import 'ace-builds/src-noconflict/theme-textmate';
 import { PulseLoader } from 'react-spinners';
-import Terminal from '../components/terminal';
 import Axios from 'axios';
 
 class SectionB extends Component {
+  // TODO 
+  /**
+   * Add input and output in state
+   */
   state = {
     code: ``,
+    input: '',
+    output: '',
+    loading: false,
   };
   styles = {
     question: {
@@ -65,6 +71,66 @@ class SectionB extends Component {
     },
   };
 
+  // TODO
+  /**
+   * Setup websocket here, maybe in didMount
+   * code will be like :
+   * ! not sure about the connection URL though, in original Terminal component is was
+   * ! ws://localhost:8080/path....
+   * ! as terminal server was running on 8080, but will that work after dockerisation is not clear...???
+   */
+  // DUMMY CODE
+    baseUrl = window.location.origin.replace(/^http/,'ws').replace('3000','5000');
+    studentId = localStorage.getItem('studentId');
+    url = `${this.baseUrl}/${this.studentId}`;
+    ws = new WebSocket(this.url);
+
+    componentDidMount() {
+    // maybe make this global, as will need this to close it in component will unmount
+    // like : window.ws = ws;
+    this.ws.addEventListener('message', (event) => {
+      try {
+        let data = JSON.parse(event.data);
+        console.log("Data from ws",data);
+        /** 
+         * data will have following
+         * update state of output as :
+         * it will have components: success, timeout, and stdout, stderr
+         * depending on true/false of success and timeout, one can set style of output and display respective
+         * message : 
+         * success false and timeout true  will have both std as empty string,
+         * success false and timeout false, means either compiling or execution had error which is in stderr string
+         * success true will contain the output in stdout string
+         */
+        let output = ''
+        if(data.timeout){
+          output = 'Timeout!';
+        } else if(data.success){
+          output = data.stdout;
+        } else {
+          output = data.stderr;
+        }
+        this.setState({ output });
+      } catch (e) {
+        console.error(e);
+      }
+    })
+  }
+
+  // TODO also setup component will unmount (?) and close the websocket
+  // TODO closing it is important, as that will remove the socket from server's memory
+  componentWillUnmount() {
+    this.ws.close();
+  }
+
+  // TODO 
+  /**  update following as:
+    * add following in the req sent
+    * add metadata as this.props.studentId
+    * add code as code in state (rename program)
+    * add input as input in state
+  */
+  // TODO set the button to disabled for 5 seconds or so, in handler, and after five seconds enable again
   handleRunCode = () => {
     var code = this.state.code;
     console.log(code);
@@ -74,13 +140,19 @@ class SectionB extends Component {
         `Code cannot be executed as it contains system commands.\nINVALID : CODE`,
       );
     } else {
+      this.setState({loading: true});
+      setTimeout(() => {
+        this.setState({loading: false});
+      }, 5000);
       Axios.post(
         '/api/students/runProgram',
         {
           paperId: localStorage.getItem('id'),
           questionId: this.props.questionId,
-          program: this.state.code,
+          code: this.state.code,
           currentSection: 'Code',
+          metadata: this.studentId,
+          input: this.state.input,
         },
         {
           headers: {
@@ -91,11 +163,10 @@ class SectionB extends Component {
         res => {
           console.log(res.data);
           this.setState({
-            studentId: res.data.data.submittedAnswer.studentId,
-            path: true, // This is th dummy variable for mounting terminal
+            studentId: res.data.studentId,
           });
         },
-        err => alert(err.response.data.error.msg),
+        err => {alert(err.response.data.error.msg)},
       );
     }
   };
@@ -115,6 +186,9 @@ class SectionB extends Component {
   handleCode = val => {
     this.props.update(val);
     this.setState({ code: val, path: null });
+  };
+  handleInputChange = event => {
+    this.setState({input: event.target.value});
   };
   render() {
     console.log(this.props);
@@ -140,13 +214,13 @@ class SectionB extends Component {
               {this.props.question ? (
                 this.processNewLine(this.props.question)
               ) : (
-                <PulseLoader
-                  size={10}
-                  margin={2}
-                  color={'#123abc'}
-                  loading={true}
-                />
-              )}
+                  <PulseLoader
+                    size={10}
+                    margin={2}
+                    color={'#123abc'}
+                    loading={true}
+                  />
+                )}
             </div>
           </Grid>
           <Grid item xs={12}></Grid>
@@ -155,12 +229,12 @@ class SectionB extends Component {
               <div style={{ display: 'flex' }}>
                 <div style={this.styles.code}>CODE</div>
                 <div style={{ flexGrow: 1 }}></div>
-                <Button
+                {/* <Button
                   onClick={this.handleRunCode}
                   style={this.styles.run}
                 >
                   RUN CODE
-                </Button>
+                </Button> */}
               </div>
             </div>
             <div>
@@ -202,14 +276,9 @@ class SectionB extends Component {
                             defaultValue="OUTPUT"
                         /> */}
             <div>
-              {this.state.path ? (
-                <Terminal
-                  studentId={this.state.studentId}
-                  questionId={this.props.questionId}
-                />
-              ) : (
-                ''
-              )}
+              <textarea id='inputs' value={this.state.input} onChange={this.handleInputChange} ></textarea>
+              <textarea id='output' readOnly={true} value={this.state.output}></textarea>
+              <button onClick={this.handleRunCode} disabled={this.state.loading}>Run Code</button>
             </div>
           </Grid>
         </Grid>

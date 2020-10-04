@@ -4,7 +4,7 @@
 
 export NODE_SERVER_ROOT=http://localhost
 export NODE_SERVER_PORT=5000
-export NODE_CALLBACK_ENDPOINT=output
+export NODE_CALLBACK_ENDPOINT=api/api/output
 export PORT=5001
 export LOG_PATH=./logs/python-server-0.log
 
