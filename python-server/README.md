@@ -15,8 +15,6 @@ If running with docker, docker needs to be installed
 #### To build image :
 (Inside python folder)
 docker build --tag spa-python-test:0.1 .
-#### To create volume
-docker volume create spa
 
 #### To run container
-docker run -it -v spa:/var/log/spa -p 5001:5001 spa-python-test:0.1
+ docker run -it -p 5001:5001 -v logs_python:/app/logs:rw spa-python-test:0.1
