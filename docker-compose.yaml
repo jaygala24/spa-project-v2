@@ -8,8 +8,9 @@ services:
             - PORT=5000
             - JWT_KEY=mfdsioanf23412*(+^#
             - JWT_EXP=24h
-            - PYTHON_PORT_ROOT=http://python0
-            - PYTHON_SERVER_PORTS_START=5001
+            - PYTHON_PORT_ROOT=http://python
+            - PYTHON_SERVER_CONTAINER_START=0
+            - PYTHON_PORT=5001
             - PYTHON_SERVER_NUMBER=1
             - PYTHON_SERVER_ENDPOINT=compile
             - PYTHON_CALLBACK_ENDPOINT=output
