@@ -3,6 +3,8 @@ FROM python:slim
 RUN pip3 install flask
 RUN pip3 install requests
 
+RUN apt-get update && apt-get install -y gcc && rm -rf /var/lib/apt/lists/*
+
 RUN useradd -ms /bin/bash server
 
 WORKDIR /app
