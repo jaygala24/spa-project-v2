@@ -1,10 +1,11 @@
 FROM node:12.18.4-buster-slim
 
-RUN mkdir /var/log/spa
-RUN chmod 777 /var/log/spa
-RUN  chown -R 5000 /var/log/spa
+RUN useradd -ms /bin/bash server
 
 WORKDIR /app
+
+RUN mkdir logs
+RUN chown -R server ./logs
 
 COPY ./package.json /app
 COPY ./package-lock.json /app
@@ -31,17 +32,12 @@ ENV LOG_PATH=./logs/node.log
 ENV MONGO_USER=dummy_user
 ENV MONGO_PASSWORD=spa_deploy_dummy
 
+EXPOSE ${PORT}
+
 COPY ./ /app/
 
 RUN npm run build
 RUN npm run build-client
-
-EXPOSE 5000
-
-RUN useradd -ms /bin/bash server
-
-RUN mkdir logs
-RUN chown -R server ./logs
 
 USER server
 
