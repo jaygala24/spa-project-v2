@@ -30,6 +30,13 @@ yarn dev
 
 ## Production
 
+### Docker
+#### To build 
+docker build --tag spa-node-test:0.1 .
+#### To run 
+docker run -it  -p 5000:5000 -v logs:/app/logs:rw --user server  spa-node-test:0.1
+
+
 ```
 cd src/config
 # open config.env and change the NODE_ENV=production and MongoURI

@@ -47,7 +47,8 @@ wss.on('connection', (ws, req) => {
 
 
 // Connect to DB
-const uri = process.env.MONGO_URI;
+//const uri = process.env.MONGO_URI;
+const uri = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.73m4s.mongodb.net/spa_project_v2?retryWrites=true&w=majority`;
 mongoose.connect(uri, {
   useNewUrlParser: true,
   useCreateIndex: true,
@@ -163,6 +164,8 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api', apiRoutes);
 
 if (process.env.NODE_ENV === 'production') {
+  let logStream = fs.createWriteStream(process.env.LOG_PATH, { flags: 'a' });
+  app.use(morgan('dev', { stream: logStream }));
   app.use(express.static('client/build'));
 
   app.get('*', (req, res) =>
