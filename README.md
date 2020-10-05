@@ -31,6 +31,9 @@ yarn dev
 ## Production
 
 ### Docker
+#### For generating compose file :
+Run generate-compose.py and give the necessary inputs, which will then generate a docker-compose.yaml file
+docker-compose_og.yaml is the original handwritten compose file, with single node and single python server
 #### To build 
 docker build --tag spa-node-test:0.1 .
 #### To run 
