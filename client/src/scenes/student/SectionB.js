@@ -80,18 +80,18 @@ class SectionB extends Component {
    * ! as terminal server was running on 8080, but will that work after dockerisation is not clear...???
    */
   // DUMMY CODE
-    baseUrl = window.location.origin.replace(/^http/,'ws').replace('3000','5000');
-    studentId = localStorage.getItem('studentId');
-    url = `${this.baseUrl}/${this.studentId}`;
-    ws = new WebSocket(this.url);
+  baseUrl = window.location.origin.replace(/^http/, 'ws');
+  studentId = localStorage.getItem('studentId');
+  url = `${this.baseUrl}/${this.studentId}`;
+  ws = new WebSocket(this.url);
 
-    componentDidMount() {
+  componentDidMount() {
     // maybe make this global, as will need this to close it in component will unmount
     // like : window.ws = ws;
     this.ws.addEventListener('message', (event) => {
       try {
         let data = JSON.parse(event.data);
-        console.log("Data from ws",data);
+        console.log("Data from ws", data);
         /** 
          * data will have following
          * update state of output as :
@@ -103,9 +103,9 @@ class SectionB extends Component {
          * success true will contain the output in stdout string
          */
         let output = ''
-        if(data.timeout){
+        if (data.timeout) {
           output = 'Timeout!';
-        } else if(data.success){
+        } else if (data.success) {
           output = data.stdout;
         } else {
           output = data.stderr;
@@ -140,9 +140,9 @@ class SectionB extends Component {
         `Code cannot be executed as it contains system commands.\nINVALID : CODE`,
       );
     } else {
-      this.setState({loading: true});
+      this.setState({ loading: true });
       setTimeout(() => {
-        this.setState({loading: false});
+        this.setState({ loading: false });
       }, 5000);
       Axios.post(
         '/api/students/runProgram',
@@ -166,7 +166,7 @@ class SectionB extends Component {
             studentId: res.data.studentId,
           });
         },
-        err => {alert(err.response.data.error.msg)},
+        err => { alert(err.response.data.error.msg) },
       );
     }
   };
@@ -188,7 +188,7 @@ class SectionB extends Component {
     this.setState({ code: val, path: null });
   };
   handleInputChange = event => {
-    this.setState({input: event.target.value});
+    this.setState({ input: event.target.value });
   };
   render() {
     console.log(this.props);

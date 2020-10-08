@@ -26,7 +26,7 @@ const wss = new WebSocket.Server({ server });
 // TODO verify when running frontend
 wss.on('connection', (ws, req) => {
   let url = req.url.split('/');
-  let id = url[url.length-1];
+  let id = url[url.length - 1];
   console.log('web socket connection request from id : ' + id); // TODO verify
 
   // we save the websocket mapped to the student id in map
@@ -47,7 +47,8 @@ wss.on('connection', (ws, req) => {
 
 
 // Connect to DB
-const uri = process.env.MONGO_URI;
+//const uri = process.env.MONGO_URI;
+const uri = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.73m4s.mongodb.net/spa_project_v2?retryWrites=true&w=majority`;
 mongoose.connect(uri, {
   useNewUrlParser: true,
   useCreateIndex: true,
@@ -163,6 +164,8 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api', apiRoutes);
 
 if (process.env.NODE_ENV === 'production') {
+  let logStream = fs.createWriteStream(process.env.LOG_PATH, { flags: 'a' });
+  app.use(morgan('dev', { stream: logStream }));
   app.use(express.static('client/build'));
 
   app.get('*', (req, res) =>

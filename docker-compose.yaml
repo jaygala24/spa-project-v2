@@ -1,0 +1,119 @@
+version: "3.8"
+services:
+    node:
+        build: 
+            context: .
+        environment: 
+            - NODE_ENV=production
+            - PORT=3000
+            - JWT_KEY=mfdsioanf23412*(+^#
+            - JWT_EXP=24h
+            - PYTHON_PORT_ROOT=http://python
+            - PYTHON_SERVER_CONTAINER_START=0
+            - PYTHON_PORT=5000
+            - PYTHON_SERVER_NUMBER=5
+            - PYTHON_SERVER_ENDPOINT=compile
+            - PYTHON_CALLBACK_ENDPOINT=output
+            - LOG_PATH=./logs/node.log
+            - MONGO_USER=dummy_user
+            - MONGO_PASSWORD=spa_deploy_dummy
+        deploy:
+            restart_policy:
+                condition: on-failure
+        ports: 
+            - "3000:3000"
+        volumes: 
+            - node_logs:/app/logs
+        networks: 
+            - spa
+    python0:
+        build: 
+            context: ./python-server
+        deploy:
+            restart_policy:
+                condition: on-failure
+        environment: 
+            - NODE_SERVER_ROOT=http://node
+            - NODE_SERVER_PORT=3000
+            - NODE_CALLBACK_ENDPOINT=api/api/output
+            - PORT=5000
+            - LOG_PATH=./logs/python-server-0.log
+        volumes: 
+            - python_logs:/app/logs
+        networks: 
+            - spa
+    
+    python1:
+        build: 
+            context: ./python-server
+        deploy:
+            restart_policy:
+                condition: on-failure
+        environment: 
+            - NODE_SERVER_ROOT=http://node
+            - NODE_SERVER_PORT=3000
+            - NODE_CALLBACK_ENDPOINT=api/api/output
+            - PORT=5000
+            - LOG_PATH=./logs/python-server-1.log
+        volumes: 
+            - python_logs:/app/logs
+        networks: 
+            - spa
+    
+    python2:
+        build: 
+            context: ./python-server
+        deploy:
+            restart_policy:
+                condition: on-failure
+        environment: 
+            - NODE_SERVER_ROOT=http://node
+            - NODE_SERVER_PORT=3000
+            - NODE_CALLBACK_ENDPOINT=api/api/output
+            - PORT=5000
+            - LOG_PATH=./logs/python-server-2.log
+        volumes: 
+            - python_logs:/app/logs
+        networks: 
+            - spa
+    
+    python3:
+        build: 
+            context: ./python-server
+        deploy:
+            restart_policy:
+                condition: on-failure
+        environment: 
+            - NODE_SERVER_ROOT=http://node
+            - NODE_SERVER_PORT=3000
+            - NODE_CALLBACK_ENDPOINT=api/api/output
+            - PORT=5000
+            - LOG_PATH=./logs/python-server-3.log
+        volumes: 
+            - python_logs:/app/logs
+        networks: 
+            - spa
+    
+    python4:
+        build: 
+            context: ./python-server
+        deploy:
+            restart_policy:
+                condition: on-failure
+        environment: 
+            - NODE_SERVER_ROOT=http://node
+            - NODE_SERVER_PORT=3000
+            - NODE_CALLBACK_ENDPOINT=api/api/output
+            - PORT=5000
+            - LOG_PATH=./logs/python-server-4.log
+        volumes: 
+            - python_logs:/app/logs
+        networks: 
+            - spa
+    
+
+networks: 
+    spa :
+volumes: 
+    node_logs :
+    python_logs :

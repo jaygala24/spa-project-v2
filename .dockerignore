@@ -1,0 +1,12 @@
+*/yarn.lock
+yarn.lock
+python-server*
+.prettierrc
+*.md
+*/*.md
+node_modules*
+*/node_modules*
+dist*
+*/build*
+Dockerfile
+*/Dockerfile

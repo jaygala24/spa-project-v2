@@ -23,10 +23,10 @@ const options = {
   transition: transitions.SCALE,
 };
 
-axios.defaults.baseURL = 'http://localhost:5000';
+axios.defaults.baseURL = window.location.origin;
 
 if (process.env.REACT_APP_ENV === 'production') {
-  console.log = function() {};
+  console.log = function () { };
 }
 
 ReactDOM.render(

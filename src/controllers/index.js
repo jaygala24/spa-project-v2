@@ -1330,12 +1330,13 @@ export const runProgram = async (req, res, next) => {
       studentId: req.user._id,
       paperId,
       date,
+      "code.questionId": questionId,
     }, { $set: { 'code.$.program': code, 'code.$.input': input } });
 
     await axios.post(getPythonPath(), {
       code: code,
       input: input,
-      lang:'C',
+      lang: 'C',
       metadata: {
         id: metadata,
         paperId,
@@ -1969,7 +1970,7 @@ export const handlePythonCallback = async (req, res, next) => {
   }
   const body = req.body;
   // we send the response early as we do not need to hold the python server anymore
-  
+
   let ws = getSocket(id);
   if (!ws) {
     console.error(`internal error : socket for id ${id} has been closed before returning the output`);
@@ -2021,13 +2022,13 @@ export const handlePythonCallback = async (req, res, next) => {
           loggedIn: false,
         },
       );
-    } 
+    }
 
-  return res.status(200).send();
+    return res.status(200).send();
   } catch (err) {
     return handleError(err, res);
   }
- 
+
 
 }
 
