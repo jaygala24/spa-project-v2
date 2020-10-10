@@ -1330,6 +1330,7 @@ export const runProgram = async (req, res, next) => {
       studentId: req.user._id,
       paperId,
       date,
+      "code.questionId": questionId,
     }, { $set: { 'code.$.program': code, 'code.$.input': input } });
 
     await axios.post(getPythonPath(), {
