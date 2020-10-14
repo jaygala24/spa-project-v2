@@ -122,7 +122,10 @@ class SectionB extends Component {
           output = data.stdout;
           status = "Success";
         } else {
-          output = data.stderr;
+          output = data.stderr.split('\n').reduce((acc,line)=>{
+            line = line.replaceAll(/.*code.c: ?/g,'');
+              return acc+line+'\n';
+          },"");
           status = "Error";
         }
         this.setState({ output, status });
