@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Grid, Button } from '@material-ui/core';
+import { Grid, Button, TextareaAutosize, CircularProgress } from '@material-ui/core';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-csharp';
 import 'ace-builds/src-noconflict/theme-kuroir';
@@ -7,16 +7,14 @@ import 'ace-builds/src-noconflict/theme-textmate';
 import { PulseLoader } from 'react-spinners';
 import Axios from 'axios';
 
-class SectionB extends Component {
-  // TODO 
-  /**
-   * Add input and output in state
-   */
+class SectionB extends Component { 
   state = {
     code: ``,
     input: '',
     output: '',
     loading: false,
+    status: "Not Running",
+    statusLoading: false
   };
   styles = {
     question: {
@@ -69,68 +67,78 @@ class SectionB extends Component {
       boxShadow: '0px 2px 4px rgba(81, 81, 84, 0.4)',
       marginBottom: 40,
     },
+    btn: {
+      minWidth: '150px',
+      background: '#62ce97',
+      color: 'white',
+      padding: '12px 0px',
+      fontFamily: 'Nunito',
+      letterSpacing: 1,
+      borderRadius: 10,
+      boxShadow: '0 5px 30px 0 #62ce97',
+    },
+    textarea:{
+      resize: "none",
+      width:"100%",
+      padding:"10px",
+      boxSizing:"border-box",
+      boxShadow:"rgba(81, 81, 84, 0.4) 0px 2px 4px",
+      fontSize:"18px",
+      marginBottom:"2rem"
+    },
+    heading:{
+      display:'inline-block',
+      margin:"0 0.5rem 0.5rem 0",
+      fontSize:"20px",
+      fontFamily:"Nunito",
+    },
+    btnContainer: {
+      display:"flex",
+      justifyContent:"flex-end",
+      marginTop: "20px"
+    },
+    status: {
+      fontWeight: "bold", 
+      fontFamily: "Nunito", 
+    },
   };
 
-  // TODO
-  /**
-   * Setup websocket here, maybe in didMount
-   * code will be like :
-   * ! not sure about the connection URL though, in original Terminal component is was
-   * ! ws://localhost:8080/path....
-   * ! as terminal server was running on 8080, but will that work after dockerisation is not clear...???
-   */
-  // DUMMY CODE
-    baseUrl = window.location.origin.replace(/^http/,'ws').replace('3000','5000');
-    studentId = localStorage.getItem('studentId');
-    url = `${this.baseUrl}/${this.studentId}`;
-    ws = new WebSocket(this.url);
+  baseUrl = window.location.origin.replace(/^http/,'ws').replace('3000','5000');
+  studentId = localStorage.getItem('studentId');
+  url = `${this.baseUrl}/${this.studentId}`;
+  ws = new WebSocket(this.url);
 
-    componentDidMount() {
-    // maybe make this global, as will need this to close it in component will unmount
-    // like : window.ws = ws;
+  componentDidMount() {
     this.ws.addEventListener('message', (event) => {
       try {
+        this.setState({statusLoading: false})
         let data = JSON.parse(event.data);
-        console.log("Data from ws",data);
-        /** 
-         * data will have following
-         * update state of output as :
-         * it will have components: success, timeout, and stdout, stderr
-         * depending on true/false of success and timeout, one can set style of output and display respective
-         * message : 
-         * success false and timeout true  will have both std as empty string,
-         * success false and timeout false, means either compiling or execution had error which is in stderr string
-         * success true will contain the output in stdout string
-         */
-        let output = ''
+        let output = '';
+        let status = '';
         if(data.timeout){
           output = 'Timeout!';
+          status = "Error";
         } else if(data.success){
           output = data.stdout;
+          status = "Success";
         } else {
-          output = data.stderr;
+          output = data.stderr.split('\n').reduce((acc,line)=>{
+            line = line.replaceAll(/.*code.c: ?/g,'');
+              return acc+line+'\n';
+          },"");
+          status = "Error";
         }
-        this.setState({ output });
+        this.setState({ output, status });
       } catch (e) {
         console.error(e);
       }
     })
   }
 
-  // TODO also setup component will unmount (?) and close the websocket
-  // TODO closing it is important, as that will remove the socket from server's memory
-  componentWillUnmount() {
+  componentWillUnmount(){
     this.ws.close();
   }
 
-  // TODO 
-  /**  update following as:
-    * add following in the req sent
-    * add metadata as this.props.studentId
-    * add code as code in state (rename program)
-    * add input as input in state
-  */
-  // TODO set the button to disabled for 5 seconds or so, in handler, and after five seconds enable again
   handleRunCode = () => {
     var code = this.state.code;
     console.log(code);
@@ -140,7 +148,8 @@ class SectionB extends Component {
         `Code cannot be executed as it contains system commands.\nINVALID : CODE`,
       );
     } else {
-      this.setState({loading: true});
+      this.setState({loading: true, statusLoading: true,status: "Compiling"});
+
       setTimeout(() => {
         this.setState({loading: false});
       }, 5000);
@@ -276,9 +285,17 @@ class SectionB extends Component {
                             defaultValue="OUTPUT"
                         /> */}
             <div>
-              <textarea id='inputs' value={this.state.input} onChange={this.handleInputChange} ></textarea>
-              <textarea id='output' readOnly={true} value={this.state.output}></textarea>
-              <button onClick={this.handleRunCode} disabled={this.state.loading}>Run Code</button>
+              <div style={this.styles.btnContainer}>
+                <Button style={this.styles.btn} onClick={this.handleRunCode} disabled={this.state.loading}>Run Code</Button>
+              </div>
+              <h3 style={this.styles.heading} >Input:</h3>
+              <TextareaAutosize id='inputs' placeholder="Enter you input" value={this.state.input} onChange={this.handleInputChange}  style={this.styles.textarea} ></TextareaAutosize>
+              <h3 style={this.styles.heading} >Output: </h3> 
+              <span style={{...this.styles.status, color: this.state.status === "Success" ? "green" : this.state.status === "Error" ? "red" : "inherit"}}>
+                {this.state.status}  
+                <CircularProgress size={18} style={{display: this.state.statusLoading ? "inline-block" : "none"}} /> 
+              </span>
+              <TextareaAutosize rowsMin={3} id='output' placeholder="Run code to see output here" readOnly={true} value={this.state.output} style={this.styles.textarea} ></TextareaAutosize>
             </div>
           </Grid>
         </Grid>
