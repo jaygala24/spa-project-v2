@@ -56,10 +56,7 @@ class QuestionCard extends Component {
                         {this.props.type=='Single'?(
                             <NavLink
                             to={{
-                                pathname: 'edit-question-mcq',
-                                questionInfo: {
-                                    id: this.props.id
-                                }
+                                pathname: 'edit-question-mcq/' + this.props.id
                             }}
                             style={this.styles.link}
                             >

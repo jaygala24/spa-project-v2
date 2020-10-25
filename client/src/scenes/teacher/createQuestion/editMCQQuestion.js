@@ -152,7 +152,7 @@ class EditMcq extends Component {
   }
   componentDidMount = () => {
     window.scroll(0, 0);
-    Axios.get(`/api/questions/${this.props.location.questionInfo.id}`, {
+    Axios.get(`/api/questions/${this.props.match.params.id}`, {
       headers: {
         Authorization: localStorage.getItem('token'),
       },
@@ -195,7 +195,7 @@ class EditMcq extends Component {
       tag != ''
     ) {
       Axios.put(
-        `/api/questions/${this.props.location.questionInfo.id}`,
+        `/api/questions/${this.props.match.params.id}`,
         {
           type: 'Single',
           title: this.state.question,

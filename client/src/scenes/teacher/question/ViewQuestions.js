@@ -41,7 +41,7 @@ class ViewQuestions extends Component {
                 'Authorization': localStorage.getItem('token')
             }
         })
-        .then(res=>this.setState({allQuestions: res.data.data.questions}))
+        .then(res=>{console.log(res.data.data.questions);this.setState({allQuestions: res.data.data.questions})})
         this.state.filters.forEach(f=>{
             chips = {
                 ...chips,
