@@ -79,8 +79,7 @@ def compile_and_run_code(lang, code, ip):
             # for running , change teh directory, or sometimes it can cause errors
             os.chdir('./temp/'+id)
 
-            proc = subprocess.run(profile, stdin=ipfile, stdout=subprocess.PIPE,
-                                  stderr=subprocess.PIPE, universal_newlines=True, timeout=lang.run_time)
+            proc = subprocess.run(profile, stdin=ipfile, capture_output=True,check=True, universal_newlines=True, timeout=lang.run_time)
             os.chdir(cwd)
 
             stdout = str(proc.stdout)
@@ -100,9 +99,25 @@ def compile_and_run_code(lang, code, ip):
         os.chdir(cwd)
         del_files(id)
         return {'success': False, 'stdout':stdout,'stderr':stderr, 'timeout': True}
+    except subprocess.CalledProcessError as e:
+        # This is primarily to capture segmentation faults, and other errors
+        # But as this works by the return code of compiled code, and is raised
+        # If the return code is non-zero
+        ipfile.close()
 
+        os.chdir(cwd)
+        del_files(id)
 
-    # Everything was successful
-    ipfile.close()
-    del_files(id)
-    return {'success': True, 'stdout':stdout,'stderr':stderr, 'timeout': False}
+        # If the process was killed by signal, the returncode is -signalcode
+        if e.returncode < 0:
+            return {'success': False, 'stdout':e.stdout,'stderr':"Process Killed with Signal "+str(-e.returncode), 'timeout': False}
+        else:
+            # maybe the c code has return non-zero number
+            return {'success': True, 'stdout':e.stdout,'stderr':e.stderr, 'timeout': False}
+    else:
+        # Everything was successful
+        ipfile.close()
+        del_files(id)
+        return {'success': True, 'stdout':stdout,'stderr':stderr, 'timeout': False}
+
+    
