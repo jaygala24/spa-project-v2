@@ -79,6 +79,28 @@ def compile_and_run_code(lang, code, ip):
             # for running , change teh directory, or sometimes it can cause errors
             os.chdir('./temp/'+id)
 
+            
+            # First Run without output , timeouts, we can directly exit, and there would not be too much memory uses
+            # As the stdout and stderr is redirected to /dev/null
+            try:
+                temp = subprocess.run(profile, stdin=ipfile,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL ,universal_newlines=True, timeout=lang.run_time)
+            except subprocess.TimeoutExpired:
+                ipfile.close()
+
+                os.chdir(cwd)
+                del_files(id)
+                return {'success': False, 'stdout':stdout,'stderr':stderr, 'timeout': True}
+            except subprocess.CalledProcessError as e:
+                # Nothing here, as the error will be caught in second run.
+                # This try-catch was only for infinite loops
+                pass
+
+            # We close and open input again, as the previous run would have consumed it 
+            # Till EOF
+            ipfile.close();
+            ipfile = open('./ip.txt', 'r')
+
+            # Actual Run
             proc = subprocess.run(profile, stdin=ipfile, capture_output=True,check=True, universal_newlines=True, timeout=lang.run_time)
             os.chdir(cwd)
 
