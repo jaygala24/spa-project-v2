@@ -251,9 +251,7 @@ class NewSectionB extends Component {
 
   // ---------------- Copying ----------------
   my_onkeydown_handler = event => {
-    console.log('Key pressed: ' + event.keyCode);
     if (event.altKey) {
-      console.log('Alt');
       event.returnValue = false;
     } else {
       switch (event.keyCode) {
@@ -364,7 +362,6 @@ class NewSectionB extends Component {
   }
 
   render() {
-    console.log(this.state);
     return (
       <React.Fragment>
         {this.state.loading ? (

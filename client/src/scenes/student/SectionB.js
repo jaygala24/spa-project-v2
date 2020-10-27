@@ -109,6 +109,7 @@ class SectionB extends Component {
   ws = new WebSocket(this.url);
 
   componentDidMount() {
+    console.log(this.state);
     this.ws.addEventListener('message', (event) => {
       try {
         this.setState({statusLoading: false})
@@ -141,8 +142,6 @@ class SectionB extends Component {
 
   handleRunCode = () => {
     var code = this.state.code;
-    console.log(code);
-    console.log(code.match(/\bsystem/g));
     if (code.match(/system/g)) {
       alert(
         `Code cannot be executed as it contains system commands.\nINVALID : CODE`,
@@ -200,7 +199,6 @@ class SectionB extends Component {
     this.setState({input: event.target.value});
   };
   render() {
-    console.log(this.props);
     return (
       <React.Fragment>
         <Grid container direction="row" justify="center">

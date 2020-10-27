@@ -79,8 +79,29 @@ def compile_and_run_code(lang, code, ip):
             # for running , change teh directory, or sometimes it can cause errors
             os.chdir('./temp/'+id)
 
-            proc = subprocess.run(profile, stdin=ipfile, stdout=subprocess.PIPE,
-                                  stderr=subprocess.PIPE, universal_newlines=True, timeout=lang.run_time)
+            
+            # First Run without output , timeouts, we can directly exit, and there would not be too much memory uses
+            # As the stdout and stderr is redirected to /dev/null
+            try:
+                temp = subprocess.run(profile, stdin=ipfile,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL ,universal_newlines=True, timeout=lang.run_time)
+            except subprocess.TimeoutExpired:
+                ipfile.close()
+
+                os.chdir(cwd)
+                del_files(id)
+                return {'success': False, 'stdout':stdout,'stderr':stderr, 'timeout': True}
+            except subprocess.CalledProcessError as e:
+                # Nothing here, as the error will be caught in second run.
+                # This try-catch was only for infinite loops
+                pass
+
+            # We close and open input again, as the previous run would have consumed it 
+            # Till EOF
+            ipfile.close();
+            ipfile = open('./ip.txt', 'r')
+
+            # Actual Run
+            proc = subprocess.run(profile, stdin=ipfile, capture_output=True,check=True, universal_newlines=True, timeout=lang.run_time)
             os.chdir(cwd)
 
             stdout = str(proc.stdout)
@@ -100,9 +121,25 @@ def compile_and_run_code(lang, code, ip):
         os.chdir(cwd)
         del_files(id)
         return {'success': False, 'stdout':stdout,'stderr':stderr, 'timeout': True}
+    except subprocess.CalledProcessError as e:
+        # This is primarily to capture segmentation faults, and other errors
+        # But as this works by the return code of compiled code, and is raised
+        # If the return code is non-zero
+        ipfile.close()
 
+        os.chdir(cwd)
+        del_files(id)
 
-    # Everything was successful
-    ipfile.close()
-    del_files(id)
-    return {'success': True, 'stdout':stdout,'stderr':stderr, 'timeout': False}
+        # If the process was killed by signal, the returncode is -signalcode
+        if e.returncode < 0:
+            return {'success': False, 'stdout':e.stdout,'stderr':"Process Killed with Signal "+str(-e.returncode), 'timeout': False}
+        else:
+            # maybe the c code has return non-zero number
+            return {'success': True, 'stdout':e.stdout,'stderr':e.stderr, 'timeout': False}
+    else:
+        # Everything was successful
+        ipfile.close()
+        del_files(id)
+        return {'success': True, 'stdout':stdout,'stderr':stderr, 'timeout': False}
+
+    

@@ -39,7 +39,7 @@ wss.on('connection', (ws, req) => {
     ws.close();
   });
   ws.on('close', (code, reason) => {
-    console.log(`closing ws with id ${id} with code ${code} for reason ${reason}`);
+    console.log(`closing ws with id ${id} with code ${code} for reason ${reason?reason:'Normal Exit'}`);
     removeSocket(id);
   });
 
