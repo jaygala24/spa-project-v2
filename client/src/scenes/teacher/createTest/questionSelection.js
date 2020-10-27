@@ -130,6 +130,11 @@ class SelectQuestions extends Component {
   };
 
   handleSubmit = () => {
+    const body = this.generateReq()
+    if(body.code.length === 0 && body.mcq.length === 0){
+      alert("No questions have been selected")
+      return;
+    }
     alertConfirm({
       title: 'Confirmation',
       content: 'Are you sure you want to create this test?',
@@ -139,7 +144,7 @@ class SelectQuestions extends Component {
         Axios.post(
           '/api/papers',
           {
-            ...this.generateReq(),
+            ...body,
           },
           {
             headers: {

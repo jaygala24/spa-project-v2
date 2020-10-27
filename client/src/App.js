@@ -52,7 +52,7 @@ function App() {
         <ProtectedRoute path="/create-code" component={CreateCode} />
         <ProtectedRoute path="/student-list" component={StudentList} />
         <ProtectedRoute path="/eval-code" component={EvalCode} />
-        <ProtectedRoute path="/edit-question-mcq" component={EditMcq} />
+        <ProtectedRoute path="/edit-question-mcq/:id" component={EditMcq} />
         <ProtectedRoute path="/generate-password" component={GeneratePassword} />
         <ProtectedRoute path="/change-password" component={ChangePassword} />
         <ProtectedRoute path="/add-student" component={CreateStudentUser} />

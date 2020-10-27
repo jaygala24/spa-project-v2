@@ -50,32 +50,20 @@ class Details extends Component {
                     aria-describedby="alert-dialog-description"
                 >
                     <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        {this.props.question}
-                    </DialogContentText>
-                    <Grid container direction='row' justify='center'>
-                        <Grid item xs={12}>
-                            Category : {this.props.category}
+                        <DialogContentText id="alert-dialog-description">
+                            {this.props.question}
+                        </DialogContentText>
+                        <Grid container direction='row' justify='center'>
+                            <Grid item xs={12}>
+                                Category : {this.props.category}
+                            </Grid>
+                            {renderOption}
                         </Grid>
-                        {renderOption}
-                    </Grid>
                     </DialogContent>
                     <DialogActions>
-                    <Button onClick={this.props.close} color="primary">
-                        Close
-                    </Button>
-                    <NavLink style={{textDecoration: 'none',color: 'black'}} to={{
-                        pathname: 'edit-question',
-                        editProps:{
-                            question: this.props.question,
-                            category: this.props.category,
-                            correctAnswer: this.props.correct
-                        }
-                    }} >
-                        {/* <Button onClick={this.props.close} color="primary" autoFocus>
-                            Edit
-                        </Button> */}
-                    </NavLink>
+                        <Button onClick={this.props.close} color="primary">
+                            Close
+                        </Button>
                     </DialogActions>
                 </Dialog>
             </React.Fragment>
