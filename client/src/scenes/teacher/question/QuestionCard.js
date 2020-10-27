@@ -50,26 +50,26 @@ class QuestionCard extends Component {
                     </div>
                     <div style={{display: 'flex',marginTop: 10}} >
                         <div style={{flexGrow: 1}} ></div>
-                        <IconButton onClick={()=>this.props.open(this.props.question,this.props.correctAnswer[0],this.props.category,this.props.options)} style={{padding: 0, marginRight: 20}} >
-                            <InfoOutlinedIcon />
-                        </IconButton>
-                        {this.props.type=='Single'?(
-                            <NavLink
-                            to={{
-                                pathname: 'edit-question-mcq/' + this.props.id
-                            }}
-                            style={this.styles.link}
-                            >
-                            <IconButton style={{padding: 0, marginRight: 20}} >
-                                <EditIcon />
-                            </IconButton>    
-                            </NavLink>
-                        ):(
-                            ''
-                        )}
-                        <IconButton onClick={this.deleteQuestion} style={{padding: 0, marginRight: 20}} >
-                            <DeleteForeverIcon />
-                        </IconButton>
+                            {this.props.type === "Single" && <IconButton onClick={()=>this.props.open(this.props.question,this.props.correctAnswer[0],this.props.category,this.props.options)} style={{padding: 0, marginRight: 20}} >
+                                <InfoOutlinedIcon />
+                            </IconButton>}
+                            {this.props.type=='Single'?(
+                                <NavLink
+                                to={{
+                                    pathname: 'edit-question-mcq/' + this.props.id
+                                }}
+                                style={this.styles.link}
+                                >
+                                <IconButton style={{padding: 0, marginRight: 20}} >
+                                    <EditIcon />
+                                </IconButton>    
+                                </NavLink>
+                            ):(
+                                ''
+                            )}
+                            <IconButton onClick={this.deleteQuestion} style={{padding: 0, marginRight: 20}} >
+                                <DeleteForeverIcon />
+                            </IconButton>
                         <div>Type : {this.props.type}</div>
                     </div>
                 </Paper>
