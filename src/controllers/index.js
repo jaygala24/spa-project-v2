@@ -12,7 +12,7 @@ import {
   newToken,
 } from '../utils';
 import { getPythonPath } from '../utils/python';
-import axios from 'axios'
+import axios from 'axios';
 import ErrorHandler from '../utils/error';
 import { reportCardTemplate } from '../utils/reportCardTemplate';
 
@@ -87,9 +87,7 @@ export const login = async (req, res, next) => {
 export const generatePasswordForStudents = async (req, res, next) => {
   try {
     // Generates the random password consisting of lowercase alphabets and numbers
-    const randomString = Math.random()
-      .toString(36)
-      .substr(2, 8);
+    const randomString = Math.random().toString(36).substr(2, 8);
 
     const hashPassword = await genHashPassword(randomString);
 
@@ -735,8 +733,8 @@ export const createStudentUser = async (req, res, next) => {
     }
 
     const _user = await User.findOne({
-      sapId,
       type: 'Student',
+      sapId,
     }).exec();
 
     // User found in the db
@@ -805,8 +803,8 @@ export const createTeacherUser = async (req, res, next) => {
     const hashPassword = await genHashPassword(plainPassword);
 
     const _user = await User.findOne({
-      sapId,
       type: 'Teacher',
+      sapId,
     }).exec();
 
     // User found in the db
@@ -969,8 +967,8 @@ export const createAnswerObjForStudents = async (req, res, next) => {
 
     // Find the selected answer of current date and logged in user
     const _selectedAnswer = await SelectedAnswer.findOne({
-      studentId: req.user._id,
       date,
+      studentId: req.user._id,
     });
 
     // If selected answer exists and its paperId matches the paperId extracted
@@ -1083,9 +1081,9 @@ export const getQuestionsForStudents = async (req, res) => {
     // Selected answer object from db using  studentId, paperId and date
     const selectedAnswer = await SelectedAnswer.findOne(
       {
-        studentId: req.user._id,
-        paperId,
         date,
+        paperId,
+        studentId: req.user._id,
       },
       {
         currentSection: 1,
@@ -1157,17 +1155,17 @@ export const getQuestionsForStudents = async (req, res) => {
     let submittedAnswers =
       selectedAnswer['currentSection'] === 'MCQ'
         ? {
-          ...selectedAnswer._doc,
-          mcq: undefined,
-          code: undefined,
-          responses,
-        }
+            ...selectedAnswer._doc,
+            mcq: undefined,
+            code: undefined,
+            responses,
+          }
         : {
-          ...selectedAnswer._doc,
-          mcq: undefined,
-          code: undefined,
-          responses,
-        };
+            ...selectedAnswer._doc,
+            mcq: undefined,
+            code: undefined,
+            responses,
+          };
 
     return res.status(200).json({
       success: true,
@@ -1236,9 +1234,9 @@ export const evaluateMCQQuestion = async (req, res, next) => {
 
     // Find the selected answer of student
     const _submittedAnswer = await SelectedAnswer.findOne({
-      studentId: req.user._id,
-      paperId,
       date,
+      paperId,
+      studentId: req.user._id,
     });
 
     const mcq = [];
@@ -1260,9 +1258,9 @@ export const evaluateMCQQuestion = async (req, res, next) => {
     // Updating the selected answers of student
     const submittedAnswer = await SelectedAnswer.findOneAndUpdate(
       {
-        studentId: req.user._id,
-        paperId,
         date,
+        paperId,
+        studentId: req.user._id,
       },
       {
         mcq,
@@ -1314,9 +1312,9 @@ export const runProgram = async (req, res, next) => {
     // find the selected answer of student
     const _submittedAnswer = await SelectedAnswer.findOne(
       {
-        studentId: req.user._id,
-        paperId,
         date,
+        paperId,
+        studentId: req.user._id,
       },
       { currentSection: 1 },
     ).exec();
@@ -1326,25 +1324,28 @@ export const runProgram = async (req, res, next) => {
       const error = new ErrorHandler(403, 'Test already submitted');
       return handleError(error, res);
     }
-    const _saveAns = await SelectedAnswer.findOneAndUpdate({
-      studentId: req.user._id,
-      paperId,
-      date,
-      "code.questionId": questionId,
-    }, { $set: { 'code.$.program': code, 'code.$.input': input } });
+    const _saveAns = await SelectedAnswer.findOneAndUpdate(
+      {
+        date,
+        paperId,
+        studentId: req.user._id,
+        'code.questionId': questionId,
+      },
+      { $set: { 'code.$.program': code, 'code.$.input': input } },
+    );
 
     await axios.post(getPythonPath(), {
       code: code,
       input: input,
-      lang:'C',
+      lang: 'C',
       metadata: {
         id: metadata,
         paperId,
         date,
         questionId,
         currentSection,
-        sapId: req.user.studentId
-      }
+        sapId: req.user.studentId,
+      },
     });
 
     // returns the selected answer of current student
@@ -1357,8 +1358,6 @@ export const runProgram = async (req, res, next) => {
     return handleError(err, res);
   }
 };
-
-
 
 /**
  * Saves the progress of the students on the timeout
@@ -1375,9 +1374,9 @@ export const saveProgressOnTimeOut = async (req, res, next) => {
     // find the selected answer of student
     const _submittedAnswer = await SelectedAnswer.findOne(
       {
-        studentId: req.user._id,
-        paperId,
         date,
+        paperId,
+        studentId: req.user._id,
       },
       { currentSection: 1, mcq: 1 },
     ).exec();
@@ -1440,9 +1439,9 @@ export const saveProgressOnTimeOut = async (req, res, next) => {
       // Updating the selected answers of student
       await SelectedAnswer.findOneAndUpdate(
         {
-          studentId: req.user._id,
-          paperId,
           date,
+          paperId,
+          studentId: req.user._id,
         },
         {
           mcq,
@@ -1540,8 +1539,8 @@ export const getStudentResponses = async (req, res, next) => {
 
     // Finds the selected answers of students as per the studentIds and paperIds
     const selectedAnswer = await SelectedAnswer.find({
-      studentId,
       paperId,
+      studentId,
     })
       .populate('studentId', 'sapId')
       .populate('paperId', 'set')
@@ -1850,8 +1849,8 @@ export const generateExcel = async (req, res, next) => {
     // Finds the selected answers of students as per the studentIds and paperIds
     const _selectedAnswer = await SelectedAnswer.find(
       {
-        studentId,
         paperId,
+        studentId,
       },
       { currentSection: 0, time: 0, date: 0 },
     )
@@ -1959,26 +1958,29 @@ export const generateExcel = async (req, res, next) => {
  * stderr : error message if there was any error in compiling/ running the program, empty for timeout or success
  * stdout : output of code if everything went well, empty for all other conditions
  * metadata : metadata sent along with compile request
- * 
+ *
  * Accessible to all, no authentication
  */
 export const handlePythonCallback = async (req, res, next) => {
   let { id } = req.body.metadata;
   if (!id) {
-    console.error('internal error : metadata should have had \'id\' parameter');
+    console.error(
+      "internal error : metadata should have had 'id' parameter",
+    );
     return res.status(400).send();
   }
   const body = req.body;
   // we send the response early as we do not need to hold the python server anymore
-  
+
   let ws = getSocket(id);
   if (!ws) {
-    console.error(`internal error : socket for id ${id} has been closed before returning the output`);
+    console.error(
+      `internal error : socket for id ${id} has been closed before returning the output`,
+    );
     return;
   }
 
   ws.send(JSON.stringify(body));
-
 
   try {
     const { paperId, questionId, currentSection } = req.body.metadata;
@@ -1987,9 +1989,9 @@ export const handlePythonCallback = async (req, res, next) => {
     // find the selected answer of student
     const _submittedAnswer = await SelectedAnswer.findOne(
       {
-        studentId: id,
-        paperId,
         date,
+        paperId,
+        studentId: id,
       },
       { currentSection: 1 },
     ).exec();
@@ -2003,12 +2005,18 @@ export const handlePythonCallback = async (req, res, next) => {
     // Updating the progress of the student
     const submittedAnswer = await SelectedAnswer.findOneAndUpdate(
       {
-        studentId: id,
-        paperId,
         date,
+        paperId,
+        studentId: id,
         'code.questionId': questionId,
       },
-      { $set: { 'code.$.output': req.body.stdout, currentSection, time: 0 } },
+      {
+        $set: {
+          'code.$.output': req.body.stdout,
+          currentSection,
+          time: 0,
+        },
+      },
       { new: true },
     );
 
@@ -2022,33 +2030,27 @@ export const handlePythonCallback = async (req, res, next) => {
           loggedIn: false,
         },
       );
-    } 
+    }
 
-  return res.status(200).send();
+    return res.status(200).send();
   } catch (err) {
     return handleError(err, res);
   }
- 
-
-}
+};
 
 // This is used in place of old runProgram's use for switching question
 
 export const getQandA = async (req, res, next) => {
-
   try {
-    const {
-      paperId,
-      questionId,
-    } = req.body;
+    const { paperId, questionId } = req.body;
     const date = new Date().toISOString().slice(0, 10);
 
     // find the selected answer of student
     const _submittedAnswer = await SelectedAnswer.findOne(
       {
-        studentId: req.user._id,
-        paperId,
         date,
+        paperId,
+        studentId: req.user._id,
       },
       { currentSection: 1 },
     ).exec();
@@ -2059,16 +2061,13 @@ export const getQandA = async (req, res, next) => {
       return handleError(error, res);
     }
 
-
     // get last submitted answer
-    const submittedAnswer = await SelectedAnswer.findOne(
-      {
-        studentId: req.user._id,
-        paperId,
-        date,
-        'code.questionId': questionId,
-      }
-    );
+    const submittedAnswer = await SelectedAnswer.findOne({
+      date,
+      paperId,
+      studentId: req.user._id,
+      'code.questionId': questionId,
+    });
 
     // returns the selected answer of current student
     return res.status(201).json({
@@ -2089,5 +2088,4 @@ export const getQandA = async (req, res, next) => {
   } catch (err) {
     return handleError(err, res);
   }
-
-}
+};
