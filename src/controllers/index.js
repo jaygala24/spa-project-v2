@@ -1331,7 +1331,13 @@ export const runProgram = async (req, res, next) => {
         studentId: req.user._id,
         'code.questionId': questionId,
       },
-      { $set: { 'code.$.program': code, 'code.$.input': input } },
+      {
+        $set: {
+          'code.$.program': code,
+          'code.$.lastSaved': code, // Set last saved as well
+          'code.$.input': input,
+        },
+      },
     );
 
     await axios.post(getPythonPath(), {
@@ -2079,10 +2085,57 @@ export const getQandA = async (req, res, next) => {
           currentSection: submittedAnswer['currentSection'],
           studentId: submittedAnswer['studentId'],
           time: submittedAnswer['time'],
-          code: submittedAnswer['code'],
+          code: submittedAnswer['lastSaved'], // Send lastSaved instead of last run, so will send non-run code saved by auto save
           codeTotalMarks: submittedAnswer['codeTotalMarks'],
         },
       },
+      error: {},
+    });
+  } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+/**
+ * Controller for auto saving the code
+ *
+ * Access - Students
+ */
+export const autoSave = async (req, res, next) => {
+  try {
+    const { code, paperId, questionId } = req.body;
+    const date = new Date().toISOString().slice(0, 10);
+
+    // find the selected answer of student
+    const _submittedAnswer = await SelectedAnswer.findOne(
+      {
+        date,
+        paperId,
+        studentId: req.user._id,
+      },
+      { currentSection: 1 },
+    ).exec();
+
+    // currentSection None then throw error
+    if (_submittedAnswer['currentSection'] === 'None') {
+      const error = new ErrorHandler(403, 'Test already submitted');
+      return handleError(error, res);
+    }
+
+    // Save the code in the last saved field of model
+    const _saveAns = await SelectedAnswer.findOneAndUpdate(
+      {
+        date,
+        paperId,
+        studentId: req.user._id,
+        'code.questionId': questionId,
+      },
+      { $set: { 'code.$.lastSaved': code } },
+    );
+
+    // returns the selected answer of current student
+    return res.status(201).json({
+      success: true,
       error: {},
     });
   } catch (err) {
