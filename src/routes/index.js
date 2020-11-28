@@ -31,7 +31,8 @@ import {
   sendPdf,
   generateExcel,
   handlePythonCallback,
-  getQandA
+  getQandA,
+  autoSave,
 } from '../controllers';
 import { protect, isTeacher, isAdmin } from '../middlewares';
 
@@ -129,12 +130,13 @@ router
 
 router.route('/students/runProgram').post(protect, runProgram);
 
-
 router
   .route('/students/timeout')
   .post(protect, saveProgressOnTimeOut);
 
 router.route('/students/getQandA').post(protect, getQandA);
+
+router.route('/students/autosave').post(protect, autoSave);
 
 // routes which will be hit by python server
 router.route(callbackEndpoint).post(handlePythonCallback);

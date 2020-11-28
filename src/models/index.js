@@ -188,13 +188,17 @@ const SelectedAnswersSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Question',
       },
+      lastSaved: {
+        type: String,
+        default: ' ',
+      },
       program: {
         type: String,
         default: ' ',
       },
       input: {
         type: String,
-        default: ''
+        default: '',
       },
       output: {
         type: String,
