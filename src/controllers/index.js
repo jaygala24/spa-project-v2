@@ -1145,7 +1145,7 @@ export const getQuestionsForStudents = async (req, res) => {
           extractFieldValue(
             paper['code'][i]['_id'],
             selectedAnswer['code'],
-            'program',
+            'lastSaved',
           ),
         );
       }

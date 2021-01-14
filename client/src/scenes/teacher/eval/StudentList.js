@@ -97,16 +97,17 @@ class StudentList extends Component {
       this.getStudentsList()
     })
   }
-  handlePrint = (id, sapId) => {
-    Axios.get(`/api/generate/pdf/${id}`, {
+  handlePrint = () => {
+    // TODO Change the url
+    Axios.get(`/api/generate/pdf?year=${this.state.year}&type=${this.state.type}&div=${this.state.div}`, {
       headers: {
         Authorization: localStorage.getItem('token'),
       },
       responseType: 'blob',
     }).then(res => {
       console.log(res);
-      const blob = new Blob([res.data], { type: 'application/pdf' });
-      saveAs(blob, `${sapId}.pdf`);
+      const blob = new Blob([res.data], { type: 'application/gzip' });
+      saveAs(blob, `${this.state.type}.gz`);
     });
   };
   handleExcel=()=>{
@@ -210,7 +211,7 @@ class StudentList extends Component {
                 {/* <IconButton style={{marginRight: 20}} >
                   <MailOutlineIcon />
                 </IconButton> */}
-                {s.print?(
+                {/* {s.print?(
                   <Button
                     style={this.styles.btn}
                     onClick={() => this.handlePrint(s._id, s.sapId)}
@@ -226,7 +227,7 @@ class StudentList extends Component {
                   >
                     Print
                   </Button>
-                )}
+                )} */}
               </div>
             </Paper>
           </Zoom>
@@ -239,29 +240,9 @@ class StudentList extends Component {
         <Grid container direction="row" justify="center">
           <Grid item xs={10}>
             <Grid container direction="row" justify="center" spacing={2}>
-              <Grid item xs={7}>
-                <Paper style={this.styles.inp}>
-                  <IconButton>
-                    <SearchIcon />  
-                  </IconButton>
-                  <InputBase
-                    value={this.state.search}
-                    style={{ width: '60%' }}
-                    placeholder="Search SAP ID"
-                    onChange={this.search}
-                  />
-                </Paper>
-              </Grid>
-              <Grid item xs={5}>
-                <IconButton onClick={this.handleExcel} style={{ ...this.styles.btn1, marginTop: 50}} >
-                  Generate Excel
-                  <MailOutlineIcon style={{marginLeft: 10}} />
-                </IconButton>
-              </Grid>
-
               {/* Select Year */}
               <Grid item xs={4}>
-                <InputLabel style={{marginLeft: 10}} > Year </InputLabel>
+                <InputLabel style={{marginLeft: 10, marginTop:50}} > Year </InputLabel>
                 <Select
                 fullWidth
                 variant="outlined"
@@ -280,7 +261,7 @@ class StudentList extends Component {
 
               {/* Select Type */}
               <Grid item xs={4}>
-                <InputLabel style={{marginLeft: 10}} > Type </InputLabel>
+                <InputLabel style={{marginLeft: 10, marginTop:50}} > Type </InputLabel>
                 <Select
                 fullWidth
                 variant="outlined"
@@ -299,7 +280,7 @@ class StudentList extends Component {
 
               {/* Select Division */}
               <Grid item xs={4}>
-                <InputLabel style={{marginLeft: 10}} > Division </InputLabel>
+                <InputLabel style={{marginLeft: 10, marginTop:50}} > Division </InputLabel>
                 <Select
                 fullWidth
                 variant="outlined"
@@ -315,6 +296,36 @@ class StudentList extends Component {
                   {this.state.divisionList.map(d=><MenuItem value={d}> {d} </MenuItem>)}
               </Select>
               </Grid>
+              
+              <Grid item xs={3}>
+                <IconButton onClick={this.handleExcel} style={{ ...this.styles.btn1, marginTop: 10, marginBottom:20,padding: "12px 50px"}} >
+                  Generate Excel
+                  <MailOutlineIcon style={{marginLeft: 10}} />
+                </IconButton>
+              </Grid>
+
+
+              <Grid item xs={3}>
+                <IconButton onClick={this.handlePrint} style={{ ...this.styles.btn, marginTop: 10, marginBottom:20}} >
+                  Download PDF
+                  <MailOutlineIcon style={{marginLeft: 10}} />
+                </IconButton>
+              </Grid>
+
+              <Grid item xs={12}>
+                <Paper style={this.styles.inp}>
+                  <IconButton>
+                    <SearchIcon />  
+                  </IconButton>
+                  <InputBase
+                    value={this.state.search}
+                    style={{ width: '60%' }}
+                    placeholder="Search SAP ID"
+                    onChange={this.search}
+                  />
+                </Paper>
+              </Grid>
+
               <Grid style={{marginBottom: 40}} item xs={12}>
               {this.state.rangeMax>0&&this.state.rangeMax-this.state.rangeMin>5?(
                 <React.Fragment>

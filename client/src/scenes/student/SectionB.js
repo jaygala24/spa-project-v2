@@ -109,6 +109,28 @@ class SectionB extends Component {
   ws = new WebSocket(this.url);
 
   componentDidMount() {
+    setInterval(() => {
+      Axios.post(
+        '/api/students/autosave',
+        {
+          paperId: localStorage.getItem('id'),
+          questionId: this.props.questionId,
+          code: this.state.code,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem('token'),
+          },
+        },
+      ).then(
+        res => {
+          console.log(res.data);
+        },
+        err => {alert(err.response.data.error.msg)},
+      );
+      // 3_00_000 milliseconds = 5 mins
+    }, 300000);
+
     console.log(this.state);
     this.ws.addEventListener('message', (event) => {
       try {
