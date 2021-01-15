@@ -44,6 +44,10 @@ class EnterSet extends Component {
             fontSize: 42,
             letterSpacing: 4,
             color: '#797979'
+        },
+        set:{
+            fontSize: 85,
+            textAlign: 'center'
         }
     }
     handleSet=(event)=>{
@@ -95,8 +99,8 @@ class EnterSet extends Component {
                 <Grid container direction='row' justify='center' style={{height: '80vh'}} >
                     <Grid item xs={10}>
                     <Grid container direction='row' justify='center' style={{height: '100%'}} >
-                        <Grid item xs={12}>
-                            <div style={{fontSize: 62}} >SET : {this.state.set}</div>
+                        <Grid item xs={12} justify="center">
+                            <div style={this.styles.set}>SET : {this.state.set}</div>
                         </Grid>
                         <Grid item xs={6}>
                             {this.state.confirm?(
