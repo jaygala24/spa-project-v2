@@ -71,4 +71,7 @@ media
 #python compiled files
 *pycache*
 *.pyc
+
+# genrerated result files
 temp
+*.gz
