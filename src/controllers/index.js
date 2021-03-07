@@ -1523,7 +1523,7 @@ export const getStudentResponses = async (req, res, next) => {
 
     // Finds the students based on the div and batch
     const _studentId = await User.find(
-      { div, batch },
+      { div },
       { _id: 1 },
     ).exec();
 
@@ -1537,7 +1537,7 @@ export const getStudentResponses = async (req, res, next) => {
       paperId = [];
 
     for (let i = 0; i < _studentId.length; i++) {
-      studentId.push(_studentId[i]['_id']);
+      studentId.push(String(_studentId[i]['_id']));
     }
 
     for (let i = 0; i < _paperId.length; i++) {
@@ -1547,7 +1547,6 @@ export const getStudentResponses = async (req, res, next) => {
     // Finds the selected answers of students as per the studentIds and paperIds
     const selectedAnswer = await SelectedAnswer.find({
       paperId,
-      studentId,
     })
       .populate('studentId', 'sapId')
       .populate('paperId', 'set')
@@ -1567,8 +1566,9 @@ export const getStudentResponses = async (req, res, next) => {
       });
     }
 
-    // Sort by the sapId in ascending order
-    const students = _students.sort((a, b) => a.sapId - b.sapId);
+    // Filter out students from other divisions and Sort by the sapId in ascending order
+    const students = _students.filter(student=>studentId.includes(String(student.studentId)))
+                              .sort((a, b) => a.sapId - b.sapId);
 
     // Returns the list of students
     return res.status(200).json({
