@@ -1,6 +1,7 @@
 import path from 'path';
-import fs from 'fs';
+import fs, { rmdirSync, rmSync } from 'fs';
 import rimraf from 'rimraf';
+import { execSync } from 'child_process';
 import puppeteer from 'puppeteer';
 import { Workbook } from 'exceljs';
 import { User, Question, Paper, SelectedAnswer } from '../models';
@@ -1783,42 +1784,6 @@ export const evaluateCodeResponses = async (req, res, next) => {
 };
 
 /**
- * Sends the pdf file in response
- *
- * Returns the pdf file of student progress
- *
- * Access - Teachers
- */
-export const sendPdf = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-
-    const selectedAnswer = await SelectedAnswer.findOne({
-      _id: id,
-    })
-      .populate('paperId', {
-        type: 1,
-        _id: 0,
-      })
-      .populate('studentId', { sapId: 1, _id: 0, div: 1, batch: 1 });
-
-    const filename = path.join(
-      __basedir,
-      'media',
-      'results',
-      selectedAnswer['studentId']['batch'].toString(),
-      selectedAnswer['paperId']['type'],
-      selectedAnswer['studentId']['div'],
-      `${selectedAnswer['studentId']['sapId']}.pdf`,
-    );
-
-    return res.sendFile(filename);
-  } catch (err) {
-    return handleError(err, res);
-  }
-};
-
-/**
  * Sends the excel sheet of score in response
  *
  * Returns the excel sheet of div
@@ -2139,6 +2104,46 @@ export const autoSave = async (req, res, next) => {
       error: {},
     });
   } catch (err) {
+    return handleError(err, res);
+  }
+};
+
+//-----------------------------------------------------------------------------------
+/**
+ * Sends the all pdf file tar in response
+ *
+ * Returns the pdf file of student progress
+ *
+ * Access - Teachers
+ */
+export const sendPdfTar = async (req, res, next) => {
+  try {
+    const { div, year: batch, type } = req.query;
+
+    const dir = path.join(
+      __basedir,
+      'temp',
+      'results',
+      batch,
+      type,
+      div,
+    );
+
+    // Creates the dir if doesn't exists
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    let resultsTar = 'results.tar.gz';
+    if (fs.existsSync(resultsTar)) {
+      rmSync(resultsTar);
+    }
+    execSync(
+      `bash -c 'tar -zcf ${resultsTar} -C ${dir} \$(ls ${dir})'`,
+    );
+    return res.sendFile(resultsTar, { root: '.' });
+  } catch (err) {
+    console.log(err);
     return handleError(err, res);
   }
 };

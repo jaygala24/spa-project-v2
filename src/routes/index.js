@@ -28,11 +28,11 @@ import {
   getStudentResponses,
   evaluateCodeResponses,
   getCodeResponses,
-  sendPdf,
   generateExcel,
   handlePythonCallback,
   getQandA,
   autoSave,
+  sendPdfTar,
 } from '../controllers';
 import { protect, isTeacher, isAdmin } from '../middlewares';
 
@@ -109,7 +109,7 @@ router
   .route('/evaluate/code/responses')
   .post(protect, evaluateCodeResponses);
 
-router.route('/generate/pdf/:id').get(protect, isTeacher, sendPdf);
+router.route('/generate/pdf').get(protect, isTeacher, sendPdfTar);
 
 router
   .route('/generate/excel')
